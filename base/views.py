@@ -176,11 +176,44 @@ class SetKey(APIView):
             import redis
             pool = redis.ConnectionPool(host='127.0.0.1',port=6379)
             r = redis.Redis(connection_pool=pool)
-            r.lpush('qwe',123)
-            print(r.lrange('qwe',0,2))
-            print('获取字符串长度',r.llen('qwe'))
-            print('获取类型',r.type('qwe'))
+            # r.lpush('qwe',123)
+            # print(r.lrange('qwe',0,2))
+            # print('获取字符串长度',r.llen('qwe'))
+            # print('获取类型',r.type('qwe'))
+
+
+            # 杭州：https://www.douban.com/group/HZhome/discussion?start=
+            # 北京：https://www.douban.com/group/beijingzufang/discussion?start=
+            # 上海：https://www.douban.com/group/shanghaizufang/discussion?start=
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            addr = request.GET.get('addr') or ''
+            page = request.GET.get('page') or ''
+            shanghai_url = 'https://www.douban.com/group/shanghaizufang/discussion?start='
+            for i in range(1,(int(page)+1)):
+                start = str(25*(i - 1))
+                url = shanghai_url + start
+                print(url)
+                r.lpush('douban_redis_spider:start_urls',url)
+            return Response(json_data)
+        except Exception as e:
+            print(e)
+            return Response({"message": "未知错误>_<", "errorCode": 1, "data": {}})
+
+
+class DoubanZufangView(APIView):
+    # 不加登录验证
+    # authentication_classes = (JWTAuthentication,)
+    def get(self,request):
+        request_log(request)
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": []}
+            keyword = request.GET.get('keyword') or ''
+            if keyword:
+                douban_zufangs = DoubanZufang.objects.filter(is_delete=False,title__icontains=keyword)
+            else:
+                douban_zufangs = DoubanZufang.objects.filter(is_delete=False)
+            serializer_douban = DoubanZufangSerializer(douban_zufangs,many=True)
+            json_data['data'] = serializer_douban.data
             return Response(json_data)
         except Exception as e:
             print(e)

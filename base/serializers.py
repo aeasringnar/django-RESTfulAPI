@@ -12,3 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','name','phone','email','gender','password','birthday','info','addr','qq','weixin','group','image_url')
 
+class DoubanZufangSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoubanZufang
+        fields = ('id','title','href')

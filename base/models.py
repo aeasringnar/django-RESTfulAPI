@@ -39,3 +39,21 @@ class User(models.Model):
         db_table = 'A_User_Table'
         verbose_name = '用户表'
         verbose_name_plural = verbose_name
+
+
+class DoubanZufang(models.Model):
+    GENDER_CHOICES = (
+        (0, '男'),
+        (1, '女'),
+        (2, '保密'),
+        (3, '未设置'),
+    )
+    title = models.TextField(null=True,verbose_name='标题')
+    href = models.CharField(max_length=255,default='',verbose_name='链接')
+    is_delete = models.BooleanField(default=False,verbose_name='是否删除')
+    created = models.DateTimeField(auto_now_add=True,null=True,verbose_name='创建时间')
+
+    class Meta:
+        db_table = 'A_Douban_Zufang'
+        verbose_name = '豆瓣租房表'
+        verbose_name_plural = verbose_name
