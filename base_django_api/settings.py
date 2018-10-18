@@ -20,6 +20,9 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
+# 配置请求体大小100m
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
+
 # 处理跨域的问题
 CORS_ALLOW_CREDENTIALS= True
 CORS_ALLOW_HEADERS = ('*')
@@ -161,4 +164,16 @@ REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     # ),
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",
+            #"PASSWORD": ""
+        }
+    }
 }

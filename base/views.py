@@ -9,7 +9,7 @@ import datetime,time,random
 # 缓存配置
 from django.core.cache import cache
 # JWT配置
-from .utils import jwt_payload_handler, jwt_encode_handler,google_otp
+from .utils import jwt_payload_handler, jwt_encode_handler,google_otp,request_log
 from .authentication import JWTAuthentication
 from .models import *
 from .serializers import *
@@ -24,7 +24,7 @@ class LoginInfoSerializer(serializers.Serializer):
 class Login(generics.GenericAPIView):
     serializer_class = LoginInfoSerializer
     def post(self,request):
-        print(request.data)
+        request_log(request)
         try:
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
@@ -71,8 +71,8 @@ class UserRegisterSerializer(serializers.Serializer):
 class Register(generics.GenericAPIView):
     serializer_class = UserRegisterSerializer
     def post(self,request):
+        request_log(request)
         try:
-            print(request.data)
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
                 return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
@@ -143,14 +143,44 @@ class UserInfo(APIView):
     # 加上用户验证 携带正确token时就会有user，否则就是AnonymousUser 就是没有用户的状态
     authentication_classes = (JWTAuthentication,)
     def get(self,request):
+        request_log(request)
         try:
-            # print(request.data)
             if not request.auth:
                 return Response({"message": "请先登录>_<", "errorCode": 2, "data": {}})
             user = User.objects.filter(id=request.user.id,is_delete=False).first()
             serializer_user_data = UserSerializer(user)
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             json_data['data'] = serializer_user_data.data
+            return Response(json_data)
+        except Exception as e:
+            print(e)
+            return Response({"message": "未知错误>_<", "errorCode": 1, "data": {}})
+
+class SetKey(APIView):
+    # 不加登录验证
+    # authentication_classes = (JWTAuthentication,)
+    def get(self,request):
+        request_log(request)
+        try:
+            # django内部使用redis的方法
+            '''
+            get_keys = cache.keys("*")
+            print(get_keys)
+            cache.set("newkey",'123456')
+            get_keys = cache.keys("*")
+            print(get_keys)
+            print(cache.get('newkey'))
+            # cache.delete("test_key")
+            '''
+            # 使用第三方库操作redis
+            import redis
+            pool = redis.ConnectionPool(host='127.0.0.1',port=6379)
+            r = redis.Redis(connection_pool=pool)
+            r.lpush('qwe',123)
+            print(r.lrange('qwe',0,2))
+            print('获取字符串长度',r.llen('qwe'))
+            print('获取类型',r.type('qwe'))
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
             return Response(json_data)
         except Exception as e:
             print(e)

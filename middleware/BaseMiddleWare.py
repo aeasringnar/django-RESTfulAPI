@@ -8,7 +8,7 @@ class myMiddle(MiddlewareMixin):
     def process_request(self,request):
         print('===============================================下面是新的一条日志====================================================')
         print('拦截请求的地址：',request.path)
-        print('====================================headers头信息==================================================')
+        print('====================================headers 头信息====================================================')
         for key in request.META:
             if key[:5] == 'HTTP_':
                 print(key, request.META[key])
@@ -16,7 +16,6 @@ class myMiddle(MiddlewareMixin):
         #     print('====================================request body信息==================================================')
             # request_dic = json.loads(request.body, encoding='utf-8')
             # print(request_dic)
-        print('====================================response日志信息===============================================')
 
     def process_exception(self, request, exception):
         print('发生错误的请求地址', request.path, exception.__str__)
@@ -24,5 +23,6 @@ class myMiddle(MiddlewareMixin):
 
     def process_response(self,request,response):
         # response_dic = json.loads(response.content,encoding='utf-8')
+        print('====================================response 日志信息=================================================')
         print(response.content.decode('utf-8'))
         return response
