@@ -77,4 +77,6 @@ def google_otp(pin):
 # 打印请求体的方法
 def request_log(request):
     print('====================================request body信息==================================================')
-    print(request.data)
+    print('body信息：',request.data)
+    print('URL参数：',request.GET)
+    print('==================================View视图函数内部信息================================================')
