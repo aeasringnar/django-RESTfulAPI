@@ -51,7 +51,7 @@ class DoubanZufang(models.Model):
     title = models.TextField(null=True,verbose_name='标题')
     href = models.CharField(max_length=255,default='',verbose_name='链接')
     is_delete = models.BooleanField(default=False,verbose_name='是否删除')
-    created = models.DateTimeField(auto_now_add=True,null=True,verbose_name='创建时间')
+    # created = models.DateTimeField(auto_now_add=True,null=True,verbose_name='创建时间')
 
     class Meta:
         db_table = 'A_Douban_Zufang'
