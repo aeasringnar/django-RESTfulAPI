@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^userinfo$',views.UserInfo.as_view(),name='userinfo'),
     url(r'^setkey$',views.SetKey.as_view(),name='setkey'),
     url(r'^doubanzufang$',views.DoubanZufangView.as_view(),name='doubanzufang'),
+    url(r'^echo$',views.user,name='echo'),
 ]

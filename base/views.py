@@ -218,3 +218,26 @@ class DoubanZufangView(APIView):
         except Exception as e:
             print(e)
             return Response({"message": "未知错误>_<", "errorCode": 1, "data": {}})
+
+
+
+# from django.shortcuts import render
+from dwebsocket.decorators import accept_websocket,require_websocket
+
+
+# 使用django内部的websocket
+from django.http import JsonResponse
+@accept_websocket
+def user(request):
+    if not request.is_websocket():#判断是不是websocket连接
+        try:#如果是普通的http方法
+            json_data = {"message": "ok", "errorCode": 0, "data": []}
+            message = request.GET['message']
+            return HttpResponse(message)
+        except:
+            return JsonResponse(json_data)
+    else:
+        for message in request.websocket:
+            message = request.websocket.wait()
+            print(message)
+            request.websocket.send(message)
