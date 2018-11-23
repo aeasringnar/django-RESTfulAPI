@@ -7,7 +7,7 @@ from django.utils.deprecation import MiddlewareMixin
 class myMiddle(MiddlewareMixin):
     def process_request(self,request):
         print('===============================================下面是新的一条日志====================================================')
-        print('拦截请求的地址：',request.path)
+        print('拦截请求的地址：',request.path,'请求的方法：',request.method)
         print('====================================headers 头信息====================================================')
         for key in request.META:
             if key[:5] == 'HTTP_':

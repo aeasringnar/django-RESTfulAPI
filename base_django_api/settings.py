@@ -22,6 +22,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 # 配置请求体大小100m
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
+# 如果出现报错为：django.template.response.ContentNotRenderedError: The response content must be rendered before it can be accessed.
+# 那么很有可能是数据库的问题：在jwt的认证模块中，搜索用户的位置查找问题
 
 # 处理跨域的问题
 CORS_ALLOW_CREDENTIALS= True
