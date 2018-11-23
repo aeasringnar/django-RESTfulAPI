@@ -24,5 +24,6 @@ class myMiddle(MiddlewareMixin):
     def process_response(self,request,response):
         # response_dic = json.loads(response.content,encoding='utf-8')
         print('====================================response 日志信息=================================================')
-        print(response.content.decode('utf-8'))
+        if (type(response.content.decode('utf-8'))) == str:
+            print(response.content.decode('utf-8'))
         return response
