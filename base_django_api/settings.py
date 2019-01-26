@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_swagger',
     'base.apps.BaseConfig',
 ]
 
@@ -61,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.BaseMiddleWare.myMiddle',
+    # 'middleware.BaseMiddleWare.myMiddle',
 ]
 
 ROOT_URLCONF = 'base_django_api.urls'
@@ -178,4 +179,44 @@ CACHES = {
             #"PASSWORD": ""
         }
     }
+}
+
+'''
+# Aliyun OSS
+ACCESS_KEY_ID = "LTAI6hxpAQNHm0hE"
+ACCESS_KEY_SECRET = "Iw7jlRBsutGR2PUgg0vnydRzXETCOX"
+END_POINT = "oss-cn-hangzhou.aliyuncs.com"
+BUCKET_NAME = "beatop-h5"
+ALIYUN_OSS_CNAME = ""  # 自定义域名，如果不需要可以不填写
+BUCKET_ACL_TYPE = "public-read"  # private, public-read, public-read-write
+# mediafile将自动上传
+DEFAULT_FILE_STORAGE = 'aliyun_oss2_storage.backends.AliyunMediaStorage'
+# staticfile将自动上传
+#STATICFILES_STORAGE = 'aliyun_oss2_storage.backends.AliyunStaticStorage'
+'''
+
+SWAGGER_SETTINGS = {
+    # 使用这个时需要使用django默认自带的admin
+    # 'LOGIN_URL': '/admin/login',
+    # 'LOGOUT_URL': '/admin/logout',
+
+    # 使用这个时需要使用django-rest的admin 也就是需要配置 url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
+
+    # 'DEFAULT_INFO': 'beatop.urls.swagger_info',
+    'USE_SESSION_AUTH': True,
+    # 'SHOW_EXTENSIONS': False,
+    'DOC_EXPANSION': 'none',  # none/list/full
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+
 }
