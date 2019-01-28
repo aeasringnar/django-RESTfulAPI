@@ -1,3 +1,4 @@
+import os
 # 自动生成代码，将表内容按照格式放入，使用Python脚本运行即可
 # 存放模型以及表名
 # 示例：model_list = [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]
@@ -150,19 +151,17 @@ class {name}View(generics.GenericAPIView):
             return "".join(map(lambda x: "_" + x if x.isupper()  else x, str))[1:].lower()
 
         # 路由
-        MyUrl = """
-# path(r'{lower}',views.{name}View.as_view(),name='{lower}'),
-        """.format(name=name, verbose=verbose,lower=underscore(name))
+        MyUrl = """# path(r'{lower}',views.{name}View.as_view(),name='{lower}'),""".format(name=name, verbose=verbose,lower=underscore(name))
         
         # 开始自动生成代码
-        # 生成 serializers 序列化器
-        with open('serializers.py','a') as f:
+        # 生成 serializers 序列化器 'serializers.py'
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'serializers.py'),'a') as f:
             f.write(MySerializer)
         # 生成 view 视图
-        with open('views.py','a') as f:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'views.py'),'a') as f:
             f.write(MyApiView)
         # 生成 path 路由
-        with open('urls.py','a') as f:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'urls.py'),'a') as f:
             f.write(MyUrl)
         print("%s生成完毕！"%name)
 except Exception as e:
