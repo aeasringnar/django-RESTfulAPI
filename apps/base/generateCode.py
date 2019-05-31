@@ -54,7 +54,7 @@ class {name}View(generics.GenericAPIView):
         page 页码
         page_size 每页数据量
         '''
-        request_log(request)
+        
         try:
             json_data = {{"message": "ok", "errorCode": 0, "data": {{}}}}
             id = request.GET.get('id')
@@ -81,7 +81,7 @@ class {name}View(generics.GenericAPIView):
         参数：
         如接口示或联系后端人员
         '''
-        request_log(request)
+        
         try:
             if not request.auth:
                 return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})
@@ -102,7 +102,7 @@ class {name}View(generics.GenericAPIView):
         参数：
         如接口示或联系后端人员
         '''
-        request_log(request)
+        
         try:
             if not request.auth:
                 return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})
@@ -129,7 +129,7 @@ class {name}View(generics.GenericAPIView):
         参数：
         如接口示或联系后端人员
         '''
-        request_log(request)
+        
         try:
             if not request.auth:
                 return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})

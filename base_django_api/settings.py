@@ -1,34 +1,36 @@
 import os
+import sys
 import datetime
 import pymysql
+import random
 pymysql.install_as_MySQLdb()
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770'
+SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770' + ''.join(random.sample('0123456789qwerrtyuioplkjhgfdsazxcvbnm9876543210', 5))
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  #开发时设置为True 线上环境设置为False
+# 如果出现报错为：django.template.response.ContentNotRenderedError: The response content must be rendered before it can be accessed.
+# 那么很有可能是数据库的问题：在jwt的认证模块中，搜索用户的位置查找可能的问题
+DEBUG = True  # 开发时设置为True 线上环境设置为False
+
 
 ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
-# 配置请求体大小100m
-DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
-# 如果出现报错为：django.template.response.ContentNotRenderedError: The response content must be rendered before it can be accessed.
-# 那么很有可能是数据库的问题：在jwt的认证模块中，搜索用户的位置查找问题
 
-# 处理跨域的问题
+# 配置请求体大小100m 处理跨域的问题
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
 CORS_ALLOW_CREDENTIALS= True
 CORS_ALLOW_HEADERS = ('*')
-
 CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
@@ -39,8 +41,8 @@ CORS_ALLOW_METHODS = (
     'VIEW',
 )
 
-# Application definition
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,22 +52,30 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_swagger',
+    'django_crontab',
+    'django_filters',
+    'drf_yasg',
     'base.apps.BaseConfig',
+    'user.apps.UserConfig',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # 跨域新增的中间件
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'middleware.BaseMiddleWare.myMiddle',
+    # 'middleware.BaseMiddleWare.PrintLogMiddleware',
+    # 'middleware.BaseMiddleWare.FormatReturnJsonMiddleware',
 ]
 
+
 ROOT_URLCONF = 'base_django_api.urls'
+
 
 TEMPLATES = [
     {
@@ -83,12 +93,11 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'base_django_api.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -100,18 +109,17 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'douban-zufang',
+        'NAME': 'base-api',
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
-'''
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -130,21 +138,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'zh-hans'  #中文语言
-
 TIME_ZONE = 'Asia/Shanghai'  #中文时区
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False  #不使用UTC格式时间
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     # 指定文件目录，BASE_DIR指的是项目目录，static是指存放静态文件的目录。
@@ -153,10 +155,11 @@ STATICFILES_DIRS = [
 # 迁移静态文件的目录,这个是线上是需要使用的 python manage.py collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR , 'static/static')
 
-# 媒体文件位置
-MEDIA_URL = '/media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# 媒体文件位置
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # rest 相关配置
 REST_FRAMEWORK = {
@@ -167,7 +170,18 @@ REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     # ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'drf_renderer_xlsx.renderers.XLSXRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
 }
+
 
 CACHES = {
     "default": {
@@ -181,6 +195,7 @@ CACHES = {
     }
 }
 
+
 '''
 # Aliyun OSS
 ACCESS_KEY_ID = "LTAI6hxpAQNHm0hE"
@@ -192,31 +207,75 @@ BUCKET_ACL_TYPE = "public-read"  # private, public-read, public-read-write
 # mediafile将自动上传
 DEFAULT_FILE_STORAGE = 'aliyun_oss2_storage.backends.AliyunMediaStorage'
 # staticfile将自动上传
-#STATICFILES_STORAGE = 'aliyun_oss2_storage.backends.AliyunStaticStorage'
+# STATICFILES_STORAGE = 'aliyun_oss2_storage.backends.AliyunStaticStorage'
 '''
 
+
 SWAGGER_SETTINGS = {
-    # 使用这个时需要使用django默认自带的admin
-    # 'LOGIN_URL': '/admin/login',
-    # 'LOGOUT_URL': '/admin/logout',
-
     # 使用这个时需要使用django-rest的admin 也就是需要配置 url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    'LOGIN_URL': 'rest_framework:login',
-    'LOGOUT_URL': 'rest_framework:logout',
-
-    # 'DEFAULT_INFO': 'beatop.urls.swagger_info',
-    'USE_SESSION_AUTH': True,
+    # 'LOGIN_URL': 'rest_framework:login',
+    # 'LOGOUT_URL': 'rest_framework:logout',
+    'USE_SESSION_AUTH': False,
     # 'SHOW_EXTENSIONS': False,
-    'DOC_EXPANSION': 'none',  # none/list/full
+    'DOC_EXPANSION': 'none',
     'SECURITY_DEFINITIONS': {
-        'Basic': {
-            'type': 'basic'
-        },
         'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
         }
     }
+}
 
+
+# 定时任务
+'''
+crontab范例：
+每五分钟执行    */5 * * * *
+每小时执行     0 * * * *
+每天执行       0 0 * * *
+每周执行       0 0 * * 0
+每月执行       0 0 1 * *
+'''
+CRONJOBS = [
+    ('*/5 * * * *', 'base.utils.task', '>> /tmp/tasks.log'),
+]
+
+
+# 日志配置
+LOGGING = {
+    'version': 1,  # 指明dictConnfig的版本
+    'disable_existing_loggers': False,  # 表示是否禁用所有的已经存在的日志配置
+    'formatters': {  # 格式器
+        'verbose': {  # 详细
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'standard': {  # 标准
+            'format': '[%(asctime)s] [%(levelname)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout',
+            'formatter': 'standard'
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['null'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
