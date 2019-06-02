@@ -10,7 +10,7 @@ log/**
 media/**
 !media/**/init.txt
 **/migrations/**
-!**/migrations
+**/migrations
 !**/migrations/__init__.py
 
 # Environments

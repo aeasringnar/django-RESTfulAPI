@@ -8,15 +8,14 @@ import datetime
 
 
 class GroupAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
+
     class Meta:
         model = GroupAuth
         exclude = ('deleted', )
 
 
-class GroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class ReturnGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
     back_auths = GroupAuthSerializer(read_only=True, many=True)
-    group_type = serializers.CharField(label="用户组类型", help_text="用户组类型", required=True, allow_blank=False,
-                                       validators=[UniqueValidator(queryset=Group.all_objects.all(), message="用户组类型已经存在")])
 
     class Meta:
         model = Group
@@ -24,7 +23,7 @@ class GroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    group = GroupSerializer()
+    group = ReturnGroupSerializer()
     bf_logo_time = serializers.DateTimeField(label='上次登录时间', format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
@@ -45,10 +44,26 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',)
 
 
+class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
+
+    class Meta:
+        model = Group
+        exclude = ('deleted',) 
+
+
 class ReturnUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    group = GroupSerializer()
+    group = UserUseGroupSerializer()
     bf_logo_time = serializers.DateTimeField(label='上次登录时间', format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = User
         exclude = ('deleted', 'password',)
+
+
+class AddGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
+    group_type = serializers.CharField(label="用户组类型", help_text="用户组类型", required=True, allow_blank=False,
+                                       validators=[UniqueValidator(queryset=Group.all_objects.all(), message="用户组类型已经存在")])
+
+    class Meta:
+        model = Group
+        exclude = ('deleted',) 

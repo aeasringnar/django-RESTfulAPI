@@ -32,7 +32,7 @@ class User(SoftDeleteModel, BaseModel):
         ('1', '正常'),
     )
     username = models.CharField(max_length=255, verbose_name='用户账号')
-    phone = models.CharField(max_length=11, verbose_name='用户手机号')
+    phone = models.CharField(max_length=11, null=True, blank=True, verbose_name='用户手机号')
     email = models.EmailField(default='', null=True, blank=True, verbose_name='用户邮箱')
     password = models.CharField(max_length=255, default='123456', verbose_name='用户密码')
     real_name = models.CharField(max_length=255, default='', null=True, blank=True, verbose_name='姓名')

@@ -7,7 +7,7 @@ import datetime
 
 
 class BaseModelSerializer(serializers.Serializer):
-    sort_time = serializers.DateTimeField(label='排序时间', format='%Y-%m-%d %H:%M:%S')
+    sort_time = serializers.DateTimeField(required=False, label='排序时间', format='%Y-%m-%d %H:%M:%S', input_formats=['%Y-%m-%d %H:%M:%S', '%Y-%m-%d'],)
     created = serializers.DateTimeField(label='创建时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
     updated = serializers.DateTimeField(label='更新时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
 

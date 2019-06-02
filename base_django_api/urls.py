@@ -1,5 +1,5 @@
 from base.views import UploadFile, Tests
-from user.views import LoginView, UserViewset, UserInfo
+from user.views import LoginView, UserViewset, UserInfo, GroupViewset
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -24,6 +24,8 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 # 账号管理
 router.register(r'user', UserViewset, base_name='账号管理')
+# 角色管理
+router.register(r'groups', GroupViewset, base_name='角色管理')
 
 
 urlpatterns = [
@@ -31,6 +33,8 @@ urlpatterns = [
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include(router.urls)),
+    path('adminlogin/', LoginView.as_view(), name='adminlogin'),
     path('uploadfile/', UploadFile.as_view(), name='uploadfile'),
     path('tests/', Tests.as_view(), name='tests'),
+    path('userinfo/', UserInfo.as_view(), name='userinfo'),
 ]

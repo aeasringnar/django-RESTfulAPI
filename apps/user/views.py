@@ -64,6 +64,8 @@ class LoginView(generics.GenericAPIView):
                 payload = jwt_payload_handler(user)
                 token = jwt_encode_handler(payload)
                 data = jwt_response_payload_handler(token, user, request)
+                user.updated = datetime.datetime.now()
+                user.save()
                 return Response({"message": "登录成功", "errorCode": 0, "data": data})
             else:
                 return Response({"message": "密码错误", "errorCode": 1, "data": {}})
@@ -92,8 +94,15 @@ class UserViewset(mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.Destroy
     ordering_fields = ('updated', 'sort_time', 'created',)
     pagination_class = Pagination
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return AddUserSerializer
+        if self.action == 'update' or self.action == 'partial_update':
+            return AddUserSerializer
+        return ReturnUserSerializer
 
-class UserInfo(generics.GenericAPIView):
+
+class UserInfo(APIView):
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
@@ -104,11 +113,81 @@ class UserInfo(generics.GenericAPIView):
             user = User.objects.filter(id=request.user.id).first()
             user.bf_logo_time = user.updated
             user.save()
-            user.updated = datetime.datetime.now()
-            user.save()
             serializer_user_data = UserInfoSerializer(user)
             json_data['data'] = serializer_user_data.data
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "未知错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+class GroupViewset(ModelViewSet):
+    '''
+    修改局部数据
+    create:  创建用户组
+    retrieve:  检索某个用户组
+    update:  更新用户组
+    destroy:  删除用户组
+    list:  获取用户组列表
+    '''
+    queryset = Group.objects.all().order_by('-updated')
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [BaseAuthPermission, ]
+    throttle_classes = [VisitThrottle]
+    serializer_class = ReturnGroupSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
+    search_fields = ('group_type',)
+    ordering_fields = ('updated', 'sort_time', 'created',)
+    pagination_class = Pagination
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return AddGroupSerializer
+        if self.action == 'update' or self.action == 'partial_update':
+            return AddGroupSerializer
+        return ReturnGroupSerializer
+
+    def create(self, request, *args, **kwargs):
+        # print('是否监听到：', request.data)
+        back_auths = request.data.get('back_auths')
+        print('back_auths:', back_auths)
+        # data = {'message': 'ok', 'errorCode': 0, 'data': {}}
+        # return Response(data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        # 创建用户组菜单的方法
+        group_id = serializer.data.get('id')
+        if back_auths:
+            for item in back_auths:
+                item['group'] = group_id
+                item_ser = GroupAuthSerializer(data=item)
+                if not item_ser.is_valid():
+                    return Response({"message": str(item_ser.errors), "errorCode": 1, "data": {}})
+                item_ser.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        back_auths = request.data.get('back_auths')
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        group_id = serializer.data.get('id')
+        if back_auths:
+            for item in back_auths:
+                if item.get('id'):
+                    before_object = GroupAuth.objects.filter(id=item.get('id')).first()
+                    item_ser = GroupAuthSerializer(instance=before_object, data=item)
+                else:
+                    item['group'] = group_id
+                    item_ser = GroupAuthSerializer(data=item)
+                if not item_ser.is_valid():
+                    return Response({"message": str(item_ser.errors), "errorCode": 1, "data": {}})
+                item_ser.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)

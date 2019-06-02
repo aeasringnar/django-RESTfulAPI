@@ -69,8 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'middleware.BaseMiddleWare.PrintLogMiddleware',
-    # 'middleware.BaseMiddleWare.FormatReturnJsonMiddleware',
+    'middleware.BaseMiddleWare.PrintLogMiddleware',
+    'middleware.BaseMiddleWare.FormatReturnJsonMiddleware',
 ]
 
 
@@ -97,7 +97,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base_django_api.wsgi.application'
 
 
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -116,7 +116,7 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

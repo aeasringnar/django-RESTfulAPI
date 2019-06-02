@@ -46,7 +46,12 @@ class BaseAuthPermission(object):
         # 动态权限层
         print('请求的path：', request.path)
         # print('请求的path：', request.path.split('/')[1])
-        auth_name = request.path
+        auth_name = request.path.split('/')[1]
+        if str(request.user) == 'AnonymousUser':
+            if self.white_list_check(auth_name):
+                return True
+            else:
+                return False
         if request.user.group.id == 1:
             return True
         if self.white_list_check(auth_name):
