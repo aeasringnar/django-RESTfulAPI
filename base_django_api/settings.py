@@ -23,12 +23,12 @@ DEBUG = True  # 开发时设置为True 线上环境设置为False
 
 
 ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 
 # 配置请求体大小100m 处理跨域的问题
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS= True
 CORS_ALLOW_HEADERS = ('*')
 CORS_ALLOW_METHODS = (
@@ -63,14 +63,14 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # 解决跨域中间件
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.BaseMiddleWare.PrintLogMiddleware',
-    'middleware.BaseMiddleWare.FormatReturnJsonMiddleware',
+    'middleware.BaseMiddleWare.PrintLogMiddleware', # 日志格式化中间件
+    'middleware.BaseMiddleWare.FormatReturnJsonMiddleware', # response 格式化中间件
 ]
 
 
@@ -114,6 +114,9 @@ DATABASES = {
         'PASSWORD': '123456',
         'HOST': '127.0.0.1',
         'PORT': '3306',
+        'OPTIONS': {
+            "init_command": "SET foreign_key_checks = 0;",
+        }
     }
 }
 '''
@@ -145,8 +148,8 @@ USE_L10N = True
 USE_TZ = False  #不使用UTC格式时间
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+
+# STATIC_OSS_BASE_DIR = 'https://nbjice-h5.oss-cn-hangzhou.aliyuncs.com'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     # 指定文件目录，BASE_DIR指的是项目目录，static是指存放静态文件的目录。
@@ -180,6 +183,13 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ),
+    # 格式化时间
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DATETIME_INPUT_FORMATS': ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'),
+    'DATE_FORMAT': '%Y-%m-%d',
+    'DATE_INPUT_FORMATS': ('%Y-%m-%d',),
+    'TIME_FORMAT': '%H:%M:%S',
+    'TIME_INPUT_FORMATS': ('%H:%M:%S',),
 }
 
 
@@ -236,6 +246,7 @@ crontab范例：
 每天执行       0 0 * * *
 每周执行       0 0 * * 0
 每月执行       0 0 1 * *
+每天23点执行   0 23 * * *
 '''
 CRONJOBS = [
     ('*/5 * * * *', 'base.utils.task', '>> /tmp/tasks.log'),

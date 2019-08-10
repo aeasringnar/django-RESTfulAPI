@@ -24,7 +24,6 @@ class ReturnGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 class UserInfoSerializer(serializers.ModelSerializer, BaseModelSerializer):
     group = ReturnGroupSerializer()
-    bf_logo_time = serializers.DateTimeField(label='上次登录时间', format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = User
@@ -53,7 +52,6 @@ class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 class ReturnUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
     group = UserUseGroupSerializer()
-    bf_logo_time = serializers.DateTimeField(label='上次登录时间', format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = User
