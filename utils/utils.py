@@ -18,8 +18,6 @@ def jwt_payload_handler(account):
         'id': account.pk,
         'exp': datetime.datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA  # 过期时间
     }
-    # Include original issued at time for a brand new token,
-    # to allow token refresh
     if api_settings.JWT_ALLOW_REFRESH:
         payload['orig_iat'] = timegm(
             datetime.datetime.utcnow().utctimetuple()
@@ -38,7 +36,7 @@ def jwt_get_user_id_from_payload_handler(payload):
 
 
 
-
+ 
 def jwt_encode_handler(payload):
     return jwt.encode(
         payload,

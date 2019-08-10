@@ -20,14 +20,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 # 缓存配置
 from django.core.cache import cache
-from user.permissions import BaseAuthPermission, AllowAllPermission, JWTAuthPermission
-# 自定义的JWT配置
-from base.utils import *
-from base.authentication import JWTAuthentication
+# 自定义的JWT配置 公共插件
+from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj
+from utils.jwtAuth import JWTAuthentication
+from utils.pagination import Pagination
+from utils.permissions import JWTAuthPermission, AllowAllPermission, BaseAuthPermission
 from .models import *
 from .serializers import *
 from .filters import *
-from base.pagination import Pagination
 from functools import reduce
 from urllib.parse import unquote_plus
 '''
@@ -55,7 +55,6 @@ class LoginView(generics.GenericAPIView):
             username = data.get('username')
             password = data.get('password')
             user = User.objects.filter(Q(username=username) | Q(phone=username) | Q(email=username)).first()
-            # user = User.objects.filter(employ__phone=username).first()
             if not user:
                 return Response({"message": "用户不存在", "errorCode": 2, "data": {}})
             if user.status == '0':
@@ -71,10 +70,10 @@ class LoginView(generics.GenericAPIView):
                 return Response({"message": "密码错误", "errorCode": 1, "data": {}})
         except Exception as e:
             print('发生错误：',e)
-            return Response({"message": "未知错误：%s" % e, "errorCode": 1, "data": {}})
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
-class UserViewset(mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,GenericViewSet):
+class UserViewset(ModelViewSet):
     '''
     修改局部数据
     create:  创建用户
@@ -118,7 +117,7 @@ class UserInfo(APIView):
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
-            return Response({"message": "未知错误：%s" % e, "errorCode": 1, "data": {}})
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
 class GroupViewset(ModelViewSet):
@@ -148,11 +147,8 @@ class GroupViewset(ModelViewSet):
         return ReturnGroupSerializer
 
     def create(self, request, *args, **kwargs):
-        # print('是否监听到：', request.data)
         back_auths = request.data.get('back_auths')
         print('back_auths:', back_auths)
-        # data = {'message': 'ok', 'errorCode': 0, 'data': {}}
-        # return Response(data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

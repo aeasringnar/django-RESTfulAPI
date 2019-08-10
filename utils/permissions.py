@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.permissions import DjangoModelPermissions, IsAdminUser
 from rest_framework.permissions import BasePermission
-from .models import GroupAuth
+from user.models import GroupAuth
 '''
 mixins.CreateModelMixin	    create   POST	  创建数据
 mixins.RetrieveModelMixin	retrieve GET	  检索数据
@@ -10,6 +10,7 @@ mixins.UpdateModelMixin	    update   PUT	  更新数据
 mixins.DestroyModelMixin	destroy  DELETE	  删除数据
 mixins.ListModelMixin	    list     GET	  获取数据
 '''
+
 
 class JWTAuthPermission(BasePermission):
 
@@ -48,10 +49,7 @@ class BaseAuthPermission(object):
         # print('请求的path：', request.path.split('/')[1])
         auth_name = request.path.split('/')[1]
         if str(request.user) == 'AnonymousUser':
-            if self.white_list_check(auth_name):
-                return True
-            else:
-                return False
+            return self.white_list_check(auth_name)
         if request.user.group.id == 1:
             return True
         if self.white_list_check(auth_name):
@@ -81,7 +79,9 @@ class BaseAuthPermission(object):
         # 动态权限层
         print('请求的path：', request.path)
         # print('请求的path：', request.path.split('/')[1])
-        auth_name = request.path
+        auth_name = request.path.split('/')[1]
+        if str(request.user) == 'AnonymousUser':
+            return self.white_list_check(auth_name)
         if request.user.group.id == 1:
             return True
         if self.white_list_check(auth_name):

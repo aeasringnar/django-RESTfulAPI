@@ -21,11 +21,11 @@ class JWTAuthentication(BaseAuthentication):
         try:
             payload = jwt_decode_handler(jwt_value)
         except jwt.ExpiredSignature:
-            msg = 'Signature has expired.'
-            raise exceptions.AuthenticationFailed({"message": "登陆token过期","errorCode":1,"data":{}})
+            msg = 'Token过期'
+            raise exceptions.AuthenticationFailed({"message": msg,"errorCode":1,"data":{}})
         except jwt.DecodeError:
-            msg = 'Error decoding signature.'
-            raise exceptions.AuthenticationFailed({"message": "Error decoding signature.","errorCode":1,"data":{}})
+            msg = 'Token不合法'
+            raise exceptions.AuthenticationFailed({"message": msg,"errorCode":1,"data":{}})
         except jwt.InvalidTokenError:
             raise exceptions.AuthenticationFailed()
 

@@ -20,15 +20,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 # 缓存配置
 from django.core.cache import cache
-from .permissions import *
-# 自定义的JWT配置
-# from base.utils import jwt_response_payload_handler, jwt_payload_handler, jwt_encode_handler, google_otp, VisitThrottle, getDistance
-from .utils import *
-from base.authentication import JWTAuthentication
+# 自定义的JWT配置 公共插件
+from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj
+from utils.jwtAuth import JWTAuthentication
+from utils.pagination import Pagination
+from utils.permissions import JWTAuthPermission,AllowAllPermission, BaseAuthPermission
 from .models import *
 from .serializers import *
 from .filters import *
-from base.pagination import Pagination
 from functools import reduce
 from urllib.parse import unquote_plus
 '''
@@ -105,4 +104,4 @@ class Tests(APIView):
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
-            return Response({"message": "未知错误：%s" % e, "errorCode": 1, "data": {}})
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})

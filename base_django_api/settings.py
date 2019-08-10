@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770' + ''.join(random.sample('0123456789qwerrtyuioplkjhgfdsazxcvbnm9876543210', 5))
+SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770sdfgertgsdf'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!

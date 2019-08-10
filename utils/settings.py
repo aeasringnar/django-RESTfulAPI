@@ -12,11 +12,11 @@ DEFAULTS = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=14),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=21),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
     'JWT_ALLOW_REFRESH': False,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=14),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=21),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 
     'PAGE_SIZE': 20,
