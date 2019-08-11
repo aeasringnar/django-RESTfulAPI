@@ -5,6 +5,28 @@ objects 返回没有删除的所有数据
 all_objects 返回所有数据
 delete 删除数据，假删
 undelete 恢复假删数据
+模型字段类型：
+models.CharField() # 字符串类型
+models.TextField() # 文本类型
+models.IntegerField() # int类型
+models.BooleanField() # bool类型
+models.NullBooleanField() # 允许为空的bool类型
+models.DateField() # 日期类型 年月日
+models.DecimalField() # 金额类型 可以指定长度和小数位数 max_digits=15, decimal_places=2, 总长度15位，小数位为2
+models.EmailField() # 邮箱类型
+models.FloatField() # 浮点数类型
+models.TimeField() # 时间类型
+models.ForeignKey(OtherModel, on_delete=models.PROTECT, verbose_name='label', related_name='related_name') # 外键类型
+models.OneToOneField(OtherModel, on_delete=models.PROTECT, verbose_name='label', related_name='related_name') # 一对一的外键类型
+模型常用options：
+null = True # 允许值为空
+blank = True # 允许键为空，指定的字段可以不传
+choices = ((0,'男'),('1','女'),) # 选项类型
+default = 1 # 指定默认值
+verbose_name = '描述' # 指定label 或字段描述
+auto_now_add = True # 在创建的时候插入时间
+auto_now = True # 每次修改都会更新时间
+max_length = 255 # 指定字段容量长度，CharField必须要指定
 '''
 
 class BaseModel(models.Model):
