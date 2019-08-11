@@ -56,6 +56,9 @@ is null / is not null 为空/非空
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginViewSerializer
     def post(self, request):
+        '''
+        后台登录接口
+        '''
         try:
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
@@ -114,6 +117,9 @@ class UserInfo(APIView):
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
+        '''
+        获取个人信息
+        '''
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             if not request.auth:

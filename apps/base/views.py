@@ -108,6 +108,9 @@ class UploadFile(APIView):
 class Tests(APIView):
 
     def get(self, request):
+        '''
+        测试接口
+        '''
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             return Response(json_data)

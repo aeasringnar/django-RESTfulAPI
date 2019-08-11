@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
+    'tests.apps.TestsConfig',
 ]
 
 

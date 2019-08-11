@@ -10,11 +10,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
-        title="Base API",
-        default_version='v1',
+        title="Django RESTfulAPI",
+        default_version='v2',
         description="Ddescription",
         terms_of_service="https://blog.csdn.net/haeasringnar",
-        contact=openapi.Contact(email="aeasringnar"),
+        contact=openapi.Contact(email="aeasringnar@163.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
@@ -26,6 +26,11 @@ router = DefaultRouter()
 router.register(r'user', UserViewset, base_name='账号管理')
 # 角色管理
 router.register(r'groups', GroupViewset, base_name='角色管理')
+from tests.views import FtableViewset, StableViewset
+# 测试父表管理
+router.register(r'ftable', FtableViewset, base_name='测试父表管理')
+# 测试子表管理
+router.register(r'stable', StableViewset, base_name='测试子表管理')
 
 
 urlpatterns = [
