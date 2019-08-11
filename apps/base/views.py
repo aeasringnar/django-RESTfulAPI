@@ -41,6 +41,7 @@ name = serializers.DateField(format=api_settings.DATE_FORMAT, input_formats=None
 name = serializers.BooleanField()
 name = serializers.ListField(child=serializers.IntegerField(min_value=0, max_value=100))
 name = serializers.DictField(child=<A_FIELD_INSTANCE>, allow_empty=True)  DictField(child=CharField())
+(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,generics.GenericAPIView,viewsets.GenericViewSet)
 Q(name__icontains=keyword) 内部是like模糊搜索
 __gt 大于 
 __gte 大于等于

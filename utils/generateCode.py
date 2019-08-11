@@ -1,169 +1,184 @@
 import os
-# 自动生成代码，将表内容按照格式放入，使用Python脚本运行即可
-# 存放模型以及表名
-# 示例：model_list = [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]
-model_list = []
 
-try:
-    for data in model_list:
-        print(data)
-        name = data.get('name')
-        verbose = data.get('verbose')
+def main(app_list):
+    try:
+        for data in app_list:
+            print('app：',data)
+            app_name = data.get('name')
+            models = data.get('models')
+            print('所有模型：',models)
+            app_path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'apps'),app_name)
+            if os.path.isdir(app_path):
+                # 序列化器
+                MySerializer = """
+from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField
+from rest_framework.validators import UniqueValidator
+from base.serializers import BaseModelSerializer
+from .models import *
+import time
+import datetime
+                """
+                # ModelViewSet视图
+                MyViewSet = """
+import uuid
+import os
+import requests
+import json
+import re
+import time
+import datetime
+import random
+import hashlib
+import xml
+from django.db.models import F, Q
+from rest_framework import serializers, status, generics, mixins, viewsets
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+# 官方JWT
+# from rest_framework_jwt.utils import jwt_payload_handler, jwt_encode_handler ,jwt_response_payload_handler
+# from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+# 缓存配置
+from django.core.cache import cache
+# 自定义的JWT配置 公共插件
+from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj
+from utils.jwtAuth import JWTAuthentication
+from utils.pagination import Pagination
+from utils.permissions import JWTAuthPermission, AllowAllPermission, BaseAuthPermission
+from .models import *
+from .serializers import *
+from .filters import *
+from functools import reduce
+from urllib.parse import unquote_plus
+'''
+serializers 常用字段
+name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
+name = serializers.EmailField(max_length=None, min_length=None, allow_blank=False)
+name = serializers.FloatField(max_value=None, min_value=None)
+name = serializers.IntegerField(max_value=None, min_value=None)
+name = serializers.DateTimeField(format=api_settings.DATETIME_FORMAT, input_formats=None)
+name = serializers.DateField(format=api_settings.DATE_FORMAT, input_formats=None)
+name = serializers.BooleanField()
+name = serializers.ListField(child=serializers.IntegerField(min_value=0, max_value=100))
+name = serializers.DictField(child=<A_FIELD_INSTANCE>, allow_empty=True)  DictField(child=CharField())
+(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,generics.GenericAPIView,viewsets.GenericViewSet)
+Q(name__icontains=keyword) 内部是like模糊搜索
+__gt 大于 
+__gte 大于等于
+__lt 小于 
+__lte 小于等于
+__in 在某某范围内
+is null / is not null 为空/非空
+.exclude(age=10) 查询年龄不为10的数据
+'''
+                """
+                # 生成 基本serializers 序列化器 'serializers.py'
+                with open(os.path.join(app_path,'serializers.py'),'w',encoding='utf-8') as f:
+                    f.write(MySerializer)
+                # 生成 基本ViewSet 视图
+                with open(os.path.join(app_path,'views.py'),'w',encoding='utf-8') as f:
+                    f.write(MyViewSet)
+                for model_item in models:
+                    name = model_item.get('name')
+                    verbose = model_item.get('verbose')
+                    # 序列化器
+                    MySerializer = """
 
-        # 序列化器
-        MySerializer = """
 
-# {verbose} 序列化器
-class {name}Serializer(serializers.ModelSerializer):
-    updated = SerializerMethodField()
-    created = SerializerMethodField()
+# 新增 {verbose} 序列化器
+class Add{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
     class Meta:
         model = {name}
-        # fields = ('id','sort','updated','created')
-        fields = '__all__'
-    def get_updated(self,obj):
-        if obj.updated:
-            return time.strftime('%Y-%m-%d %H:%M',time.strptime(str(obj.updated),'%Y-%m-%d %H:%M:%S.%f'))
-        else:
-            return ''
-    def get_created(self,obj):
-        if obj.created:
-            return time.strftime('%Y-%m-%d %H:%M',time.strptime(str(obj.created),'%Y-%m-%d %H:%M:%S.%f'))
-        else:
-            return ''
-        """.format(name=name, verbose=verbose)
+        exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
+        # read_only_fields = ('field01', )
+# 修改 {verbose} 序列化器
+class Update{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
+    class Meta:
+        model = {name}
+        exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
+        # read_only_fields = ('field01', )
+# 返回 {verbose} 序列化器
+class Return{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
+    class Meta:
+        model = {name}
+        exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
+        # read_only_fields = ('field01', )
+                """.format(name=name, verbose=verbose)
+                    # ModelViewSet视图
+                    MyViewSet = """
 
-        MyViewSet = """
-class {name}ViewSet(viewsets.ModelViewSet):
-    serializer_class = {name}Serializer
-    queryset = {name}.objects.all()""".format(name=name, verbose=verbose)
 
-        # API视图
-        MyApiView = """
-
-# {verbose} 视图
-class {name}View(generics.GenericAPIView):
+# {verbose} ModelViewSet视图
+class {name}Viewset(ModelViewSet):
+    '''
+    修改局部数据
+    create:  创建{verbose}
+    retrieve:  检索某个{verbose}
+    update:  更新{verbose}
+    destroy:  删除{verbose}
+    list:  获取{verbose}列表
+    '''
+    queryset = {name}.objects.all().order_by('-updated')
     authentication_classes = (JWTAuthentication,)
-    serializer_class = {name}Serializer
-    def get(self,request):
-        '''
-        获取{verbose}接口
-        无需登录便可访问
-        参数：
-        id 传入id返回该条详细数据；否则返回全部数据
-        page 页码
-        page_size 每页数据量
-        '''
-        
-        try:
-            json_data = {{"message": "ok", "errorCode": 0, "data": {{}}}}
-            id = request.GET.get('id')
-            print('是否存在ID',id)
-            if not id:
-                my_queryset = {name}.objects.all().order_by('sort','-created')
-                pagination_clas = SchoolShopPagination()
-                page_list = pagination_clas.paginate_queryset(queryset=my_queryset,request=request,view=self)
-                serializer = {name}Serializer(instance=page_list, many=True)
-                json_data['data'] = serializer.data
-                json_data['tatol'] = len(my_queryset)
+    permission_classes = [BaseAuthPermission, ]
+    throttle_classes = [VisitThrottle]
+    serializer_class = ReturnUserSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
+    # search_fields = ('field01', 'field02', 'field03',)
+    # filter_fields = ('field01', 'field02', 'field03',)
+    ordering_fields = ('updated', 'sort_time', 'created',)
+    pagination_class = Pagination
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return Add{name}Serializer
+        if self.action == 'update' or self.action == 'partial_update':
+            return Update{name}Serializer
+        return Return{name}Serializer
+
+    def get_queryset(self):
+        if bool(self.request.auth) and self.request.user.group_id == 1:
+            return {name}.objects.all().order_by('-updated')
+        else:
+            return {name}.objects.filter(user_id=self.request.user.id).order_by('-updated')
+                """.format(name=name, verbose=verbose)
+                    # 路由
+                    MyUrl = """
+from {app_name}.views import {name}Viewset
+# {verbose}管理
+router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')
+                """.format(name=name, verbose=verbose,lower=name.lower(),app_name=app_name)
+                    # 开始自动生成代码
+                    # 生成 serializers 序列化器 'serializers.py'
+                    with open(os.path.join(app_path,'serializers.py'),'a',encoding='utf-8') as f:
+                        f.write(MySerializer)
+                    # 生成 ViewSet 视图
+                    with open(os.path.join(app_path,'views.py'),'a',encoding='utf-8') as f:
+                        f.write(MyViewSet)
+                    # 生成 path 路由
+                    with open(os.path.join(app_path,'urls.py'),'a',encoding='utf-8') as f:
+                        f.write(MyUrl)
+                    print("%s生成完毕！"%name)
+                print("app：%s 生成完毕！"%app_name)
             else:
-                my_queryset = {name}.objects.filter(id=id).first()
-                serializer = {name}Serializer(instance=my_queryset)
-                json_data['data'] = serializer.data
-            return Response(json_data)
-        except Exception as e:
-            print(e)
-            return Response({{"message": "网络错误", "errorCode": 1, "data": {{}}}})
-    def post(self,request):
-        '''
-        新增{verbose}接口
-        需要登录才可访问
-        参数：
-        如接口示或联系后端人员
-        '''
-        
-        try:
-            if not request.auth:
-                return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})
-            json_data = {{"message": "ok", "errorCode": 0, "data": {{}}}}
-            serializer = self.get_serializer(data=request.data)
-            if not serializer.is_valid():
-                return Response({{"message": str(serializer.errors), "errorCode": 4, "data": {{}}}})
-            serializer.save()
-            json_data['data'] = serializer.data
-            return Response(json_data)
-        except Exception as e:
-            print(e)
-            return Response({{"message": "网络错误", "errorCode": 1, "data": {{}}}})
-    def patch(self,request):
-        '''
-        修改{verbose}接口
-        需要登录才可访问
-        参数：
-        如接口示或联系后端人员
-        '''
-        
-        try:
-            if not request.auth:
-                return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})
-            json_data = {{"message": "ok", "errorCode": 0, "data": {{}}}}
-            id = request.data.get('id')
-            if not id:
-                return Response({{"message": "id为必要字段", "errorCode": 2, "data": {{}}}})
-            item = {name}.objects.filter(id=id).first()
-            if not item:
-                return Response({{"message": "数据不存在或已经被删除", "errorCode": 2, "data": {{}}}})
-            serializer = self.get_serializer(item,data=request.data)
-            if not serializer.is_valid():
-                return Response({{"message": str(serializer.errors), "errorCode": 4, "data": {{}}}})
-            serializer.save()
-            json_data['data'] = serializer.data
-            return Response(json_data)
-        except Exception as e:
-            print(e)
-            return Response({{"message": "网络错误", "errorCode": 1, "data": {{}}}})
-    def delete(self,request):
-        '''
-        删除{verbose}接口
-        需要登录才可以访问
-        参数：
-        如接口示或联系后端人员
-        '''
-        
-        try:
-            if not request.auth:
-                return Response({{"message": "请先登录", "errorCode": 2, "data": {{}}}})
-            json_data = {{"message": "ok", "errorCode": 0, "data": {{}}}}
-            id = request.data.get('id')
-            if not id:
-                return Response({{"message": "id为必要字段", "errorCode": 2, "data": {{}}}})
-            item = {name}.objects.filter(id=id).first()
-            if not item:
-                return Response({{"message": "数据不存在或已经被删除", "errorCode": 2, "data": {{}}}})
-            item.delete()
-            return Response(json_data)
-        except Exception as e:
-            print(e)
-            return Response({{"message": "网络错误", "errorCode": 1, "data": {{}}}})
-        """.format(name=name, verbose=verbose)
+                print('app：%s 不存在...' % app_name)
+    except Exception as e:
+        print("代码生成过程出错...错误原因：%s" % str(e))
 
-        def underscore(str):
-            return "".join(map(lambda x: "_" + x if x.isupper()  else x, str))[1:].lower()
 
-        # 路由
-        MyUrl = """# path(r'{lower}',views.{name}View.as_view(),name='{lower}'),""".format(name=name, verbose=verbose,lower=underscore(name))
-        
-        # 开始自动生成代码
-        # 生成 serializers 序列化器 'serializers.py'
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'serializers.py'),'a') as f:
-            f.write(MySerializer)
-        # 生成 view 视图
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'views.py'),'a') as f:
-            f.write(MyApiView)
-        # 生成 path 路由
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'urls.py'),'a') as f:
-            f.write(MyUrl)
-        print("%s生成完毕！"%name)
-except Exception as e:
-    print(e)
-    print("代码生成过程出错...")
+if __name__ == '__main__':
+    # 自动生成代码，将表内容按照格式放入，使用Python脚本运行即可
+    # 存放 app名称、模型以及表名
+    # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]}]
+    app_list = [
+        {'name': 'tests','models': [
+            {'name':'Group','verbose':'用户组表'},
+            {'name':'User','verbose':'用户表'},
+            ]
+        },
+        ]
+    app_list = []
+    main(app_list)
