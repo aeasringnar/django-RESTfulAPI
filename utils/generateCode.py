@@ -50,7 +50,7 @@ from utils.pagination import Pagination
 from utils.permissions import JWTAuthPermission, AllowAllPermission, BaseAuthPermission
 from .models import *
 from .serializers import *
-from .filters import *
+# from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
 '''
@@ -125,7 +125,7 @@ class {name}Viewset(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
-    serializer_class = ReturnUserSerializer
+    serializer_class = Return{name}Serializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     # search_fields = ('field01', 'field02', 'field03',)
     # filter_fields = ('field01', 'field02', 'field03',)
@@ -175,8 +175,8 @@ if __name__ == '__main__':
     # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]}]
     app_list = [
         {'name': 'tests','models': [
-            {'name':'Group','verbose':'用户组表'},
-            {'name':'User','verbose':'用户表'},
+            {'name':'Ftable','verbose':'测试父表'},
+            {'name':'Stable','verbose':'测试子表'},
             ]
         },
         ]
