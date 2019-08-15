@@ -131,7 +131,7 @@ class StableViewset(ModelViewSet):
             return UpdateStableSerializer
         return ReturnStableSerializer
 
-# from .tasks import useradd
+from .tasks import add, say
 class BeginCelery(APIView):
     # authentication_classes = (JWTAuthentication,)
 
@@ -143,7 +143,10 @@ class BeginCelery(APIView):
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             # if not request.auth:
             #     return Response({"message": "请先登录", "errorCode": 2, "data": {}})
-            useradd.delay('username')
+            print(789456789)
+            # print(add(1,2))
+            # add.delay(3,5)
+            say.delay()
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)

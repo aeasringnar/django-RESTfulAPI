@@ -12,7 +12,8 @@ app = Celery('base_django_api')
 # app.config_from_object('django.conf:settings', namespace='CELERY')
 app.config_from_object('django.conf:settings')
 
-app.autodiscover_tasks(lambda :settings.INSTALLED_APPS)
+# app.autodiscover_tasks(lambda :settings.INSTALLED_APPS)
+app.autodiscover_tasks()
 
 platforms.C_FORCE_ROOT = True
 

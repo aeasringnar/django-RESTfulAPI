@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'django_filters',
     'drf_yasg',
-    'djcelery',
+    'django_celery_beat',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
     'tests.apps.TestsConfig',
@@ -295,18 +295,33 @@ LOGGING = {
 
 
 # Celery
-import djcelery
-djcelery.setup_loader()  # 加载djcelery
+# import djcelery
+# djcelery.setup_loader()  # 加载djcelery
 
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_ENABLE_UTC = True
+# CELERY_TIMEZONE = TIME_ZONE
+# CELERY_ENABLE_UTC = True
 
-# 允许的格式
-CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'yaml']
+# # 允许的格式
+# CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'yaml']
 
-BROKER_URL = 'redis://127.0.0.1:6379/0'     # redis作为中间件
-BROKER_TRANSPORT = 'redis'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'     # Backend数据库
+# BROKER_URL = 'redis://127.0.0.1:6379/0'     # redis作为中间件
+# BROKER_TRANSPORT = 'redis'
+# CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'     # Backend数据库
 
-# CELERYD_LOG_FILE = BASE_DIR + "/logs/celery/celery.log"         # log路径
-# CELERYBEAT_LOG_FILE = BASE_DIR + "/logs/celery/beat.log"     # beat log路径
+# # CELERYD_LOG_FILE = BASE_DIR + "/logs/celery/celery.log"         # log路径
+# # CELERYBEAT_LOG_FILE = BASE_DIR + "/logs/celery/beat.log"     # beat log路径
+
+CELERY_BEAT_SCHEDULER  = 'django_celery_beat.schedulers.DatabaseScheduler'
+# BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
+# CELERY_BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
+# CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
+
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+# CELERY_BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
+# CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = 'Asia/Shanghai'
+DJANGO_CELERY_BEAT_TZ_AWARE = False
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
