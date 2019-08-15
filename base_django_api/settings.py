@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'django_filters',
     'drf_yasg',
+    'djcelery',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
     'tests.apps.TestsConfig',
@@ -291,3 +292,21 @@ LOGGING = {
         },
     },
 }
+
+
+# Celery
+import djcelery
+djcelery.setup_loader()  # 加载djcelery
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# 允许的格式
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'yaml']
+
+BROKER_URL = 'redis://127.0.0.1:6379/0'     # redis作为中间件
+BROKER_TRANSPORT = 'redis'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'     # Backend数据库
+
+# CELERYD_LOG_FILE = BASE_DIR + "/logs/celery/celery.log"         # log路径
+# CELERYBEAT_LOG_FILE = BASE_DIR + "/logs/celery/beat.log"     # beat log路径

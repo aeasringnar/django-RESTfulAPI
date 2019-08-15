@@ -130,3 +130,21 @@ class StableViewset(ModelViewSet):
         if self.action == 'update' or self.action == 'partial_update':
             return UpdateStableSerializer
         return ReturnStableSerializer
+
+# from .tasks import useradd
+class BeginCelery(APIView):
+    # authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        '''
+        测试开启celery
+        '''
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            # if not request.auth:
+            #     return Response({"message": "请先登录", "errorCode": 2, "data": {}})
+            useradd.delay('username')
+            return Response(json_data)
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
