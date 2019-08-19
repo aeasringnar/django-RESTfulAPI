@@ -9,7 +9,7 @@ httpie==0.9.9
 PyJWT==1.6.4
 gunicorn==19.8.1
 pyotp==2.2.6
-django-redis==4.9.0
+django-redis==4.10.0
 django-filter==1.1.0
 pylint==1.9.2
 autopep8==1.3.5
@@ -20,5 +20,9 @@ django-rest-swagger==2.2.0
 django-softdelete-it==0.1
 django-aliyun-oss2-storage==0.1.5
 xlwt==1.3.0
-redis==2.10.6
+redis==3.2.1
 drf-renderer-xlsx==0.3.2
+django-celery-beat==1.5.0
+celery==4.3.0
+#  pip install -U "celery[redis]"  # 使用redis作为Broker
+# celery -A base_django_api worker -l info # 启动celery

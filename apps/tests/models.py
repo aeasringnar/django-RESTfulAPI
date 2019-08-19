@@ -4,7 +4,7 @@ from base.models import BaseModel
 
 class Ftable(SoftDeleteModel, BaseModel):
     f_type = models.CharField(max_length=255, verbose_name='类型')
-    f_key = models.IntegerField(max_length=255, verbose_name='键值')
+    f_key = models.IntegerField(verbose_name='键值')
 
     class Meta:
         db_table = 'A_Ftable_Table'

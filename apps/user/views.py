@@ -51,6 +51,10 @@ __in 在某某范围内
 is null / is not null 为空/非空
 .exclude(age=10) 查询年龄不为10的数据
 '''
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
+from rest_framework_extensions.cache.decorators import (
+    cache_response
+)
 
 
 class LoginView(generics.GenericAPIView):
@@ -116,7 +120,8 @@ class UserViewset(ModelViewSet):
 class UserInfo(APIView):
     authentication_classes = (JWTAuthentication,)
 
-    def get(self, request):
+    # @cache_response()
+    def get(self, request, *args, **kwargs):
         '''
         获取个人信息
         '''
@@ -128,6 +133,9 @@ class UserInfo(APIView):
             user.bf_logo_time = user.updated
             user.save()
             serializer_user_data = UserInfoSerializer(user)
+            # timeout=0 立即过期 timeout=None 永不超时
+            cache.set("key", "value", timeout=None)
+            print(cache.get('key'))
             json_data['data'] = serializer_user_data.data
             return Response(json_data)
         except Exception as e:

@@ -194,14 +194,14 @@ REST_FRAMEWORK = {
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
 }
 
-
+# 使用redis缓存会出问题 drf-extensions 不使用redis正常，问题未知
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",
+            # "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",
             #"PASSWORD": ""
         }
     }
@@ -325,3 +325,8 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 DJANGO_CELERY_BEAT_TZ_AWARE = False
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+
+# REST_FRAMEWORK_EXTENSIONS = {
+#     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 5
+# }
