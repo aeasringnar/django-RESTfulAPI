@@ -131,7 +131,9 @@ class StableViewset(ModelViewSet):
             return UpdateStableSerializer
         return ReturnStableSerializer
 
-from .tasks import add, say
+from .tasks import add, say, mul
+# from celery.result import AsyncResult
+
 class BeginCelery(APIView):
     # authentication_classes = (JWTAuthentication,)
 
@@ -145,8 +147,14 @@ class BeginCelery(APIView):
             #     return Response({"message": "请先登录", "errorCode": 2, "data": {}})
             print(789456789)
             # print(add(1,2))
-            # add.delay(3,5)
+            add.delay(3,5)
+            mul_result = mul.delay(3,5)
             say.delay()
+            # 返回的是key
+            print(mul_result)
+            # res=AsyncResult(mul_result)  # 参数为task_id
+            print(dir(mul_result))
+            print(mul_result.result)
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)

@@ -317,8 +317,8 @@ CELERY_BEAT_SCHEDULER  = 'django_celery_beat.schedulers.DatabaseScheduler'
 # CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
 
 BROKER_URL = 'redis://127.0.0.1:6379/0'
-# CELERY_BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
-# CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_ENABLE_UTC = False
 CELERY_TIMEZONE = 'Asia/Shanghai'
