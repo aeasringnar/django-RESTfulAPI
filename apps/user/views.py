@@ -117,6 +117,27 @@ class UserViewset(ModelViewSet):
         return ReturnUserSerializer
 
 
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from drf_renderer_xlsx.mixins import XLSXFileMixin
+from drf_renderer_xlsx.renderers import XLSXRenderer
+
+class UserDictExportViewset(XLSXFileMixin, ReadOnlyModelViewSet):
+    
+    queryset = User.objects.all()
+    serializer_class = ReturnUserSerializer
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [BaseAuthPermission, ]
+    renderer_classes = (XLSXRenderer,)
+    filename = 'my_export.xlsx'
+    column_header = {
+        'titles': [
+            "Column_1_name",
+            "Column_2_name",
+            "Column_3_name",
+        ],
+    }
+
+
 class UserInfo(APIView):
     authentication_classes = (JWTAuthentication,)
 
