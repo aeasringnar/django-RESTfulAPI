@@ -188,8 +188,8 @@ if __name__ == '__main__':
     # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]}]
     app_list = [
         {'name': 'tests','models': [
-            {'name':'Ftable','verbose':'测试父表','searchs':"",'filters':""}},
-            {'name':'Stable','verbose':'测试子表','searchs':"'field1', ",'filters':"'field1', "}},
+            {'name':'Ftable','verbose':'测试父表','searchs':"",'filters':""},
+            {'name':'Stable','verbose':'测试子表','searchs':"'field1', ",'filters':"'field1', "},
             ]
         },
         ]
