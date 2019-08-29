@@ -24,5 +24,5 @@ redis==3.2.1
 drf-renderer-xlsx==0.3.2
 django-celery-beat==1.5.0
 celery==4.3.0
-#  pip install -U "celery[redis]"  # 使用redis作为Broker
+# pip install -U "celery[redis]"  # 使用redis作为Broker
 # celery -A base_django_api worker -l info # 启动celery
