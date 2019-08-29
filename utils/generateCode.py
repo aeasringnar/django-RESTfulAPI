@@ -15,6 +15,8 @@ from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator
 from base.serializers import BaseModelSerializer
+from rest_framework.utils import model_meta
+import threading
 from .models import *
 import time
 import datetime
@@ -31,6 +33,7 @@ import datetime
 import random
 import hashlib
 import xml
+import threading
 from django.db.models import F, Q
 from rest_framework import serializers, status, generics, mixins, viewsets
 from rest_framework.views import APIView
@@ -75,15 +78,26 @@ is null / is not null 为空/非空
 .exclude(age=10) 查询年龄不为10的数据
 '''
                 """
+                # 写入 urls.py
+                url_viewsets = ''
+                for model_item in models:
+                    name = model_item.get('name')
+                    url_viewsets += name + 'Viewset, '
+                MyUrls = '''from {app_name}.views import {viewsets}'''.format(app_name=app_name,viewsets=url_viewsets)
                 # 生成 基本serializers 序列化器 'serializers.py'
                 with open(os.path.join(app_path,'serializers.py'),'w',encoding='utf-8') as f:
                     f.write(MySerializer)
                 # 生成 基本ViewSet 视图
                 with open(os.path.join(app_path,'views.py'),'w',encoding='utf-8') as f:
                     f.write(MyViewSet)
+                # 生成 基本urls 路由
+                with open(os.path.join(app_path,'urls.py'),'w',encoding='utf-8') as f:
+                    f.write(MyUrls)
                 for model_item in models:
                     name = model_item.get('name')
                     verbose = model_item.get('verbose')
+                    searchs = model_item.get('searchs')
+                    filters = model_item.get('filters')
                     # 序列化器
                     MySerializer = """
 
@@ -144,10 +158,9 @@ class {name}Viewset(ModelViewSet):
             return {name}.objects.all().order_by('-updated')
         else:
             return {name}.objects.filter(user_id=self.request.user.id).order_by('-updated')
-                """.format(name=name, verbose=verbose)
+                """.format(name=name, verbose=verbose, searchs=searchs,filters=filters)
                     # 路由
                     MyUrl = """
-from {app_name}.views import {name}Viewset
 # {verbose}管理
 router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')
                 """.format(name=name, verbose=verbose,lower=name.lower(),app_name=app_name)
@@ -175,8 +188,8 @@ if __name__ == '__main__':
     # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]}]
     app_list = [
         {'name': 'tests','models': [
-            {'name':'Ftable','verbose':'测试父表'},
-            {'name':'Stable','verbose':'测试子表'},
+            {'name':'Ftable','verbose':'测试父表','searchs':"",'filters':""}},
+            {'name':'Stable','verbose':'测试子表','searchs':"'field1', ",'filters':"'field1', "}},
             ]
         },
         ]
