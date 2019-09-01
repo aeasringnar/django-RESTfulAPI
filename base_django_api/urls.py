@@ -1,4 +1,4 @@
-from base.views import UploadFile, Tests
+from base.views import UploadFile, Tests, BeginCelery
 from user.views import LoginView, UserViewset, UserInfo, GroupViewset
 from django.contrib import admin
 from django.urls import path, include
@@ -26,11 +26,6 @@ router = DefaultRouter()
 router.register(r'user', UserViewset, base_name='账号管理')
 # 角色管理
 router.register(r'groups', GroupViewset, base_name='角色管理')
-from tests.views import FtableViewset, StableViewset, BeginCelery
-# 测试父表管理
-router.register(r'ftable', FtableViewset, base_name='测试父表管理')
-# 测试子表管理
-router.register(r'stable', StableViewset, base_name='测试子表管理')
 
 
 urlpatterns = [

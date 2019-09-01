@@ -113,6 +113,39 @@ class Tests(APIView):
         '''
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            # 测试cache
+            # timeout=0 立即过期 timeout=None 永不超时
+            cache.set("key", "value", timeout=None)
+            print(cache.get('key'))
+            return Response(json_data)
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+from .tasks import add, say, mul
+
+class BeginCelery(APIView):
+    # authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        '''
+        测试开启celery
+        '''
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            # if not request.auth:
+            #     return Response({"message": "请先登录", "errorCode": 2, "data": {}})
+            print(789456789)
+            # print(add(1,2))
+            add.delay(3,5)
+            mul_result = mul.delay(3,5)
+            say.delay()
+            # 返回的是key
+            print(mul_result)
+            # res=AsyncResult(mul_result)  # 参数为task_id
+            print(dir(mul_result))
+            print(mul_result.result)
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
