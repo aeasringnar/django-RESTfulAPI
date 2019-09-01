@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.permissions import DjangoModelPermissions, IsAdminUser
 from rest_framework.permissions import BasePermission
-from user.models import GroupAuth
+from user.models import AuthPermission
 '''
 mixins.CreateModelMixin	    create   POST	  创建数据
 mixins.RetrieveModelMixin	retrieve GET	  检索数据
@@ -29,13 +29,6 @@ class AllowAllPermission(object):
 
 class BaseAuthPermission(object):
 
-    def white_list_check(self, auth_name):
-        # 无需登录白名单
-        if auth_name in ['login', 'register', 'getcode', 'confdict', ]:
-            return True
-        else:
-            return False
-    
     def need_auth_list_check(self, auth_name):
         # 只需登录白名单
         if auth_name in ['userinfo', 'export*', ]:
@@ -46,63 +39,35 @@ class BaseAuthPermission(object):
     def has_permission(self, request, view):
         # 动态权限层
         print('请求的path：', request.path)
-        # print('请求的path：', request.path.split('/')[1])
+        print('请求的path拆分：', request.path.split('/')[1])
         auth_name = request.path.split('/')[1]
-        if str(request.user) == 'AnonymousUser':
-            return self.white_list_check(auth_name)
-        if request.user.group.id == 1:
-            return True
-        if self.white_list_check(auth_name):
-            return True
-        if self.need_auth_list_check(auth_name):
-            return bool(request.auth)
-        admin_auth = GroupAuth.objects.filter(object_name=auth_name).first()
-        if not admin_auth and request.user.group.id != 1:
+        # 无用户登录时
+        if not bool(request.auth):
             return False
-        
-        if view.action == 'list' or view.action == 'retrieve':
-            # 查看权限
-            return bool(request.auth and admin_auth.auth_list == True)
-        elif view.action == 'create':
-            # 创建权限
-            return bool(request.auth and admin_auth.auth_create == True)
-        elif view.action == 'update' or view.action == 'partial_update':
-            # 修改权限
-            return bool(request.auth and admin_auth.auth_update == True)
-        elif view.action == 'destroy':
-            # 删除权限
-            return bool(request.auth and admin_auth.auth_destroy == True)
+        # 当是超级管理员时
+        if request.user.group.group_type == 'SuperAdmin':
+            return True
+        # 访问只需登录路由时
+        if self.need_auth_list_check(auth_name):
+            return True
+        admin_auth = AuthPermission.objects.filter(object_name=auth_name, auth_id=request.user.auth_id).first()
+        if request.user.group.group_type in ['SuperAdmin', 'Admin'] and admin_auth:
+            if view.action in ['list', 'retrieve']:
+                # 查看权限
+                return bool(admin_auth.auth_list == True)
+            elif view.action == 'create':
+                # 创建权限
+                return bool(admin_auth.auth_create == True)
+            elif view.action in ['update', 'partial_update']:
+                # 修改权限
+                return bool(admin_auth.auth_update == True)
+            elif view.action == 'destroy':
+                # 删除权限
+                return bool(admin_auth.auth_destroy == True)
+            else:
+                return False
         else:
             return False
 
     def has_object_permission(self, request, view, obj):
-        # 动态权限层
-        print('请求的path：', request.path)
-        # print('请求的path：', request.path.split('/')[1])
-        auth_name = request.path.split('/')[1]
-        if str(request.user) == 'AnonymousUser':
-            return self.white_list_check(auth_name)
-        if request.user.group.id == 1:
-            return True
-        if self.white_list_check(auth_name):
-            return True
-        if self.need_auth_list_check(auth_name):
-            return bool(request.auth)
-        admin_auth = GroupAuth.objects.filter(object_name=auth_name).first()
-        if not admin_auth and request.user.group.id != 1:
-            return False
-        
-        if view.action == 'list' or view.action == 'retrieve':
-            # 查看权限
-            return bool(request.auth and admin_auth.auth_list == True)
-        elif view.action == 'create':
-            # 创建权限
-            return bool(request.auth and admin_auth.auth_create == True)
-        elif view.action == 'update' or view.action == 'partial_update':
-            # 修改权限
-            return bool(request.auth and admin_auth.auth_update == True)
-        elif view.action == 'destroy':
-            # 删除权限
-            return bool(request.auth and admin_auth.auth_destroy == True)
-        else:
-            return False
+        return self.has_permission(request, view)

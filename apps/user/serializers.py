@@ -2,32 +2,83 @@ from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator
 from base.serializers import BaseModelSerializer
+from rest_framework.utils import model_meta
 from .models import *
 import time
 import datetime
+import threading
 
 
-class GroupAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
-
-    class Meta:
-        model = GroupAuth
-        exclude = ('deleted', )
-
-
-class ReturnGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    back_auths = GroupAuthSerializer(read_only=True, many=True)
+# 新增权限菜单约束使用
+class AddAuthPermissionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Group
-        exclude = ('deleted',) 
+        model = AuthPermission
+        fields = ['id','object_name', 'object_name_cn','auth_list','auth_create','auth_update','auth_destroy']
 
+def del_worker(datas):
+    for item in datas:
+        item.delete()
+def save_worker(instance, datas):
+    for item in datas:
+        AuthPermission.objects.create(auth=instance, **item)
 
-class UserInfoSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    group = ReturnGroupSerializer()
+# 新增权限使用
+class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
+    auth_type = serializers.CharField(label="权限名称", help_text="权限名称", required=True, allow_blank=False,
+                                       validators=[UniqueValidator(queryset=Auth.objects.all(), message="该权限已经存在")])
+    auth_permissions = AddAuthPermissionSerializer(many=True)
 
     class Meta:
-        model = User
-        exclude = ('deleted', 'password',)
+        model = Auth
+        exclude = ('deleted',)
+
+    def create(self, validated_data):
+        auth_permissions_data = validated_data.pop('auth_permissions')
+        auth_per = Auth.objects.create(**validated_data)
+        # 创建权限菜单的方法
+        for item in auth_permissions_data:
+            AuthPermission.objects.create(auth=auth_per, **item)
+        return auth_per
+
+    def update(self, instance, validated_data):
+        # print('查看auth_permissions：', validated_data.get('auth_permissions'))
+        if validated_data.get('auth_permissions'):
+            auth_permissions_data = validated_data.pop('auth_permissions')
+            # 修改时创建权限菜单的方法
+            need_dels = AuthPermission.objects.filter(auth_id=instance.id)
+            # for item in need_dels:
+            #     item.delete()
+            # for item in auth_permissions_data:
+            #     # print('查看：', item)
+            #     # print('查看id：', item.get('id'))
+            #     AuthPermission.objects.create(auth=instance, **item)
+            # 开多线程优化代码
+            del_work = threading.Thread(target=del_worker,args=(need_dels,))
+            del_work.start()
+            save_work = threading.Thread(target=save_worker,args=(instance,auth_permissions_data,))
+            save_work.start()
+            save_work.join()
+
+        # 继承自父类的方法
+        info = model_meta.get_field_info(instance)
+        for attr, value in validated_data.items():
+            if attr in info.relations and info.relations[attr].to_many:
+                field = getattr(instance, attr)
+                field.set(value)
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+
+# 返回权限使用
+class ReturnAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
+    auth_permissions = AddAuthPermissionSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Auth
+        exclude = ('deleted',)
 
 
 # 登录view的表单验证
@@ -36,6 +87,8 @@ class LoginViewSerializer(serializers.Serializer):
     password = serializers.CharField()
     # test = serializers.DictField(child=serializers.CharField(required=True))
 
+
+# 新增用户使用
 class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
     class Meta:
@@ -43,6 +96,7 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',)
 
 
+# ReturnUserSerializer 使用的group序列化器
 class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
     class Meta:
@@ -50,18 +104,11 @@ class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',) 
 
 
+# 返回用户使用 userinfo也使用
 class ReturnUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
     group = UserUseGroupSerializer()
+    auth = ReturnAuthSerializer()
 
     class Meta:
         model = User
         exclude = ('deleted', 'password',)
-
-
-class AddGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    group_type = serializers.CharField(label="用户组类型", help_text="用户组类型", required=True, allow_blank=False,
-                                       validators=[UniqueValidator(queryset=Group.all_objects.all(), message="用户组类型已经存在")])
-
-    class Meta:
-        model = Group
-        exclude = ('deleted',) 

@@ -105,6 +105,28 @@ class UploadFile(APIView):
             return Response({"message": "未知错误", "errorCode": 1, "data": {}})
 
 
+# 后台系统字典管理
+class ConfDictViewset(ModelViewSet):
+    '''
+    修改局部数据
+    create:  创建系统字典
+    retrieve:  检索某个系统字典
+    update:  更新系统字典
+    destroy:  删除系统字典
+    list:  获取系统字典列表
+    '''
+    queryset = ConfDict.objects.all().order_by('-updated')
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [BaseAuthPermission, ]
+    throttle_classes = [VisitThrottle]
+    serializer_class = ConfDictSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
+    search_fields = ('dict_title', )
+    filter_fields = ('dict_type', )
+    ordering_fields = ('updated', 'sort_time', 'created',)
+    pagination_class = Pagination
+
+
 class Tests(APIView):
 
     def get(self, request):
@@ -124,7 +146,6 @@ class Tests(APIView):
 
 
 from .tasks import add, say, mul
-
 class BeginCelery(APIView):
     # authentication_classes = (JWTAuthentication,)
 

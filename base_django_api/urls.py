@@ -1,5 +1,5 @@
-from base.views import UploadFile, Tests, BeginCelery
-from user.views import LoginView, UserViewset, UserInfo, GroupViewset
+from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset
+from user.views import LoginView, UserViewset, UserInfo, AuthViewset
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -24,8 +24,10 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 # 账号管理
 router.register(r'user', UserViewset, base_name='账号管理')
-# 角色管理
-router.register(r'groups', GroupViewset, base_name='角色管理')
+# 权限管理
+router.register(r'auth', AuthViewset, base_name='权限管理')
+# 系统字典管理
+router.register(r'confdict', ConfDictViewset, base_name='系统字典管理')
 
 
 urlpatterns = [

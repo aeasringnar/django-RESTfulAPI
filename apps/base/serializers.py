@@ -32,6 +32,14 @@ class BaseModelSerializer(serializers.Serializer):
     updated = serializers.DateTimeField(label='更新时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
 
 
+# 系统字典序列化器
+class ConfDictSerializer(serializers.ModelSerializer, BaseModelSerializer):
+
+    class Meta:
+        model = ConfDict
+        exclude = ('deleted',)
+
+
 
 # def get_ObjectFlow(type):
 #     '''
