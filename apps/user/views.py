@@ -51,10 +51,11 @@ __in 在某某范围内
 is null / is not null 为空/非空
 .exclude(age=10) 查询年龄不为10的数据
 '''
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
-from rest_framework_extensions.cache.decorators import (
-    cache_response
-)
+# 测试的cache 所用的包 drf-extensions
+# from rest_framework_extensions.cache.mixins import CacheResponseMixin # CacheResponseMixin使用在viewset里可以针对某些请求进行缓存
+# from rest_framework_extensions.cache.decorators import (
+#     cache_response
+# )
 
 
 class LoginView(generics.GenericAPIView):
@@ -117,10 +118,10 @@ class UserViewset(ModelViewSet):
         return ReturnUserSerializer
 
 
+# 测试导出Excel数据流
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from drf_renderer_xlsx.mixins import XLSXFileMixin
 from drf_renderer_xlsx.renderers import XLSXRenderer
-
 class UserDictExportViewset(XLSXFileMixin, ReadOnlyModelViewSet):
     
     queryset = User.objects.all()
@@ -141,6 +142,7 @@ class UserDictExportViewset(XLSXFileMixin, ReadOnlyModelViewSet):
 class UserInfo(APIView):
     authentication_classes = (JWTAuthentication,)
 
+    # 测试对返回的数据进行缓存
     # @cache_response()
     def get(self, request, *args, **kwargs):
         '''
