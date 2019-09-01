@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
-    'tests.apps.TestsConfig',
 ]
 
 
