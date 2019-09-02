@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from .models import *
 import time
 import datetime
@@ -95,6 +95,7 @@ class ConfDictSerializer(serializers.ModelSerializer, BaseModelSerializer):
 #         model = User
 #         fields = '__all__' # __all__用于序列化所有字段 or exclude = ('deleted',)指定，某些字段不被序列化返回 or fields = ['company','username',]指定序列化的字段
 #         read_only_fields = ('user', 'object_flow',) # 指定只读的字段，这样就不会被前端修改
+#         validators = [UniqueTogetherValidator(queryset=Auth.objects.all(), fields=['auth_type',], message='该权限已经存在')] # 多字段联合唯一
     
 #     def validate(self, attrs):
 #         # 查看前端传来的所有数据

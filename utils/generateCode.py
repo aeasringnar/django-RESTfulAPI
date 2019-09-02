@@ -13,7 +13,7 @@ def main(app_list):
                 MySerializer = """
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueTogetherValidator
 from base.serializers import BaseModelSerializer
 from rest_framework.utils import model_meta
 import threading

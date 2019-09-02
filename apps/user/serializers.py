@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueTogetherValidator
 from base.serializers import BaseModelSerializer
 from rest_framework.utils import model_meta
 from .models import *
@@ -25,13 +25,12 @@ def save_worker(instance, datas):
 
 # 新增权限使用
 class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    auth_type = serializers.CharField(label="权限名称", help_text="权限名称", required=True, allow_blank=False,
-                                       validators=[UniqueValidator(queryset=Auth.objects.all(), message="该权限已经存在")])
     auth_permissions = AddAuthPermissionSerializer(many=True)
 
     class Meta:
         model = Auth
         exclude = ('deleted',)
+        validators = [UniqueTogetherValidator(queryset=Auth.objects.all(), fields=['auth_type',], message='该权限已经存在')]
 
     def create(self, validated_data):
         auth_permissions_data = validated_data.pop('auth_permissions')
