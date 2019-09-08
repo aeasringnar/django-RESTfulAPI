@@ -33,8 +33,8 @@ class BaseModel(models.Model):
     sort = models.IntegerField(default=1, null=True, blank=True, verbose_name='排序')
     content = models.TextField(null=True, blank=True, verbose_name='描述')
     sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
-    created = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    updated = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 
     class Meta:
         abstract = True

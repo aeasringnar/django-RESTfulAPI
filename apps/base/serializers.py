@@ -28,8 +28,8 @@ is null / is not null 为空/非空
 
 class BaseModelSerializer(serializers.Serializer):
     sort_time = serializers.DateTimeField(required=False, label='排序时间', format='%Y-%m-%d %H:%M:%S', input_formats=['%Y-%m-%d %H:%M:%S', '%Y-%m-%d'],)
-    created = serializers.DateTimeField(label='创建时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
-    updated = serializers.DateTimeField(label='更新时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
+    create_time = serializers.DateTimeField(label='创建时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
+    update_time = serializers.DateTimeField(label='更新时间', format='%Y-%m-%d %H:%M:%S', read_only=True)
 
 
 # 系统字典序列化器

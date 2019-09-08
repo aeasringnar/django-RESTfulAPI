@@ -81,7 +81,7 @@ class LoginView(generics.GenericAPIView):
                 payload = jwt_payload_handler(user)
                 token = jwt_encode_handler(payload)
                 data = jwt_response_payload_handler(token, user, request)
-                user.updated = datetime.datetime.now()
+                user.update_time = datetime.datetime.now()
                 user.save()
                 return Response({"message": "登录成功", "errorCode": 0, "data": data})
             else:
@@ -101,7 +101,7 @@ class UserViewset(ModelViewSet):
     destroy:  删除用户
     list:  获取用户列表
     '''
-    queryset = User.objects.all().order_by('-updated')
+    queryset = User.objects.all().order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -109,7 +109,7 @@ class UserViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'phone', 'email',)
     # filter_fields = ('start_work_time','end_work_time',)
-    ordering_fields = ('updated', 'sort_time', 'created',)
+    ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -154,7 +154,7 @@ class UserInfo(APIView):
             if not request.auth:
                 return Response({"message": "请先登录", "errorCode": 2, "data": {}})
             user = User.objects.filter(id=request.user.id).first()
-            user.bf_logo_time = user.updated
+            user.bf_logo_time = user.update_time
             user.save()
             json_data['data'] = ReturnUserSerializer(user).data
             return Response(json_data)
@@ -173,14 +173,14 @@ class AuthViewset(ModelViewSet):
     destroy:  删除权限
     list:  获取权限列表
     '''
-    queryset = Auth.objects.all().order_by('-updated')
+    queryset = Auth.objects.all().order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
     serializer_class = ReturnAuthSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('auth_type',)
-    ordering_fields = ('updated', 'sort_time', 'created',)
+    ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):

@@ -33,5 +33,5 @@ from .models import *
 #             date_list = value.split(',')
 #             start_date = datetime.datetime.strptime(date_list[0], '%Y-%m-%d')
 #             end_date = datetime.datetime.strptime(date_list[1] + ' 23:59:59', '%Y-%m-%d %H:%M:%S')
-#             return queryset.filter(updated__gt=start_date, updated__lt=end_date)
+#             return queryset.filter(update_time__gt=start_date, update_time__lt=end_date)
 

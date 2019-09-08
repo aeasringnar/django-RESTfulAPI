@@ -67,7 +67,7 @@ name = serializers.DateField(format=api_settings.DATE_FORMAT, input_formats=None
 name = serializers.BooleanField()
 name = serializers.ListField(child=serializers.IntegerField(min_value=0, max_value=100))
 name = serializers.DictField(child=<A_FIELD_INSTANCE>, allow_empty=True)  DictField(child=CharField())
-(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,generics.GenericAPIView,viewsets.GenericViewSet)
+(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,GenericViewSet)
 Q(name__icontains=keyword) 内部是like模糊搜索
 __gt 大于 
 __gte 大于等于
@@ -135,7 +135,7 @@ class {name}Viewset(ModelViewSet):
     destroy:  删除{verbose}
     list:  获取{verbose}列表
     '''
-    queryset = {name}.objects.all().order_by('-updated')
+    queryset = {name}.objects.all().order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -143,21 +143,21 @@ class {name}Viewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     # search_fields = ({searchs})
     # filter_fields = ({filters})
-    ordering_fields = ('updated', 'sort_time', 'created',)
+    ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action in ['create']:
             return Add{name}Serializer
-        if self.action == 'update' or self.action == 'partial_update':
+        if self.action in ['update', 'partial_update']:
             return Update{name}Serializer
         return Return{name}Serializer
 
     def get_queryset(self):
         if bool(self.request.auth) and self.request.user.group_id == 1:
-            return {name}.objects.all().order_by('-updated')
+            return {name}.objects.all().order_by('-update_time')
         else:
-            return {name}.objects.filter(user_id=self.request.user.id).order_by('-updated')
+            return {name}.objects.filter(user_id=self.request.user.id).order_by('-update_time')
                 """.format(name=name, verbose=verbose, searchs=searchs,filters=filters)
                     # 路由
                     MyUrl = """

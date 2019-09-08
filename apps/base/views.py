@@ -115,7 +115,7 @@ class ConfDictViewset(ModelViewSet):
     destroy:  删除系统字典
     list:  获取系统字典列表
     '''
-    queryset = ConfDict.objects.all().order_by('-updated')
+    queryset = ConfDict.objects.all().order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -123,7 +123,7 @@ class ConfDictViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('dict_title', )
     filter_fields = ('dict_type', )
-    ordering_fields = ('updated', 'sort_time', 'created',)
+    ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination
 
 
