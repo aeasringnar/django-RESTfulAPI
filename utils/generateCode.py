@@ -20,6 +20,7 @@ import threading
 from .models import *
 import time
 import datetime
+from django.db.models import F, Q
                 """
                 # ModelViewSet视图
                 MyViewSet = """
@@ -158,11 +159,11 @@ class {name}Viewset(ModelViewSet):
             return {name}.objects.all().order_by('-update_time')
         else:
             return {name}.objects.filter(user_id=self.request.user.id).order_by('-update_time')
-                """.format(name=name, verbose=verbose, searchs=searchs,filters=filters)
+                """.format(name=name, verbose=verbose, searchs=searchs, filters=filters)
                     # 路由
                     MyUrl = """
 # {verbose}管理
-router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')""".format(name=name, verbose=verbose,lower=name.lower(),app_name=app_name)
+router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')""".format(name=name, verbose=verbose, lower=name.lower(), app_name=app_name)
                     # 开始自动生成代码
                     # 生成 serializers 序列化器 'serializers.py'
                     with open(os.path.join(app_path,'serializers.py'),'a',encoding='utf-8') as f:
