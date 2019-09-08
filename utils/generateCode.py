@@ -13,7 +13,7 @@ def main(app_list):
                 MySerializer = """
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from base.serializers import BaseModelSerializer
 from rest_framework.utils import model_meta
 import threading
@@ -141,8 +141,8 @@ class {name}Viewset(ModelViewSet):
     throttle_classes = [VisitThrottle]
     serializer_class = Return{name}Serializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    # search_fields = ('field01', 'field02', 'field03',)
-    # filter_fields = ('field01', 'field02', 'field03',)
+    # search_fields = ({searchs})
+    # filter_fields = ({filters})
     ordering_fields = ('updated', 'sort_time', 'created',)
     pagination_class = Pagination
 
@@ -162,8 +162,7 @@ class {name}Viewset(ModelViewSet):
                     # 路由
                     MyUrl = """
 # {verbose}管理
-router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')
-                """.format(name=name, verbose=verbose,lower=name.lower(),app_name=app_name)
+router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')""".format(name=name, verbose=verbose,lower=name.lower(),app_name=app_name)
                     # 开始自动生成代码
                     # 生成 serializers 序列化器 'serializers.py'
                     with open(os.path.join(app_path,'serializers.py'),'a',encoding='utf-8') as f:
