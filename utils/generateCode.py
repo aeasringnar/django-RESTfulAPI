@@ -110,13 +110,13 @@ class Add{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
         # read_only_fields = ('field01', )
 # 修改 {verbose} 序列化器
-class Update{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
+class Update{name}Serializer(serializers.ModelSerializer):
     class Meta:
         model = {name}
         exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
         # read_only_fields = ('field01', )
 # 返回 {verbose} 序列化器
-class Return{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
+class Return{name}Serializer(serializers.ModelSerializer):
     class Meta:
         model = {name}
         exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]
