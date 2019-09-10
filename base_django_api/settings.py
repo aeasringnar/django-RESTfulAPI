@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'django_filters',
     'drf_yasg',
+    'haystack',
     'django_celery_beat',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
@@ -330,3 +331,13 @@ CELERY_RESULT_SERIALIZER = 'json'
 # REST_FRAMEWORK_EXTENSIONS = {
 #     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 5
 # }
+
+# 全文检索配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+# 全文检索配置自动更新索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

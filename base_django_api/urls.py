@@ -1,4 +1,4 @@
-from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset
+from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset, ConfDictSearchView
 from user.views import LoginView, UserViewset, UserInfo, AuthViewset
 from django.contrib import admin
 from django.urls import path, include
@@ -28,6 +28,8 @@ router.register(r'user', UserViewset, base_name='账号管理')
 router.register(r'auth', AuthViewset, base_name='权限管理')
 # 系统字典管理
 router.register(r'confdict', ConfDictViewset, base_name='系统字典管理')
+# 全文检索路由 检索系统字典
+router.register(r'searchdict', ConfDictSearchView, base_name='全文检索系统字典')
 
 
 urlpatterns = [

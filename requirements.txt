@@ -24,6 +24,9 @@ redis==3.2.1
 drf-renderer-xlsx==0.3.2
 django-celery-beat==1.5.0
 celery==4.3.0
+drf-haystack==1.8.5
+whoosh==2.7.4
+jieba==0.39
 # drf-extensions==0.5.1 注意 可能会应为drf版本引起不兼容，使用drf3.9没问题 原因是djangorestframework3.10与drf-yasg==1.15.0版本冲突
 # pip install -U "celery[redis]"  # 使用redis作为Broker
 # celery -A base_django_api worker -l info # 启动celery

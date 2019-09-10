@@ -171,3 +171,25 @@ class BeginCelery(APIView):
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+from drf_haystack.serializers import HaystackSerializer
+from drf_haystack.viewsets import HaystackViewSet
+from .search_indexes import ConfDictIndex
+
+
+class ConfDictSerializer(HaystackSerializer):
+
+    class Meta:
+        index_classes = [ ConfDictIndex ]
+        fields = [
+            "title"
+        ]
+
+
+class ConfDictSearchView(HaystackViewSet):
+
+    index_models = [ConfDict]
+    serializer_class = ConfDictSerializer
+    # 配置检索分页
+    pagination_class = Pagination
