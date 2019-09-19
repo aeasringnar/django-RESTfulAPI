@@ -157,8 +157,10 @@ class {name}Viewset(ModelViewSet):
     def get_queryset(self):
         if bool(self.request.auth) and self.request.user.group_id == 1:
             return {name}.objects.all().order_by('-update_time')
-        else:
+        elif bool(self.request.auth):
             return {name}.objects.filter(user_id=self.request.user.id).order_by('-update_time')
+        else:
+            return {name}.objects.filter(id=0).order_by('-update_time')
                 """.format(name=name, verbose=verbose, searchs=searchs, filters=filters)
                     # 路由
                     MyUrl = """
