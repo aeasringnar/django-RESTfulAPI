@@ -7,6 +7,7 @@ from .models import *
 import time
 import datetime
 import threading
+from django.db import transaction
 
 
 # 新增权限菜单约束使用
@@ -32,6 +33,7 @@ class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',)
         validators = [UniqueTogetherValidator(queryset=Auth.objects.all(), fields=['auth_type',], message='该权限已经存在')]
 
+    @transaction.atomic
     def create(self, validated_data):
         auth_permissions_data = validated_data.pop('auth_permissions')
         auth_per = Auth.objects.create(**validated_data)

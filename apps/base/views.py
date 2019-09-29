@@ -178,7 +178,7 @@ from drf_haystack.viewsets import HaystackViewSet
 from .search_indexes import ConfDictIndex
 
 
-class ConfDictSerializer(HaystackSerializer):
+class ExportConfDictSerializer(HaystackSerializer):
 
     class Meta:
         index_classes = [ ConfDictIndex ]
@@ -190,6 +190,6 @@ class ConfDictSerializer(HaystackSerializer):
 class ConfDictSearchView(HaystackViewSet):
 
     index_models = [ConfDict]
-    serializer_class = ConfDictSerializer
+    serializer_class = ExportConfDictSerializer
     # 配置检索分页
     pagination_class = Pagination

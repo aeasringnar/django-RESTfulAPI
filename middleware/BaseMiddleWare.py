@@ -14,12 +14,13 @@ from django.http import QueryDict, HttpResponse, JsonResponse
 class PermissionMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
-        print('查看authkey')
-        print(request.META.get('HTTP_AUTHKEY'))
-        if request.META.get('HTTP_AUTHKEY'):
-            pass
-        else:
-            return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+        if request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+            print('查看authkey')
+            print(request.META.get('HTTP_AUTHKEY'))
+            if request.META.get('HTTP_AUTHKEY'):
+                pass
+            else:
+                return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
 
 
 
