@@ -110,4 +110,4 @@ class FormatReturnJsonMiddleware(object):
                     response.render()
         except Exception as e:
             print('发生错误：', e)
-        return response
+        return JsonResponse({"message": "出现了无法预料的view视图错误，请查看后台日志。", "errorCode": 1, "data": {}})
