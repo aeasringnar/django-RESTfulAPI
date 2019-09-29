@@ -11,6 +11,18 @@ import urllib
 from django.http import QueryDict, HttpResponse, JsonResponse
 
 
+class PermissionMiddleware(MiddlewareMixin):
+
+    def process_request(self, request):
+        print('查看authkey')
+        print(request.META.get('HTTP_AUTHKEY'))
+        if request.META.get('HTTP_AUTHKEY'):
+            pass
+        else:
+            return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+
+
+
 class PrintLogMiddleware(MiddlewareMixin):
 
     def process_request(self, request):

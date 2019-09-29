@@ -72,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'middleware.BaseMiddleWare.PrintLogMiddleware', # 日志格式化中间件
+    'middleware.BaseMiddleWare.PermissionMiddleware', # 增加接口检测中间件
     'middleware.BaseMiddleWare.FormatReturnJsonMiddleware', # response 格式化中间件
 ]
 
