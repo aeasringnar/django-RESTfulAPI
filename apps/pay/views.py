@@ -34,6 +34,7 @@ from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
 from django.views.decorators.csrf import csrf_exempt
+from utils.WeChatPay import WeChatJSAPIPay
 
 
 
@@ -109,7 +110,7 @@ class WxPayView(generics.GenericAPIView):
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
                 return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
-            wxpay_object = WeChatPay(out_trade_no='order_num',body='测试',total_fee=1,openid='openid')
+            wxpay_object = WeChatJSAPIPay(out_trade_no='order_num',body='测试',total_fee=1,openid='openid')
             params = wxpay_object.re_finall()
             print('最终得到返回给前端的参数：',params)
             json_data['data'] = params
