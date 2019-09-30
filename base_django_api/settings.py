@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770sdfgertgsdf'
+INTERFACE_KEY = '05d!sfd54*asd86sdf+a5+s-d.f=hg6@dsfg$sdf125key'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -100,7 +101,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base_django_api.wsgi.application'
 
 
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -122,7 +123,7 @@ DATABASES = {
         }
     }
 }
-'''
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -342,3 +343,10 @@ HAYSTACK_CONNECTIONS = {
 }
 # 全文检索配置自动更新索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+# 微信支付配置
+WECHAT_APPID = 'wx55c7e82ad8ee5811'  
+WECHAT_SECRET = '283cd14d41c38e70d34f58ec27fd5f30'
+WECHAT_MCHID = '1525957861'
+WECHAT_KEY = 'a05ea3S6jgj8Z1GuJ26ozuKedsZyxOKm'
