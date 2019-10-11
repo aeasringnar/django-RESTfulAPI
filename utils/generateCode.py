@@ -22,6 +22,7 @@ import time
 import datetime
 from django.db.models import F, Q
 from django.db import transaction
+from decimal import Decimal
                 """
                 # ModelViewSet视图
                 MyViewSet = """
@@ -37,6 +38,7 @@ import hashlib
 import xml
 import threading
 from django.db import transaction
+from decimal import Decimal
 from django.db.models import F, Q
 from rest_framework import serializers, status, generics, mixins, viewsets
 from rest_framework.views import APIView
