@@ -1,5 +1,5 @@
 from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset, ConfDictSearchView
-from user.views import LoginView, UserViewset, UserInfo, AuthViewset
+from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatLoginView
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -31,13 +31,20 @@ router.register(r'confdict', ConfDictViewset, base_name='系统字典管理')
 # 全文检索路由 检索系统字典
 router.register(r'searchdict', ConfDictSearchView, base_name='全文检索系统字典')
 
+'''>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      微信小程序接口       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'''
+# 微信修改用户个人信息
+router.register(r'wechat/updateuser', WeChatUpdateUserViewset, basename='小程序接口--修改个人信息')
+
 
 urlpatterns = [
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include(router.urls)),
+    # 后台登录
     path('adminlogin/', LoginView.as_view(), name='adminlogin'),
+    # 微信登录
+    path('wechatlogin/', WeChatLoginView.as_view(), name='小程序--登录'),
     path('uploadfile/', UploadFile.as_view(), name='uploadfile'),
     path('tests/', Tests.as_view(), name='tests'),
     path('userinfo/', UserInfo.as_view(), name='userinfo'),

@@ -74,7 +74,7 @@ class ConfDictSerializer(serializers.ModelSerializer, BaseModelSerializer):
 #     name = serializers.CharField(label="用户名", help_text="用户名", required=True, allow_blank=False,
 #                                      validators=[UniqueValidator(queryset=User.objects.all(), message="用户已经存在")])
 #     # 防止出现重复数据的同时，对数据进行验证
-#     phone = serializers.CharField(label="手机号", help_text="手机号", required=True, allow_blank=False,
+#     mobile = serializers.CharField(label="手机号", help_text="手机号", required=True, allow_blank=False,
 #                                      validators=[UniqueValidator(queryset=User.all_objects.all(), message="手机号已经存在")],
 #                                      error_messages={"required": '手机号不能为空', 'blank': '手机号不能为空', 'null': '手机号不能为空'})
 #     # 将一个外键设为只读，防止前端传入值进来修改

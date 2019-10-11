@@ -72,9 +72,11 @@ class LoginView(generics.GenericAPIView):
             data = (serializer.data)
             username = data.get('username')
             password = data.get('password')
-            user = User.objects.filter(Q(username=username) | Q(phone=username) | Q(email=username)).first()
+            user = User.objects.filter(Q(username=username) | Q(mobile=username) | Q(email=username)).first()
             if not user:
                 return Response({"message": "用户不存在", "errorCode": 2, "data": {}})
+            if user.group.group_type == 'NormalUser':
+                return Response({"message": "非法登录，不是后台用户！", "errorCode": 2, "data": {}})
             if user.status == '0':
                 return Response({"message": "账号被冻结，无法登录。", "errorCode": 2, "data": {}})
             if user.password == password:
@@ -89,6 +91,66 @@ class LoginView(generics.GenericAPIView):
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+class WeChatLoginView(generics.GenericAPIView):
+    serializer_class = WeChatLoginViewSerializer
+    @transaction.atomic
+    def post(self, request):
+        '''
+        微信登录接口
+        '''
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
+            print(serializer.data)
+            code = serializer.data.get('code')
+            userInfo = serializer.data.get('userInfo')
+            print(userInfo.get('avatarUrl'))
+            # 调用微信登录获取openid
+            open_id = wechat_login(code)
+            if type(open_id) == dict:
+                return Response(open_id)
+            # 测试绕过微信登录
+            # open_id = 'asdfasdf21341cdfq345sderffggfwe45'
+            # 根据openid查找用户
+            user = User.objects.filter(open_id=open_id).first()
+            print('查看user',user)
+            if not user:
+                user = User()
+                user.group_id = 3
+                user.open_id = open_id
+                user.real_name = userInfo.get('nickName')
+                user.avatar_url = userInfo.get('avatarUrl')
+                user.gender = userInfo.get('gender')
+                if userInfo.get('country') and userInfo.get('province') and userInfo.get('city'):
+                    user.region = ' '.join([userInfo.get('country'), userInfo.get('province'), userInfo.get('city')])
+                user.save()
+            payload = jwt_payload_handler(user)
+            token = jwt_encode_handler(payload)
+            data = jwt_response_payload_handler(token, user, request)
+            user.update_time = datetime.datetime.now()
+            user.save()
+            return Response({"message": "登录成功", "errorCode": 0, "data": data})
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+# 微信用户修改自己的用户信息视图
+class WeChatUpdateUserViewset(mixins.UpdateModelMixin, GenericViewSet):
+    '''
+    update:  更新用户信息
+    '''
+    queryset = User.objects.all().order_by('-update_time')
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [JWTAuthPermission, ]
+    throttle_classes = [VisitThrottle]
+    serializer_class = WeChatUpdateUserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
 
 
 # 后台用户管理
@@ -107,7 +169,7 @@ class UserViewset(ModelViewSet):
     throttle_classes = [VisitThrottle]
     serializer_class = ReturnUserSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    search_fields = ('username', 'phone', 'email',)
+    search_fields = ('username', 'mobile', 'email',)
     # filter_fields = ('start_work_time','end_work_time',)
     ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination

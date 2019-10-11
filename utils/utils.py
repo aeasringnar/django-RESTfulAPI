@@ -10,7 +10,20 @@ import random
 import datetime
 import time
 import math
+import requests
 
+
+# 微信小程序登录方法
+def wechat_login(code):
+    appid = settings.WECHAT_APPID
+    secret = settings.WECHAT_SECRET
+    get_user_url = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&js_code={}&grant_type=authorization_code'.format(appid, secret, code)
+    response = requests.get(url=get_user_url)
+    print('msg：',eval(response.text), type(eval(response.text)))
+    response_dic = eval(response.text)
+    if response_dic.get('errcode') and response_dic.get('errcode') != 0:
+        return {"message": "微信端推送错误：%s,errcode=%s" % (response_dic.get('errmsg'), response_dic.get('errcode')), "errorCode": 1, "data": {}}
+    return response_dic.get('openid')
 
 
 def jwt_payload_handler(account):

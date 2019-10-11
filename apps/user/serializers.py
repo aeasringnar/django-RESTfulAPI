@@ -114,3 +114,16 @@ class ReturnUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
     class Meta:
         model = User
         exclude = ('deleted', 'password',)
+
+
+# 微信登录view的表单验证
+class WeChatLoginViewSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    userInfo = serializers.JSONField()
+
+
+class WeChatUpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ['mobile', 'region', 'real_name', 'gender', 'avatar_url', 'birth_date'] 
