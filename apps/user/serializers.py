@@ -42,6 +42,7 @@ class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
             AuthPermission.objects.create(auth=auth_per, **item)
         return auth_per
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         # print('查看auth_permissions：', validated_data.get('auth_permissions'))
         if validated_data.get('auth_permissions'):
