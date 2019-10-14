@@ -163,7 +163,7 @@ class UserViewset(ModelViewSet):
     destroy:  删除用户
     list:  获取用户列表
     '''
-    queryset = User.objects.all().order_by('-update_time')
+    queryset = User.objects.filter(group__group_type__in=['SuperAdmin', 'Admin']).order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -175,8 +175,10 @@ class UserViewset(ModelViewSet):
     pagination_class = Pagination
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
+        if self.action in ['create']:
             return AddUserSerializer
+        if self.action in ['update', 'partial_update']:
+            return UpdateUserSerializer
         return ReturnUserSerializer
 
 

@@ -98,6 +98,28 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
     class Meta:
         model = User
         exclude = ('deleted',)
+        validators = [
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
+
+    def validate(self, attrs):
+        now_user = self.context['request'].user
+        print(attrs['group'].group_type)
+        if attrs['group'].group_type == 'SuperAdmin' and now_user.group.group_type != 'SuperAdmin':
+            raise serializers.ValidationError("无权建立超级管理员账号。")
+        if attrs['group'].group_type == 'NormalUser' and now_user.group.group_type != 'SuperAdmin':
+            raise serializers.ValidationError("无权私自建立普通用户账号。")
+        return attrs
+
+
+class UpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
+    
+    class Meta:
+        model = User
+        exclude = ('deleted',)
+        validators = [
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
 
 
 # ReturnUserSerializer 使用的group序列化器
