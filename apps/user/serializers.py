@@ -17,12 +17,14 @@ class AddAuthPermissionSerializer(serializers.ModelSerializer):
         model = AuthPermission
         fields = ['id','object_name', 'object_name_cn','auth_list','auth_create','auth_update','auth_destroy']
 
+
 def del_worker(datas):
     for item in datas:
         item.delete()
 def save_worker(instance, datas):
     for item in datas:
         AuthPermission.objects.create(auth=instance, **item)
+
 
 # 新增权限使用
 class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
@@ -49,18 +51,18 @@ class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
             auth_permissions_data = validated_data.pop('auth_permissions')
             # 修改时创建权限菜单的方法
             need_dels = AuthPermission.objects.filter(auth_id=instance.id)
-            # for item in need_dels:
-            #     item.delete()
-            # for item in auth_permissions_data:
-            #     # print('查看：', item)
-            #     # print('查看id：', item.get('id'))
-            #     AuthPermission.objects.create(auth=instance, **item)
+            for item in need_dels:
+                item.delete()
+            for item in auth_permissions_data:
+                # print('查看：', item)
+                # print('查看id：', item.get('id'))
+                AuthPermission.objects.create(auth=instance, **item)
             # 开多线程优化代码
-            del_work = threading.Thread(target=del_worker,args=(need_dels,))
-            del_work.start()
-            save_work = threading.Thread(target=save_worker,args=(instance,auth_permissions_data,))
-            save_work.start()
-            save_work.join()
+            # del_work = threading.Thread(target=del_worker,args=(need_dels,))
+            # del_work.start()
+            # save_work = threading.Thread(target=save_worker,args=(instance,auth_permissions_data,))
+            # save_work.start()
+            # save_work.join()
 
         # 继承自父类的方法
         info = model_meta.get_field_info(instance)

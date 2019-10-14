@@ -75,7 +75,7 @@ class LoginView(generics.GenericAPIView):
             user = User.objects.filter(Q(username=username) | Q(mobile=username) | Q(email=username)).first()
             if not user:
                 return Response({"message": "用户不存在", "errorCode": 2, "data": {}})
-            if user.group.group_type == 'NormalUser':
+            if user.group.group_type in ['NormalUser']:
                 return Response({"message": "非法登录，不是后台用户！", "errorCode": 2, "data": {}})
             if user.status == '0':
                 return Response({"message": "账号被冻结，无法登录。", "errorCode": 2, "data": {}})
@@ -170,7 +170,7 @@ class UserViewset(ModelViewSet):
     serializer_class = ReturnUserSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'mobile', 'email',)
-    # filter_fields = ('start_work_time','end_work_time',)
+    filter_fields = ('status', 'group', 'auth', )
     ordering_fields = ('update_time', 'sort_time', 'create_time',)
     pagination_class = Pagination
 

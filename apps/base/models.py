@@ -30,8 +30,8 @@ max_length = 255 # 指定字段容量长度，CharField必须要指定
 '''
 
 class BaseModel(models.Model):
-    sort = models.IntegerField(default=1, null=True, blank=True, verbose_name='排序')
-    content = models.TextField(null=True, blank=True, verbose_name='描述')
+    sort = models.IntegerField(default=1,verbose_name='排序')
+    content = models.TextField(default='',verbose_name='描述')
     sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
@@ -57,7 +57,7 @@ class ConfDict(SoftDeleteModel, BaseModel):
 
 
 class TmpFile(SoftDeleteModel, BaseModel):
-    name = models.CharField(max_length=255, null=True, blank=True, verbose_name='描述')
+    name = models.CharField(max_length=255, default='', verbose_name='描述')
     url = models.FileField(upload_to="base-api/%Y%m")
 
     class Meta:
