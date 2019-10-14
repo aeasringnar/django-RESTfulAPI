@@ -100,6 +100,7 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
         exclude = ('deleted',)
         validators = [
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['email',], message='该邮箱已经存在'),
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
 
     def validate(self, attrs):
