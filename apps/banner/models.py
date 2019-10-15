@@ -14,7 +14,7 @@ class Banner(SafeModel, BaseModel):
     title = models.CharField(max_length=255, verbose_name='标题')
     img_url = models.CharField(max_length=255, verbose_name='图片链接')
     jump_type = models.IntegerField(choices=jump_type_choices, default=0, verbose_name='跳转分类')
-    jump_url = models.CharField(max_length=255, null=True, blank=True, verbose_name='外链链接')
+    jump_url = models.CharField(max_length=255, default='', verbose_name='外链链接')
     start_time = models.DateTimeField(verbose_name='开始时间', null=True, blank=True)
     end_time = models.DateTimeField(verbose_name='结束时间', null=True, blank=True)
 

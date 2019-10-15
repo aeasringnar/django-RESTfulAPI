@@ -64,6 +64,3 @@ class TmpFile(SoftDeleteModel, BaseModel):
         db_table = 'A_Tmp_File'
         verbose_name = '文件转存表'
         verbose_name_plural = verbose_name
-
-    def __str__(self):
-        return self.name

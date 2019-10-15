@@ -185,10 +185,8 @@ class UserViewset(ModelViewSet):
 class MemberViewset(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
     '''
     修改局部数据
-    create:  创建用户
     retrieve:  检索某个用户
     update:  更新用户
-    destroy:  删除用户
     list:  获取用户列表
     '''
     queryset = User.objects.filter(group__group_type='NormalUser').order_by('-update_time')

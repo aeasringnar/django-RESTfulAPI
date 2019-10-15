@@ -192,7 +192,7 @@ router.register(r'{lower}', {name}Viewset, base_name='{verbose}管理')""".forma
 if __name__ == '__main__':
     # 自动生成代码，将表内容按照格式放入，使用Python脚本运行即可
     # 存放 app名称、模型以及表名
-    # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表'},{'name':'User','verbose':'用户表'}]}]
+    # 示例：app_list = [{'name': 'tests','models': [{'name':'Group','verbose':'用户组表','searchs':"'field1', ",'filters':"'field1', "},{'name':'User','verbose':'用户表'}]}]
     app_list = [
         {'name': 'tests','models': [
             {'name':'Ftable','verbose':'测试父表','searchs':"",'filters':""},
