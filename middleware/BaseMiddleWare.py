@@ -113,5 +113,7 @@ class FormatReturnJsonMiddleware(object):
             print('发生错误：', e)
             if e.__str__() == "'HttpResponseNotFound' object has no attribute 'data'":
                 return JsonResponse({"message": '路径/页面未找到。', "errorCode": 1,"data": {}})
+            if e.__str__() == "'JsonResponse' object has no attribute 'data'":
+                return response
             return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % e.__str__(), "errorCode": 1, "data": {}})
         return response
