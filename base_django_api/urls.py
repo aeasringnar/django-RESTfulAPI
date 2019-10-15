@@ -1,5 +1,5 @@
 from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset, ConfDictSearchView
-from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatLoginView
+from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatLoginView, MemberViewset
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -24,6 +24,8 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 # 账号管理
 router.register(r'user', UserViewset, base_name='账号管理')
+# 普通用户管理
+router.register(r'member', MemberViewset, base_name='用户管理')
 # 权限管理
 router.register(r'auth', AuthViewset, base_name='权限管理')
 # 系统字典管理
@@ -41,12 +43,10 @@ urlpatterns = [
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include(router.urls)),
-    # 后台登录
-    path('adminlogin/', LoginView.as_view(), name='adminlogin'),
-    # 微信登录
+    path('adminlogin/', LoginView.as_view(), name='后台登录'),
     path('wechatlogin/', WeChatLoginView.as_view(), name='小程序--登录'),
-    path('uploadfile/', UploadFile.as_view(), name='uploadfile'),
-    path('tests/', Tests.as_view(), name='tests'),
-    path('userinfo/', UserInfo.as_view(), name='userinfo'),
-    path('celery/', BeginCelery.as_view(), name='tests'),
+    path('uploadfile/', UploadFile.as_view(), name='文件上传'),
+    path('tests/', Tests.as_view(), name='测试接口'),
+    path('userinfo/', UserInfo.as_view(), name='个人信息'),
+    path('celery/', BeginCelery.as_view(), name='celery测试'),
 ]

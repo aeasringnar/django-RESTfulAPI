@@ -30,7 +30,7 @@ class Auth(SoftDeleteModel, BaseModel):
 class AuthPermission(SoftDeleteModel, BaseModel):
     object_name = models.CharField( max_length=255, verbose_name='功能名称')
     object_name_cn = models.CharField(max_length=255, verbose_name='功能名称-中文')
-    auth = models.ForeignKey(Auth, on_delete=models.PROTECT, verbose_name='权限组', related_name='auth_permissions')
+    auth = models.ForeignKey(Auth, on_delete=models.CASCADE, verbose_name='权限组', related_name='auth_permissions')
     auth_list = models.NullBooleanField(default=False, verbose_name='查看')
     auth_create = models.NullBooleanField(default=False, verbose_name='新增')
     auth_update = models.NullBooleanField(default=False, verbose_name='修改')
@@ -56,7 +56,7 @@ class User(SoftDeleteModel, BaseModel):
     status = models.IntegerField(default=1, choices=((0, '冻结'),(1, '正常')),  verbose_name='用户状态')
     is_admin = models.BooleanField(default=False, verbose_name='是否管理员')
     group = models.ForeignKey(Group, on_delete=models.PROTECT, verbose_name='用户组')
-    auth = models.ForeignKey(Auth, on_delete=models.PROTECT, null=True, blank=True, verbose_name='权限组')
+    auth = models.ForeignKey(Auth, on_delete=models.PROTECT, null=True, blank=True, verbose_name='权限组') # 当auth被删除时，当前user的auth会被保留，但是auth下的auth_permissions会被删除，不返回
     bf_logo_time = models.DateTimeField(null=True, blank=True, verbose_name='上次登录时间')
 
     class Meta:

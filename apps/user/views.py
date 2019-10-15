@@ -141,16 +141,15 @@ class WeChatLoginView(generics.GenericAPIView):
 # 微信用户修改自己的用户信息视图
 class WeChatUpdateUserViewset(mixins.UpdateModelMixin, GenericViewSet):
     '''
-    update:  更新用户信息
+    update:更新用户信息
     '''
-    queryset = User.objects.all().order_by('-update_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [JWTAuthPermission, ]
     throttle_classes = [VisitThrottle]
     serializer_class = WeChatUpdateUserSerializer
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+        return User.objects.filter(id=self.request.user.id, group__group_type='NormalUser')
 
 
 # 后台用户管理
@@ -180,6 +179,33 @@ class UserViewset(ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return UpdateUserSerializer
         return ReturnUserSerializer
+
+
+# 普通用户管理
+class MemberViewset(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
+    '''
+    修改局部数据
+    create:  创建用户
+    retrieve:  检索某个用户
+    update:  更新用户
+    destroy:  删除用户
+    list:  获取用户列表
+    '''
+    queryset = User.objects.filter(group__group_type='NormalUser').order_by('-update_time')
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = [BaseAuthPermission, ]
+    throttle_classes = [VisitThrottle]
+    serializer_class = ReturnMemberSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
+    search_fields = ('username', 'mobile', 'email',)
+    filter_fields = ('status', 'group', 'auth', )
+    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    pagination_class = Pagination
+
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return UpdateMemberSerializer
+        return ReturnMemberSerializer
 
 
 # 测试导出Excel数据流
@@ -251,12 +277,3 @@ class AuthViewset(ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return AddAuthSerializer
         return ReturnAuthSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # 删除权限子表
-        auths = AuthPermission.objects.filter(auth_id=instance.id)
-        for item in auths:
-            item.delete()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)

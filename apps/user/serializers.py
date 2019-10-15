@@ -21,6 +21,8 @@ class AddAuthPermissionSerializer(serializers.ModelSerializer):
 def del_worker(datas):
     for item in datas:
         item.delete()
+
+
 def save_worker(instance, datas):
     for item in datas:
         AuthPermission.objects.create(auth=instance, **item)
@@ -92,7 +94,7 @@ class LoginViewSerializer(serializers.Serializer):
     # test = serializers.DictField(child=serializers.CharField(required=True))
 
 
-# 新增用户使用
+# 新增后台用户使用
 class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
     class Meta:
@@ -112,7 +114,7 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
             raise serializers.ValidationError("无权私自建立普通用户账号。")
         return attrs
 
-
+# 修改后台用户使用
 class UpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
     
     class Meta:
@@ -121,6 +123,13 @@ class UpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
         validators = [
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
+
+    def validate(self, attrs):
+        now_user = self.context['request'].user
+        print(attrs['group'].group_type)
+        if attrs.get('group') and now_user.group.group_type != 'SuperAdmin':
+            raise serializers.ValidationError("无权修改用户组。")
+        return attrs
 
 
 # ReturnUserSerializer 使用的group序列化器
@@ -147,8 +156,25 @@ class WeChatLoginViewSerializer(serializers.Serializer):
     userInfo = serializers.JSONField()
 
 
-class WeChatUpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
-    
+# 微信用户修改个人信息序列化器
+class WeChatUpdateUserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['mobile', 'region', 'real_name', 'gender', 'avatar_url', 'birth_date'] 
+
+
+# 修改普通用户序列化器
+class UpdateMemberSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['status']
+
+
+# 返回普通用户序列化器
+class ReturnMemberSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        exclude = ('deleted', 'password', 'group', 'auth')
