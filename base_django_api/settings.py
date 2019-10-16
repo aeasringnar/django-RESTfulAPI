@@ -350,3 +350,8 @@ WECHAT_APPID = 'wx55c7e82ad8ee5811'
 WECHAT_SECRET = '283cd14d41c38e70d34f58ec27fd5f30'
 WECHAT_MCHID = '1525957861'
 WECHAT_KEY = 'a05ea3S6jgj8Z1GuJ26ozuKedsZyxOKm'
+
+
+FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
+FILE_SIZE = 1024 * 1024 * 64
+SERVER_NAME = '127.0.0.1'

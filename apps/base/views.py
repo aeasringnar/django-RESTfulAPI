@@ -31,6 +31,7 @@ from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
 from decimal import Decimal
+from django.conf import settings
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -69,8 +70,6 @@ class UploadFile(APIView):
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             file_i = request.FILES.items()
             # 这里面filename是用户上传的文件的key upfile是用户上传的文件名
-            allow_file_size = 1024 * 1024 * 64
-            file_check = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt']
             is_file = False
             up_files = []
             for key_name, up_file in file_i:
@@ -81,11 +80,11 @@ class UploadFile(APIView):
                 file_size = up_file.size
                 check_file = file_name.split('.')[-1]
                 new_file_name = str(uuid.uuid1())
-                if check_file.lower() not in file_check:
-                    json_data['message'] = file_name + '不是规定的文件类型'
+                if check_file.lower() not in settings.FILE_CHECK:
+                    json_data['message'] = file_name + '不是规定的文件类型(%s)！' % '/'.join(settings.FILE_CHECK)
                     json_data['errorCode'] = 4
                     return Response(json_data)
-                if file_size > allow_file_size:
+                if file_size > settings.FILE_SIZE:
                     json_data['message'] = file_name + '文件超过64mb，无法上传'
                     json_data['errorCode'] = 4
                     return Response(json_data)
@@ -104,8 +103,60 @@ class UploadFile(APIView):
             json_data['data'] = up_files
             return Response(json_data)
         except Exception as e:
-            print(e)
-            return Response({"message": "未知错误", "errorCode": 1, "data": {}})
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+class UploadLocalFile(APIView):
+    def post(self,request):
+        '''
+        上传接口-写入本地
+        '''
+        try:
+            if not request.auth:
+                return Response({"message": "请先登录", "errorCode": 2, "data": {}})
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            file_i = request.FILES.items()
+            # 这里面filename是用户上传的文件的key upfile是用户上传的文件名
+            upload_file_list = []
+            upload_host_url_list = []
+            for key_name,up_file in file_i:
+                print(key_name,up_file.name,up_file.size,up_file.read)
+                file_name = up_file.name
+                file_size = up_file.size
+                check_file = file_name.split('.')[-1]
+                new_file_name = str(uuid.uuid1())
+                if check_file.lower() not in settings.FILE_CHECK:
+                    json_data['message'] = file_name + '不是规定的类型(%s)！' % '/'.join(settings.FILE_CHECK)
+                    json_data['errorCode'] = 4
+                    return Response(json_data)
+                if file_size > settings.FILE_SIZE:
+                    json_data['message'] = file_name + '文件超过64mb，无法上传！'
+                    json_data['errorCode'] = 4
+                    return Response(json_data)
+                # 获取存储的文件名
+                save_file_name = new_file_name + '.' + check_file
+                # 获取当前文件的绝对路径
+                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                upfile_base_dir = os.path.join(base_path, 'upload_file')
+                is_have = os.path.exists(upfile_base_dir)
+                if is_have:
+                    save_path = os.path.join(upfile_base_dir,save_file_name)
+                else:
+                    os.makedirs(upfile_base_dir)
+                    save_path = os.path.join(upfile_base_dir, save_file_name)
+                with open(save_path, 'wb') as u_file:
+                    for part in up_file.chunks():
+                        u_file.write(part)
+                host_file_url = 'http://' + settings.SERVER_NAME + '/upload_file/' + save_file_name
+                upload_file_list.append(save_file_name)
+                upload_host_url_list.append(host_file_url)
+            # json_data['data'] = upload_file_list
+            json_data['data'] = upload_host_url_list
+            return Response(json_data)
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
 # 后台系统字典管理

@@ -1,4 +1,4 @@
-from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset, ConfDictSearchView
+from base.views import UploadFile, Tests, BeginCelery, ConfDictViewset, ConfDictSearchView, UploadLocalFile
 from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatLoginView, MemberViewset
 from django.contrib import admin
 from django.urls import path, include
@@ -45,7 +45,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('adminlogin/', LoginView.as_view(), name='后台登录'),
     path('wechatlogin/', WeChatLoginView.as_view(), name='小程序--登录'),
-    path('uploadfile/', UploadFile.as_view(), name='文件上传'),
+    path('uploadfile/', UploadLocalFile.as_view(), name='文件上传'), # UploadFile UploadLocalFile 
     path('tests/', Tests.as_view(), name='测试接口'),
     path('userinfo/', UserInfo.as_view(), name='个人信息'),
     path('celery/', BeginCelery.as_view(), name='celery测试'),

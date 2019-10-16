@@ -23,6 +23,7 @@ import datetime
 from django.db.models import F, Q
 from django.db import transaction
 from decimal import Decimal
+from django.conf import settings
                 """
                 # ModelViewSet视图
                 MyViewSet = """
@@ -61,6 +62,7 @@ from .serializers import *
 # from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
+from django.conf import settings
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
