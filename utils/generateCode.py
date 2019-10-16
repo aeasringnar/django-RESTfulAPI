@@ -24,6 +24,7 @@ from django.db.models import F, Q
 from django.db import transaction
 from decimal import Decimal
 from django.conf import settings
+from django.core.cache import cache
                 """
                 # ModelViewSet视图
                 MyViewSet = """
