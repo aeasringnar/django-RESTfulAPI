@@ -30,8 +30,8 @@ max_length = 255 # 指定字段容量长度，CharField必须要指定
 '''
 
 class BaseModel(models.Model):
-    sort = models.IntegerField(default=1,verbose_name='排序')
-    content = models.TextField(default='',verbose_name='描述')
+    sort = models.IntegerField(default=1, verbose_name='排序')
+    content = models.TextField(default='', blank=True, verbose_name='描述')
     sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')

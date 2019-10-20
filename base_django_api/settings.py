@@ -115,8 +115,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'base-api',
         'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
+        'PASSWORD': 'zeroyz.367',
+        'HOST': '148.70.172.143',
         'PORT': '3306',
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",
@@ -195,7 +195,7 @@ REST_FRAMEWORK = {
     'TIME_FORMAT': '%H:%M:%S',
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
 }
-
+'''
 # 使用redis缓存会出问题 drf-extensions 不使用redis正常，问题未知
 CACHES = {
     "default": {
@@ -208,7 +208,7 @@ CACHES = {
         }
     }
 }
-
+'''
 
 '''
 # Aliyun OSS
