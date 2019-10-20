@@ -29,7 +29,7 @@ def save_worker(instance, datas):
 
 
 # 新增权限使用
-class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class AddAuthSerializer(serializers.ModelSerializer):
     auth_permissions = AddAuthPermissionSerializer(many=True)
 
     class Meta:
@@ -79,7 +79,7 @@ class AddAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 
 # 返回权限使用
-class ReturnAuthSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class ReturnAuthSerializer(serializers.ModelSerializer):
     auth_permissions = AddAuthPermissionSerializer(read_only=True, many=True)
 
     class Meta:
@@ -95,7 +95,7 @@ class LoginViewSerializer(serializers.Serializer):
 
 
 # 新增后台用户使用
-class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class AddUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
@@ -115,7 +115,7 @@ class AddUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
         return attrs
 
 # 修改后台用户使用
-class UpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
@@ -133,7 +133,7 @@ class UpdateUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 
 # ReturnUserSerializer 使用的group序列化器
-class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class UserUseGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
@@ -141,7 +141,7 @@ class UserUseGroupSerializer(serializers.ModelSerializer, BaseModelSerializer):
 
 
 # 返回用户使用 userinfo也使用
-class ReturnUserSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class ReturnUserSerializer(serializers.ModelSerializer):
     group = UserUseGroupSerializer()
     auth = ReturnAuthSerializer()
 

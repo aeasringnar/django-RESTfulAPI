@@ -112,7 +112,7 @@ is null / is not null 为空/非空
 
 
 # 新增 {verbose} 序列化器
-class Add{name}Serializer(serializers.ModelSerializer, BaseModelSerializer):
+class Add{name}Serializer(serializers.ModelSerializer):
     class Meta:
         model = {name}
         exclude = ('deleted',) # or fields = '__all__' or fields = ['field01','field01',]

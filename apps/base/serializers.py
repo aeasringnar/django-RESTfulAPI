@@ -34,7 +34,7 @@ class BaseModelSerializer(serializers.Serializer):
 
 
 # 系统字典序列化器
-class ConfDictSerializer(serializers.ModelSerializer, BaseModelSerializer):
+class ConfDictSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConfDict
