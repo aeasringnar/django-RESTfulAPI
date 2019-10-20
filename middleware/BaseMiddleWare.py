@@ -33,21 +33,25 @@ class PermissionMiddleware(MiddlewareMixin):
 class PrintLogMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
-        print('************************************************* 下面是新的一条日志 ***************************************************')
-        print('拦截请求的地址：', request.path, '请求的方法：', request.method)
-        print('==================================== headers 头信息 ====================================================')
-        for key in request.META:
-            if key[:5] == 'HTTP_':
-                print(key, request.META[key])
-        print('==================================== request body信息 ==================================================')
-        print('params参数：', request.GET)
-        if request.path == '/uploadfile/':
-            print('body参数：', '文件类型')
-        else:
-            print('body参数：', request.body.decode())
-            if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
-                print('body参数：', urllib.parse.unquote(request.body.decode()))
-        print('================================== View视图函数内部信息 ================================================')
+        try:
+            print('************************************************* 下面是新的一条日志 ***************************************************')
+            print('拦截请求的地址：', request.path, '请求的方法：', request.method)
+            print('==================================== headers 头信息 ====================================================')
+            for key in request.META:
+                if key[:5] == 'HTTP_':
+                    print(key, request.META[key])
+            print('==================================== request body信息 ==================================================')
+            print('params参数：', request.GET)
+            if request.path == '/uploadfile/':
+                print('body参数：', '文件类型')
+            else:
+                print('body参数：', request.body.decode())
+                if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
+                    print('body参数：', urllib.parse.unquote(request.body.decode()))
+            print('================================== View视图函数内部信息 ================================================')
+        except Exception as e:
+            print('发生错误：已预知的是上传文件导致，非预支见下。')
+            print('发生错误：', e)
 
     def process_exception(self, request, exception):
         print('发生错误的请求地址：', request.path, '。错误原因：',exception)
