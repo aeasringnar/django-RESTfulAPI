@@ -50,12 +50,24 @@ class PrintLogMiddleware(MiddlewareMixin):
                     print('body参数：', urllib.parse.unquote(request.body.decode()))
             print('================================== View视图函数内部信息 ================================================')
         except Exception as e:
-            print('发生错误：已预知的是上传文件导致，非预支见下。')
-            print('发生错误：', e)
+            print('发生错误：已预知的是上传文件导致，非预知错误见下：')
+            print('未知错误：', e)
 
     def process_exception(self, request, exception):
         print('发生错误的请求地址：', request.path, '。错误原因：',exception)
         return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % exception.__str__(), "errorCode": 1, "data": {}})
+    
+    def process_response(self,request,response):
+        if type(response) == Response:
+            if response.data.get('errorCode') != 0:
+                print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+                print(response.data)
+                print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+        if type(response) == JsonResponse:
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+            print(json.loads(response.content.decode()))
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+        return response
 
 
 
