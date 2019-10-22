@@ -5,7 +5,7 @@ PyMySQL==0.8.1
 drf-yasg==1.15.0
 swagger-spec-validator==2.1.0
 flex==6.13.2
-httpie==0.9.9
+httpie==1.0.3
 PyJWT==1.6.4
 gunicorn==19.8.1
 pyotp==2.2.6
