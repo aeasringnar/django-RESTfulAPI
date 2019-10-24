@@ -115,8 +115,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'base-api',
         'USER': 'root',
-        'PASSWORD': 'zeroyz.367',
-        'HOST': '148.70.172.143',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",

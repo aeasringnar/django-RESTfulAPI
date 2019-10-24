@@ -181,6 +181,7 @@ class ConfDictViewset(ModelViewSet):
     pagination_class = Pagination
 
 
+from celery.result import AsyncResult
 class Tests(APIView):
 
     def get(self, request):
@@ -193,6 +194,9 @@ class Tests(APIView):
             # timeout=0 立即过期 timeout=None 永不超时
             cache.set("key", "value", timeout=None)
             print(cache.get('key'))
+            # 获取celery的结果
+            print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').ready()) # 获取该任务的状态是否完成
+            print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
@@ -211,16 +215,16 @@ class BeginCelery(APIView):
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             # if not request.auth:
             #     return Response({"message": "请先登录", "errorCode": 2, "data": {}})
-            print(789456789)
+            print('开始测试...')
             # print(add(1,2))
-            add.delay(3,5)
+            # add.delay(3,5) # 执行异步任务并返回任务id 在redis中是一个key
             mul_result = mul.delay(3,5)
-            say.delay()
+            # say.delay()
             # 返回的是key
-            print(mul_result)
+            # print(mul_result)
             # res=AsyncResult(mul_result)  # 参数为task_id
-            print(dir(mul_result))
-            print(mul_result.result)
+            # print(dir(mul_result))
+            # print(mul_result.result)
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
