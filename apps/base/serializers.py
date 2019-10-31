@@ -117,3 +117,23 @@ class ConfDictSerializer(serializers.ModelSerializer):
 #         print('查看GET参数：', self.context['request'].query_params)
 #         num = 0
 #         return num
+'''
+标识禁止序列化的字段，直接无视该字段的增删改查，一般用于字段被数据库或框架管理，例如是否被删除的标志字段。
+exclude = ('deleted',)
+序列化所有字段，所有字段默认都根据模型定义的验证规则进行验证，可以自定义其他辅助验证，或将某些字段对前端隐藏后端处理，对于需要返回给前端还得在后端处理的字段需要在放到read_only_fields内
+fields = '__all__' 
+指定序列化的字段，增删改查只能对这些字段生效
+fields = ['field01','field01',]
+设置只读的字段，被设置的字段不能被前端传来的值改变，，这些这可以在后端自己管理 在validate中管理
+它表示对fields的补充，它补充了对fields指定字段做只读，应用场景是后端处理字段后返回给前端。
+read_only_fields = ('field01', )
+被HiddenField处理的字段，将会对前端无感，前端在增删改查时都将无感该字段
+它也是对fields指定字段的补充，值得注意的是，如果对同一个字段使用HiddenField和read_only_fields，只有HiddenField有效
+user = serializers.HiddenField(default=serializers.CurrentUserDefault(), label='所属用户')
+
+
+1、前端新增或修改时 即不需要设置也不需要返回 使用 exclude 包含进去
+2、前端新增或修改时 即不需要设置也不需要返回 但需要后端设置值的 使用 HiddenField
+3、前端新增或修改时 不需要设置但需要返回的 使用 read_only_fields 包含进去
+注意：需要的字段都要存在于 fields 被序列化字段中
+'''

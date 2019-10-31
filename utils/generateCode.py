@@ -64,6 +64,7 @@ from .serializers import *
 from functools import reduce
 from urllib.parse import unquote_plus
 from django.conf import settings
+from django.forms.models import model_to_dict
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
