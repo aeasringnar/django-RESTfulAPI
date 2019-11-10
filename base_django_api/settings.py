@@ -72,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.BaseMiddleWare.WechatAppMiddleware', # 将 put 请求转化为 patch 请求中间件
     'middleware.BaseMiddleWare.PrintLogMiddleware', # 日志格式化中间件
     'middleware.BaseMiddleWare.PermissionMiddleware', # 增加接口检测中间件
     'middleware.BaseMiddleWare.FormatReturnJsonMiddleware', # response 格式化中间件
@@ -253,7 +254,7 @@ crontab范例：
 每天23点执行   0 23 * * *
 '''
 CRONJOBS = [
-    ('*/5 * * * *', 'base.utils.task', '>> /tmp/tasks.log'),
+    ('*/5 * * * *', 'base.crontabs.confdict_handle', '>> /tmp/base_api/confdict_handle.log'), # 注意：/tmp/base_api 目录要手动创建
 ]
 
 

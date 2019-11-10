@@ -14,11 +14,11 @@ def get_nonce_str():
 
 
 class WeChatJSAPIPay(object):
-    def __init__(self, out_trade_no, body, total_fee, nonce_str, openid, spbill_create_ip='8.8.8.8'):
+    def __init__(self, order_num, body, total_fee, nonce_str, openid):
         """
-        :param out_trade_no: 订单编号 32字符内
+        :param order_num: 订单编号 32字符内
         :param body: 订单信息
-        :param total_fee: 订单金额 # 单位为分
+        :param total_fee: 订单金额 #单位为分
         :param nonce_str: 32位内随机字符串
         :param spbill_create_ip: 客户端请求IP地址
         :param openid: 客户openid
@@ -28,18 +28,18 @@ class WeChatJSAPIPay(object):
         api_key = '微信支付密钥'
         spbill_create_ip = '8.8.8.8' # 用户请求地址 终端IP 调用微信支付API的机器IP
         """
-        self.api_key = settings.WECHAT_KEY
+        self.api_key = settings.WEICHAT_PAY_API_KEY
         self.params = {
-            'appid': settings.WECHAT_APPID,
-            'mch_id': settings.WECHAT_MCHID,
+            'appid': settings.WEICHAT_PAY_APPID,
+            'mch_id': settings.WEICHAT_PAY_MCHID,
             'nonce_str': nonce_str,
             'openid': openid,
             'body': str(body),
-            'out_trade_no': str(out_trade_no),
+            'out_trade_no': str(order_num),
             'total_fee': str(int(total_fee)),
-            'spbill_create_ip': spbill_create_ip,
+            'spbill_create_ip': '8.8.8.8',
             'trade_type': 'JSAPI',
-            'notify_url': 'https://xyg.jctop.net/b/shop/wxnotifyurl',#你的支付回调地址
+            'notify_url': 'https://www.your.com/wxnotifyurl',# 支付回调地址
         }
 
         self.WxPay_request_url = 'https://api.mch.weixin.qq.com/pay/unifiedorder'  # 微信请求url
@@ -52,7 +52,7 @@ class WeChatJSAPIPay(object):
         string_sign = ''
         for k in sorted(value.keys()):
             string_sign += "{0}={1}&".format(k, value[k])
-        print('键值对：',string_sign)
+        # print('键值对：',string_sign)
         return string_sign
 
     def get_sign(self, params):
@@ -61,7 +61,7 @@ class WeChatJSAPIPay(object):
         """
         stringA = self.key_value_url(params)
         stringSignTemp = stringA + 'key=' + self.api_key  # APIKEY, API密钥，需要在商户后台设置
-        print('最终键值对：',stringSignTemp)
+        # print('最终键值对：',stringSignTemp)
         # sign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
         sign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
         # k = hashlib.sha256()
@@ -70,12 +70,12 @@ class WeChatJSAPIPay(object):
         # print(j.hexdigest().upper())
         # print(k.hexdigest().upper())
         # sign = j.hexdigest().upper()
-        print('生成签名sign：',sign)
+        # print('生成签名sign：',sign)
         params['sign'] = sign
 
     def get_req_xml(self):
         """
-        拼接 XML
+        拼接XML
         """
         self.get_sign(self.params)
         xml = "<xml>"
@@ -89,7 +89,10 @@ class WeChatJSAPIPay(object):
         """
         请求获取prepay_id
         """
+        import requests
+        from xml.etree import ElementTree as et
         xml = self.get_req_xml()
+        # unifiedorderXML = requests.post('https://api.mch.weixin.qq.com/pay/unifiedorder', data=xml)
         unifiedorderXML = requests.post(self.WxPay_request_url, data=xml)
         unifiedorderXML.encoding ='utf-8'
         unifiedorderXML = unifiedorderXML.text
@@ -108,13 +111,13 @@ class WeChatJSAPIPay(object):
         self.params['signType'] = 'MD5'
 
     def re_finall(self):
-        """得到prepay_id后再次签名，返回给终端参数
+        """
+        得到prepay_id后再次签名，返回给终端参数
         """
         self.get_prepay_id()
         if self.error:
             print('有错误发生')
             return 
-
         sign_again_params = {
             'appId': self.params['appid'],
             'timeStamp': self.params['timestamp'],
@@ -126,12 +129,12 @@ class WeChatJSAPIPay(object):
         self.params['sign'] = sign_again_params['sign']
 
         # 移除其他不需要返回参数
-        print('最后一步:', self.params)
+        # print('最后一步:', self.params)
         parms_keys = []
         for i in self.params.keys():
             parms_keys.append(i)
         for i in parms_keys:
             if i not in ['appid', 'mch_id', 'nonce_str', 'timestamp', 'sign', 'package', 'signType']:
                 self.params.pop(i)
-        print('传给前端的parms:', self.params)
+        # print('传给前端的parms:', self.params)
         return self.params

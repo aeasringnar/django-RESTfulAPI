@@ -39,11 +39,10 @@ from utils.WeChatPay import WeChatJSAPIPay
 
 
 @csrf_exempt
-def wx_notify_url(request):
+@transaction.atomic
+def wechat_notify_url(request):
     '''
     微信支付回调接口
-    无需登录便可访问
-    无需参数
     '''
     try:
         print('请求方法：',request.method)
@@ -55,29 +54,24 @@ def wx_notify_url(request):
             if xmlData.find('return_code').text != 'SUCCESS':
                 print('回调出现错误')
                 return HttpResponse(return_xml,content_type='application/xml;charset=utf-8')
-                # print('错误原因：%s' % xmlData.find('return_msg').text)
-                # return Response(return_xml)
             else:
                 if xmlData.find('result_code').text != 'SUCCESS':
                     print('支付失败！')
                     return HttpResponse(return_xml,content_type='application/xml;charset=utf-8')
                 else:
+                    print('订单支付成功...准备修改订单状态')
                     order_num = xmlData.find('out_trade_no').text
-                    good_order = GoodOrder.objects.filter(order_num=order_num).first()
-                    service_order = ServiceOrder.objects.filter(order_num=order_num).first()
-                    print('查询得到的数据为：',good_order,service_order)
-                    if good_order and not service_order:
-                        goods = OrderGood.objects.filter(order_id=good_order.id)
-                        good_order.status = 1
-                        good_order.save()
-                        date_str = str(datetime.datetime.now().date())
-                        add_jc(date_str,0,good_order)
-                        add_jc_m(date_str,0,goods)
-                        add_log('付款了ID为%d的商品订单。' % good_order.id,good_order.user.id)
-                    elif not good_order and service_order:
-                        service_order.status = 1
-                        service_order.save()
-                        add_log('付款了ID为%d的服务订单。' % service_order.id,service_order.user.id)
+                    order = Order.objects.filter(order_num=order_num).first()
+                    # 更新状态 更新支付时间 更新支付方式
+                    order.status = 1
+                    order.pay_time = datetime.datetime.now()
+                    order.pay_type = 1
+                    order.save()
+                    # 整理库存和销量，当订单到这里时会将库存锁死
+                    for detail in order.order_details.all():
+                        detail.good_grade.sales += detail.buy_num
+                        detail.good_grade.stock -= detail.buy_num
+                        detail.good_grade.save()
                     return HttpResponse(return_xml,content_type='application/xml;charset=utf-8')
         return HttpResponse(return_xml,content_type='application/xml;charset=utf-8')
     except Exception as e:
@@ -90,31 +84,43 @@ def wx_notify_url(request):
 
 class WxPayViewSerializer(serializers.Serializer):
     order_num = serializers.CharField() # 订单编号
-    order_info = serializers.CharField() # 订单信息
-    total_fee = serializers.FloatField() # 订单金额
-class WxPayView(generics.GenericAPIView):
+class WeChatPricePayView(generics.GenericAPIView):
     authentication_classes = (JWTAuthentication,)
     serializer_class = WxPayViewSerializer
+    @transaction.atomic
     def post(self,request):
         '''
         微信支付接口
         '''
-        request_log(request)
         try:
+            json_data = {"message": "支付数据返回成功", "errorCode": 0, "data": {}}
             if not request.auth:
                 return Response({"message": "请先登录", "errorCode": 2, "data": {}})
-            print('openid:', request.user.open_id)
-            if request.user.open_id == '' or request.user.open_id == None:
-                return Response({"message": "用户openid不能为空", "errorCode": 3, "data": {}})
-            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            if request.user.group.group_type in ['SuperAdmin', 'Admin']:
+                return Response({"message": "非法用户，无法下单", "errorCode": 2, "data": {}})
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
                 return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
-            wxpay_object = WeChatJSAPIPay(out_trade_no='order_num',body='测试',total_fee=1,openid='openid')
+            order_num = serializer.data.get('order_num')
+            order = Order.objects.filter(order_num=order_num, status=0).first()
+            if not order:
+                return Response({"message": '订单未找到，支付失败。', "errorCode": 3, "data": {}})
+            order_details = order.order_details.all()
+            check_stock = True
+            # 使用悲观锁梳理订单并发问题  考虑库存不足时是否将订单设置为失效
+            for item in order_details:
+                good_grade = GoodGrade.objects.select_for_update().get(id=item.good_grade_id)
+                if item.buy_num > good_grade.stock:
+                    check_stock = False
+                    break
+            if not check_stock:
+                return Response({"message": '有规格库存不足，无法发起支付。', "errorCode": 3, "data": {}})
+            price = int(float(str(order.all_price)) * 100)
+            wxpay_object = WeChatJSAPIPay(order_num=order_num,body='test',total_fee=price,nonce_str=get_nonce_str(),openid=request.user.open_id)
             params = wxpay_object.re_finall()
-            print('最终得到返回给前端的参数：',params)
+            print('最终得到返回给前端的参数：', params)
             json_data['data'] = params
             return Response(json_data)
         except Exception as e:
-            print(e)
-            return Response({"message": "网络错误：%s"%str(e), "errorCode": 1, "data": {}})
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})

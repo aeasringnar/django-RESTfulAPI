@@ -133,7 +133,7 @@ user = serializers.HiddenField(default=serializers.CurrentUserDefault(), label='
 
 
 1、前端新增或修改时 即不需要设置也不需要返回 使用 exclude 包含进去
-2、前端新增或修改时 即不需要设置也不需要返回 但需要后端设置值的 使用 HiddenField
+2、前端新增时 即不需要设置也不需要返回 但需要后端设置值的 使用 HiddenField 因为 HiddenField 只在新增时有效
 3、前端新增或修改时 不需要设置但需要返回的 使用 read_only_fields 包含进去
 注意：需要的字段都要存在于 fields 被序列化字段中
 '''

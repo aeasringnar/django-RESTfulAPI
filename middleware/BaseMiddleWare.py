@@ -17,7 +17,7 @@ class PermissionMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         white_paths = ['/adminlogin/']
-        if request.path not in white_paths and request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+        if request.path not in white_paths and request.path != '/wechat/wxnotifyurl' and request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
             print('查看authkey',request.META.get('HTTP_AUTHKEY'))
             auth_key = request.META.get('HTTP_AUTHKEY')
             # if auth_key:
@@ -59,7 +59,7 @@ class PrintLogMiddleware(MiddlewareMixin):
     
     def process_response(self,request,response):
         if type(response) == Response:
-            if response.data.get('errorCode') != 0:
+            if response.data.get('errorCode') and response.data.get('errorCode') != 0:
                 print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
                 print(response.data)
                 print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
@@ -68,7 +68,6 @@ class PrintLogMiddleware(MiddlewareMixin):
             print(json.loads(response.content.decode()))
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
         return response
-
 
 
 class FormatReturnJsonMiddleware(object):
@@ -100,7 +99,7 @@ class FormatReturnJsonMiddleware(object):
                 response._is_rendered = False
                 response.render()
             else:
-                if request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+                if request.path is not '/' and request.path != '/wechat/wxnotifyurl' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
                     # 适配不分页返回数据的格式化
                     if type(response.data) == utils.serializer_helpers.ReturnList:
                         data = {"message": 'ok', "errorCode": 0,"data": response.data}
@@ -138,3 +137,11 @@ class FormatReturnJsonMiddleware(object):
                 return response
             return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % e.__str__(), "errorCode": 1, "data": {}})
         return response
+
+
+# 将微信小程序的 put 请求转为 patch 请求
+class WechatAppMiddleware(MiddlewareMixin):
+    
+    def process_request(self, request):
+        if request.method == 'PUT':
+            request.method = 'PATCH'
