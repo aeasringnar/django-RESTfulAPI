@@ -181,6 +181,33 @@ class ConfDictViewset(ModelViewSet):
     pagination_class = Pagination
 
 
+    # def destroy(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     if instance.have_vol != 0:
+    #         return Response({"message": "无法删除。", "errorCode": 1, "data": {}})
+    #     self.perform_destroy(instance)
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     now_user = request.user
+    #     user_trade = Trade.objects.filter(user=user, trade_status='paying').first()
+    #     # 是否存在未支付的订单
+    #     if user_trade:
+    #         pay_mount = System.objects.filter(site_type='vip').first()
+    #         user_trade.pay_amount = Decimal(pay_mount.content)
+    #         user_trade.trade_no = generate_obj_sn()
+    #         user_trade.save()
+    #         # 将model对象转化为dict对象
+    #         data = model_to_dict(user_trade)
+    #     else:
+    #         self.perform_create(serializer)
+    #         data = serializer.data
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+
 from celery.result import AsyncResult
 class Tests(APIView):
 
