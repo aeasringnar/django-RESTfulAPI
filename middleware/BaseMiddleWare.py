@@ -14,6 +14,29 @@ from django.core.cache import cache
 
 
 class PermissionMiddleware(MiddlewareMixin):
+    
+    def process_request(self, request):
+        if request.META.get('HTTP_AUTHORIZATION'):
+            token = (request.META.get('HTTP_AUTHORIZATION').split(' '))[1]
+            try:
+                payload = jwt_decode_handler(token)
+                user_id =  jwt_get_user_id_from_payload_handler(payload)
+                if not user_id:
+                    return JsonResponse({"message": "用户不存在！" , "errorCode": 5, "data": {}})
+                now_user = User.objects.values('id', 'is_freeze').filter(id=user_id).first()
+                if not now_user:
+                    return JsonResponse({"message": "用户不存在！" , "errorCode": 5, "data": {}})
+                if now_user.get('is_freeze'):
+                    return JsonResponse({"message": "账户被冻结！", "errorCode": 6, "data": {}})
+            except jwt.ExpiredSignature:
+                return JsonResponse({"message": 'Token过期' , "errorCode": 5, "data": {}})
+            except jwt.DecodeError:
+                return JsonResponse({"message": 'Token不合法' , "errorCode": 5, "data": {}})
+            except jwt.InvalidTokenError as e:
+                return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+class PermissionMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         white_paths = ['/adminlogin/']
