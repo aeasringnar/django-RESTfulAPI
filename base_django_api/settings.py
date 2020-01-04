@@ -341,10 +341,22 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 
 # 微信开发配置
-WECHAT_APPID = 'wx55c7e82ad8ee5811'  
-WECHAT_SECRET = '283cd14d41c38e70d34f58ec27fd5f30'
-WECHAT_MCHID = '1525957861'
-WECHAT_KEY = 'a05ea3S6jgj8Z1GuJ26ozuKedsZyxOKm'
+WECHAT_MCHID = '微信支付平台商户号'
+WECHAT_KEY = '微信支付平台秘钥'
+WECHAT_PAY_NOTIFY_URL = '微信支付异步通知url'
+WECHAT_MINI_APPID = '微信小程序appid'  
+WECHAT_MINI_SECRET = '微信小程序secret'
+WECHAT_APP_APPID = '微信开放平台APP_appid'
+WECHAT_APP_SECRET = '微信开放平台APP_secret'
+
+
+# 支付宝支付
+ALIPAY_APPID = '支付宝appid'
+# 支付宝商户私钥
+PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'utils/ali_keys/rsa_private_key.pem')
+# 支付宝支付公钥
+ALIPUB_KEY_PATH = os.path.join(BASE_DIR, 'utils/ali_keys/ali_public_key.text')
+ALIPAY_NOTIFY_URL = '支付宝支付异步通知url'
 
 
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
