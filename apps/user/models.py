@@ -53,7 +53,7 @@ class User(SoftDeleteModel, BaseModel):
     open_id = models.CharField(max_length=255, default='', blank=True, verbose_name='微信openid')    
     gender = models.IntegerField(choices=((0, '未知'), (1, '男'), (2, '女')), default=0, verbose_name='性别')
     birth_date = models.DateField(verbose_name='生日', null=True, blank=True)
-    status = models.IntegerField(default=1, choices=((0, '冻结'),(1, '正常')),  verbose_name='用户状态')
+    is_freeze = models.IntegerField(default=1, choices=((0, '否'),(1, '是')),  verbose_name='是否冻结/是否封号')
     is_admin = models.BooleanField(default=False, verbose_name='是否管理员')
     group = models.ForeignKey(Group, on_delete=models.PROTECT, verbose_name='用户组')
     auth = models.ForeignKey(Auth, on_delete=models.PROTECT, null=True, blank=True, verbose_name='权限组') # 当auth被删除时，当前user的auth会被保留，但是auth下的auth_permissions会被删除，不返回
