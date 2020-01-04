@@ -194,8 +194,8 @@ REST_FRAMEWORK = {
     'TIME_FORMAT': '%H:%M:%S',
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
 }
-'''
-# 使用redis缓存会出问题 drf-extensions 不使用redis正常，问题未知
+
+# 使用redis缓存  缓存扩展：drf-extensions 使用redis异常，问题未知
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -207,20 +207,20 @@ CACHES = {
         }
     }
 }
-'''
+
 
 '''
 # Aliyun OSS
-ACCESS_KEY_ID = "LTAI6hxpAQNHm0hE"
-ACCESS_KEY_SECRET = "Iw7jlRBsutGR2PUgg0vnydRzXETCOX"
-END_POINT = "oss-cn-hangzhou.aliyuncs.com"
-BUCKET_NAME = "beatop-h5"
-ALIYUN_OSS_CNAME = ""  # 自定义域名，如果不需要可以不填写
-BUCKET_ACL_TYPE = "public-read"  # private, public-read, public-read-write
+AliOSS_ACCESS_KEY_ID = "LTAI6hxpAQNHm0hE"
+AliOSS_ACCESS_KEY_SECRET = "Iw7jlRBsutGR2PUgg0vnydRzXETCOX"
+AliOSS_END_POINT = "oss-cn-hangzhou.aliyuncs.com"
+AliOSS_BUCKET_NAME = "base-api"
+AliOSS_BUCKET_ACL_TYPE = "public-read"  # private, public-read, public-read-write
+# AliOSS_CNAME = ""  # 自定义域名，如果不需要可以不填写
 # mediafile将自动上传
-DEFAULT_FILE_STORAGE = 'aliyun_oss2_storage.backends.AliyunMediaStorage'
+# AliOSS_DEFAULT_FILE_STORAGE = 'aliyun_oss2_storage.backends.AliyunMediaStorage'
 # staticfile将自动上传
-# STATICFILES_STORAGE = 'aliyun_oss2_storage.backends.AliyunStaticStorage'
+# AliOSS_STATICFILES_STORAGE = 'aliyun_oss2_storage.backends.AliyunStaticStorage'
 '''
 
 
@@ -243,11 +243,12 @@ SWAGGER_SETTINGS = {
 
 # 定时任务
 '''
+*    *    *    *    * ：分别表示 分(0-59)、时(0-23)、天(1 - 31)、月(1 - 12) 、周(星期中星期几 (0 - 7) (0 7 均为周天))
 crontab范例：
 每五分钟执行    */5 * * * *
 每小时执行     0 * * * *
 每天执行       0 0 * * *
-每周执行       0 0 * * 0
+每周一执行       0 0 * * 1
 每月执行       0 0 1 * *
 每天23点执行   0 23 * * *
 '''
@@ -298,25 +299,19 @@ LOGGING = {
 # Celery
 # import djcelery
 # djcelery.setup_loader()  # 加载djcelery
-
 # CELERY_TIMEZONE = TIME_ZONE
 # CELERY_ENABLE_UTC = True
-
 # # 允许的格式
 # CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'yaml']
-
 # BROKER_URL = 'redis://127.0.0.1:6379/0'     # redis作为中间件
 # BROKER_TRANSPORT = 'redis'
 # CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'     # Backend数据库
-
 # # CELERYD_LOG_FILE = BASE_DIR + "/logs/celery/celery.log"         # log路径
 # # CELERYBEAT_LOG_FILE = BASE_DIR + "/logs/celery/beat.log"     # beat log路径
-
 CELERY_BEAT_SCHEDULER  = 'django_celery_beat.schedulers.DatabaseScheduler'
 # BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
 # CELERY_BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
 # CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
-
 BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
@@ -328,10 +323,11 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 
-# 缓存过期时间配置
+# 缓存扩展：drf-extensions  缓存过期时间配置
 # REST_FRAMEWORK_EXTENSIONS = {
 #     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 5
 # }
+
 
 # 全文检索配置
 HAYSTACK_CONNECTIONS = {
@@ -344,7 +340,7 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 
-# 微信支付配置
+# 微信开发配置
 WECHAT_APPID = 'wx55c7e82ad8ee5811'  
 WECHAT_SECRET = '283cd14d41c38e70d34f58ec27fd5f30'
 WECHAT_MCHID = '1525957861'
