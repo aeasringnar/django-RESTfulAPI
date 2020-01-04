@@ -1,8 +1,5 @@
-import os
-import sys
-import datetime
+import os, sys, datetime, random
 import pymysql
-import random
 pymysql.install_as_MySQLdb()
 
 
@@ -57,7 +54,6 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'haystack',
-    'django_celery_beat',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
 ]
@@ -122,6 +118,7 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",
+            'charset': 'utf8mb4',
         }
     }
 }

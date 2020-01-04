@@ -30,9 +30,9 @@ max_length = 255 # 指定字段容量长度，CharField必须要指定
 '''
 
 class BaseModel(models.Model):
-    sort = models.IntegerField(default=1, verbose_name='排序')
-    content = models.TextField(default='', blank=True, verbose_name='描述')
-    sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
+    # sort = models.IntegerField(default=1, verbose_name='排序')
+    # desc = models.TextField(default='', blank=True, verbose_name='描述')
+    # sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
 
@@ -47,6 +47,7 @@ class ConfDict(SoftDeleteModel, BaseModel):
         (2, '类型三'),
     )
     dict_title = models.CharField(max_length=255, verbose_name='字典标题')
+    # dict_content = models.TextField(default='', blank=True, verbose_name='字典内容')
     dict_key = models.IntegerField(default=0, verbose_name='字典键值')
     dict_type = models.IntegerField(default=0, choices=dict_type_choices, verbose_name='字典类型')
 
@@ -57,7 +58,7 @@ class ConfDict(SoftDeleteModel, BaseModel):
 
 
 class TmpFile(SoftDeleteModel, BaseModel):
-    name = models.CharField(max_length=255, default='', verbose_name='描述')
+    name = models.CharField(max_length=255, default='', verbose_name='文件名')
     url = models.FileField(upload_to="base-api/%Y%m")
 
     class Meta:

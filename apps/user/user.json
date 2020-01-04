@@ -5,9 +5,9 @@
     "fields": {
       "group_type": "SuperAdmin",
       "group_type_cn": "超级管理员",
-      "sort_time": "2019-01-01 00:00:00",
-      "create_time": "2019-01-01 00:00:00",
-      "update_time": "2019-01-01 00:00:00"
+      "sort_time": "2020-01-01 00:00:00",
+      "create_time": "2020-01-01 00:00:00",
+      "update_time": "2020-01-01 00:00:00"
     }
   },
   {
@@ -16,9 +16,9 @@
     "fields": {
       "group_type": "Admin",
       "group_type_cn": "管理员",
-      "sort_time": "2019-01-01 00:00:00",
-      "create_time": "2019-01-01 00:00:00",
-      "update_time": "2019-01-01 00:00:00"
+      "sort_time": "2020-01-01 00:00:00",
+      "create_time": "2020-01-01 00:00:00",
+      "update_time": "2020-01-01 00:00:00"
     }
   },
   {
@@ -27,9 +27,9 @@
     "fields": {
       "group_type": "NormalUser",
       "group_type_cn": "普通用户",
-      "sort_time": "2019-01-01 00:00:00",
-      "create_time": "2019-01-01 00:00:00",
-      "update_time": "2019-01-01 00:00:00"
+      "sort_time": "2020-01-01 00:00:00",
+      "create_time": "2020-01-01 00:00:00",
+      "update_time": "2020-01-01 00:00:00"
     }
   },
   {
@@ -39,9 +39,9 @@
       "username": "superadmin",
       "password": "123456",
       "group": 1,
-      "sort_time": "2019-01-01 00:00:00",
-      "create_time": "2019-01-01 00:00:00",
-      "update_time": "2019-01-01 00:00:00"
+      "sort_time": "2020-01-01 00:00:00",
+      "create_time": "2020-01-01 00:00:00",
+      "update_time": "2020-01-01 00:00:00"
     }
   }
 ]
