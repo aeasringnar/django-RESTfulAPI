@@ -68,7 +68,7 @@ class LoginView(generics.GenericAPIView):
         try:
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
-                return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
+                return Response({"message": str(serializer.errors), "errorCode": 2, "data": {}})
             data = (serializer.data)
             username = data.get('username')
             password = data.get('password')
@@ -87,7 +87,7 @@ class LoginView(generics.GenericAPIView):
                 user.save()
                 return Response({"message": "登录成功", "errorCode": 0, "data": data})
             else:
-                return Response({"message": "密码错误", "errorCode": 1, "data": {}})
+                return Response({"message": "密码错误", "errorCode": 2, "data": {}})
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
@@ -103,7 +103,7 @@ class WeChatLoginView(generics.GenericAPIView):
         try:
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
-                return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
+                return Response({"message": str(serializer.errors), "errorCode": 2, "data": {}})
             print(serializer.data)
             code = serializer.data.get('code')
             userInfo = serializer.data.get('userInfo')

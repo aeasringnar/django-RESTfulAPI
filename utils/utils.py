@@ -104,7 +104,7 @@ class VisitThrottle(BaseThrottle):
         self.history = None
 
     def allow_request(self,request,view):
-        remote_addr = request.META.get('REMOTE_ADDR')
+        remote_addr = request.META.get('HTTP_X_REAL_IP')
         print('请求的IP：',remote_addr)
         ctime = time.time()
         if remote_addr not in VISIT_RECORD:
@@ -124,16 +124,6 @@ class VisitThrottle(BaseThrottle):
         ctime = time.time()
         return 60 - (ctime-self.history[-1])
 
-
-
-
-# 定时任务的 task
-def task():
-    try:
-        loca_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print('本地时间：'+str(loca_time))
-    except Exception as e:
-        print('发生错误，错误信息为：', e)
 
 
 

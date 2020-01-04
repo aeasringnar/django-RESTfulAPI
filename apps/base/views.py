@@ -82,11 +82,11 @@ class UploadFile(APIView):
                 new_file_name = str(uuid.uuid1())
                 if check_file.lower() not in settings.FILE_CHECK:
                     json_data['message'] = file_name + '不是规定的文件类型(%s)！' % '/'.join(settings.FILE_CHECK)
-                    json_data['errorCode'] = 4
+                    json_data['errorCode'] = 2
                     return Response(json_data)
                 if file_size > settings.FILE_SIZE:
                     json_data['message'] = file_name + '文件超过64mb，无法上传'
-                    json_data['errorCode'] = 4
+                    json_data['errorCode'] = 2
                     return Response(json_data)
                 file_up.name = new_file_name
                 request.FILES[key_name].name = new_file_name + '.' + check_file
@@ -128,11 +128,11 @@ class UploadLocalFile(APIView):
                 new_file_name = str(uuid.uuid1())
                 if check_file.lower() not in settings.FILE_CHECK:
                     json_data['message'] = file_name + '不是规定的类型(%s)！' % '/'.join(settings.FILE_CHECK)
-                    json_data['errorCode'] = 4
+                    json_data['errorCode'] = 2
                     return Response(json_data)
                 if file_size > settings.FILE_SIZE:
                     json_data['message'] = file_name + '文件超过64mb，无法上传！'
-                    json_data['errorCode'] = 4
+                    json_data['errorCode'] = 2
                     return Response(json_data)
                 # 获取存储的文件名
                 save_file_name = new_file_name + '.' + check_file
