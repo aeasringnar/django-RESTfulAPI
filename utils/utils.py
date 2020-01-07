@@ -14,7 +14,7 @@ import requests
 
 
 # 微信小程序登录方法
-def wechat_login(code):
+def wechat_mini_login(code):
     appid = settings.WECHAT_APPID
     secret = settings.WECHAT_SECRET
     get_user_url = 'https://api.weixin.qq.com/sns/jscode2session?appid={}&secret={}&js_code={}&grant_type=authorization_code'.format(appid, secret, code)
@@ -23,7 +23,41 @@ def wechat_login(code):
     response_dic = eval(response.text)
     if response_dic.get('errcode') and response_dic.get('errcode') != 0:
         return {"message": "微信端推送错误：%s,errcode=%s" % (response_dic.get('errmsg'), response_dic.get('errcode')), "errorCode": 1, "data": {}}
-    return response_dic.get('openid')
+    return response_dic.get('openid'), response_dic.get('unionid'), response_dic.get('session_key')
+
+# 获取微信 access_token
+def get_wechat_token():
+    appid = settings.MINI_WEIXIN_APP_APPID
+    secret = settings.MINI_WEIXIN_APP_SECRET
+    get_user_url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}'.format(appid, secret)
+    response = requests.get(url=get_user_url)
+    # print('msg：',eval(response.text), type(eval(response.text)))
+    response_dic = eval(response.text)
+    if response_dic.get('errcode') and response_dic.get('errcode') != 0:
+        return {"message": "微信端推送错误：%s,errcode=%s" % (response_dic.get('errmsg'), response_dic.get('errcode')), "errorCode": 1, "data": {}}
+    return response_dic.get('access_token')
+
+# 微信APP登录
+def wechat_app_login(code):
+    appid = settings.WEIXIN_APP_APPID
+    secret = settings.WEIXIN_APP_SECRET
+    get_user_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid={}&secret={}&code={}&grant_type=authorization_code'.format(appid, secret, code)
+    response = requests.get(url=get_user_url)
+    print('msg：',eval(response.text), type(eval(response.text)))
+    response_dic = eval(response.text)
+    if response_dic.get('errcode') and response_dic.get('errcode') != 0:
+        return {"message": "微信端推送错误：%s,errcode=%s" % (response_dic.get('errmsg'), response_dic.get('errcode')), "errorCode": 1, "data": {}}
+    access_token = response_dic.get('access_token')
+    # refresh_token = response_dic.get('refresh_token')
+    open_id = response_dic.get('openid')
+    get_user_info = 'https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN'.format(access_token, open_id)
+    response = requests.get(url=get_user_info)
+    print('msg：',eval(response.text), type(eval(response.text)))
+    response_dic = json.loads(response.text.encode('iso-8859-1').decode('utf8'))
+    print('userinfo：', response_dic)
+    if response_dic.get('errcode') and response_dic.get('errcode') != 0:
+        return {"message": "微信端推送错误：%s,errcode=%s" % (response_dic.get('errmsg'), response_dic.get('errcode')), "errorCode": 1, "data": {}}
+    return response_dic
 
 
 def jwt_payload_handler(account):

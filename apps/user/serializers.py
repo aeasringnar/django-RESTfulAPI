@@ -87,7 +87,7 @@ class ReturnAuthSerializer(serializers.ModelSerializer):
         exclude = ('deleted',)
 
 
-# 登录view的表单验证
+# 后台登录view的表单验证
 class LoginViewSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -103,7 +103,8 @@ class AddUserSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['email',], message='该邮箱已经存在'),
-            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')
+            ]
 
     def validate(self, attrs):
         now_user = self.context['request'].user
@@ -122,7 +123,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         exclude = ('deleted',)
         validators = [
             UniqueTogetherValidator(queryset=User.objects.all(), fields=['mobile',], message='该手机号已经存在'),
-            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')]
+            UniqueTogetherValidator(queryset=User.objects.all(), fields=['username',], message='该登录名已经存在')
+            ]
 
     def validate(self, attrs):
         now_user = self.context['request'].user
@@ -150,21 +152,28 @@ class ReturnUserSerializer(serializers.ModelSerializer):
         exclude = ('deleted', 'password',)
 
 
-# 微信登录view的表单验证
+# 微信MINI登录view的表单验证
 class WeChatLoginViewSerializer(serializers.Serializer):
     code = serializers.CharField()
     userInfo = serializers.JSONField()
+    iv = serializers.CharField()
+    encrypted_data = serializers.CharField()
 
 
-# 微信用户修改个人信息序列化器
+# 微信APP登录view的表单验证
+class WeChatAppLoginViewSerializer(serializers.Serializer):
+    code = serializers.CharField()
+
+
+# 用户修改个人信息序列化器
 class WeChatUpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['mobile', 'region', 'real_name', 'gender', 'avatar_url', 'birth_date'] 
+        fields = ['mobile', 'email', 'region', 'real_name', 'id_num', 'nick_name', 'gender', 'avatar_url', 'birth_date'] 
 
 
-# 修改普通用户序列化器
+# 后台修改普通用户序列化器
 class UpdateMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -172,7 +181,7 @@ class UpdateMemberSerializer(serializers.ModelSerializer):
         fields = ['status']
 
 
-# 返回普通用户序列化器
+# 后台返回普通用户序列化器
 class ReturnMemberSerializer(serializers.ModelSerializer):
 
     class Meta:

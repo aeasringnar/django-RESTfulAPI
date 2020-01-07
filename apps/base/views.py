@@ -209,7 +209,7 @@ class ConfDictViewset(ModelViewSet):
 
 
 from celery.result import AsyncResult
-class Tests(APIView):
+class TestView(APIView):
 
     def get(self, request):
         '''
@@ -217,13 +217,15 @@ class Tests(APIView):
         '''
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
-            # 测试cache
-            # timeout=0 立即过期 timeout=None 永不超时
-            cache.set("key", "value", timeout=None)
-            print(cache.get('key'))
-            # 获取celery的结果
-            print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').ready()) # 获取该任务的状态是否完成
-            print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
+            if is_open == 'mytestkey':
+                json_data['message'] = '开始了测试'
+                # 测试cache
+                # timeout=0 立即过期 timeout=None 永不超时
+                cache.set("key", "value", timeout=None)
+                print(cache.get('key'))
+                # 获取celery的结果
+                print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').ready()) # 获取该任务的状态是否完成
+                print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)

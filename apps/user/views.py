@@ -21,7 +21,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 # 缓存配置
 from django.core.cache import cache
 # 自定义的JWT配置 公共插件
-from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj
+from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj, \
+    wechat_mini_login, wechat_app_login, get_wechat_token
+from utils.WeChatCrypt import WXBizDataCrypt
 from utils.jwtAuth import JWTAuthentication
 from utils.pagination import Pagination
 from utils.permissions import JWTAuthPermission, AllowAllPermission, BaseAuthPermission
@@ -77,15 +79,13 @@ class LoginView(generics.GenericAPIView):
                 return Response({"message": "用户不存在", "errorCode": 2, "data": {}})
             if user.group.group_type in ['NormalUser']:
                 return Response({"message": "非法登录，不是后台用户！", "errorCode": 2, "data": {}})
-            if user.status == '0':
+            if user.is_freeze in ['1', 1]:
                 return Response({"message": "账号被冻结，无法登录。", "errorCode": 2, "data": {}})
             if user.password == password:
-                payload = jwt_payload_handler(user)
-                token = jwt_encode_handler(payload)
-                data = jwt_response_payload_handler(token, user, request)
+                token_data = jwt_response_payload_handler(jwt_encode_handler(payload = jwt_payload_handler(user)), user, request)
                 user.update_time = datetime.datetime.now()
                 user.save()
-                return Response({"message": "登录成功", "errorCode": 0, "data": data})
+                return Response({"message": "登录成功", "errorCode": 0, "data": token_data})
             else:
                 return Response({"message": "密码错误", "errorCode": 2, "data": {}})
         except Exception as e:
@@ -93,12 +93,13 @@ class LoginView(generics.GenericAPIView):
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
-class WeChatLoginView(generics.GenericAPIView):
+# 微信小程序登
+class WeChatMiniLoginView(generics.GenericAPIView):
     serializer_class = WeChatLoginViewSerializer
     @transaction.atomic
     def post(self, request):
         '''
-        微信登录接口
+        微信小程序登录接口
         '''
         try:
             serializer = self.get_serializer(data=request.data)
@@ -107,38 +108,100 @@ class WeChatLoginView(generics.GenericAPIView):
             print(serializer.data)
             code = serializer.data.get('code')
             userInfo = serializer.data.get('userInfo')
-            print(userInfo.get('avatarUrl'))
+            encrypted_data = serializer.data.get('encrypted_data')
+            iv = serializer.data.get('iv')
+            # print(userInfo.get('avatarUrl'))
             # 调用微信登录获取openid
-            open_id = wechat_login(code)
+            open_id, union_id, session_key = wechat_mini_login(code)
             if type(open_id) == dict:
                 return Response(open_id)
             # 测试绕过微信登录
             # open_id = 'asdfasdf21341cdfq345sderffggfwe45'
             # 根据openid查找用户
-            user = User.objects.filter(open_id=open_id).first()
+            we_user = User.objects.filter(open_id=open_id).first()
+            if not union_id:
+                pc_obj = WXBizDataCrypt(settings.WECHAT_MINI_APPID, session_key)
+                union_id = pc_obj.decrypt(encrypted_data, iv).get('unionId')
+            app_user = User.objects.filter(union_id=union_id).first()
+            is_login = 1
             print('查看user',user)
-            if not user:
+            if we_user and app_user:
+                if not we_user.union_id:
+                    we_user.union_id = union_id
+                    we_user.save()
+                user = we_user
+            elif we_user and not app_user:
+                if not we_user.union_id:
+                    we_user.union_id = union_id
+                    we_user.save()
+                user = we_user
+            elif app_user and not we_user:
+                if not app_user.open_id:
+                    app_user.open_id = open_id
+                    app_user.save()
+                user = app_user
+            else:
+                is_login = 0
                 user = User()
                 user.group_id = 3
                 user.open_id = open_id
-                user.real_name = userInfo.get('nickName')
+                user.union_id = union_id
+                user.nick_name = userInfo.get('nickName')
                 user.avatar_url = userInfo.get('avatarUrl')
                 user.gender = userInfo.get('gender')
-                if userInfo.get('country') and userInfo.get('province') and userInfo.get('city'):
-                    user.region = ' '.join([userInfo.get('country'), userInfo.get('province'), userInfo.get('city')])
+                user.region = ' '.join([str(item) for item in [userInfo.get('country'), userInfo.get('province'), userInfo.get('city')] if item != None])
                 user.save()
-            payload = jwt_payload_handler(user)
-            token = jwt_encode_handler(payload)
-            data = jwt_response_payload_handler(token, user, request)
+            token_data = jwt_response_payload_handler(jwt_encode_handler(payload = jwt_payload_handler(user)), user, request)
+            token_data['is_login'] = is_login
             user.update_time = datetime.datetime.now()
             user.save()
-            return Response({"message": "登录成功", "errorCode": 0, "data": data})
+            return Response({"message": "登录成功", "errorCode": 0, "data": token_data})
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
-# 微信用户修改自己的用户信息视图
+# 微信APP第三方登录
+class WeChatAppLoginView(generics.GenericAPIView):
+    serializer_class = WeChatAppLoginViewSerializer
+    @transaction.atomic
+    def post(self, request):
+        '''
+        微信APP第三方登录接口
+        '''
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response({"message": str(serializer.errors), "errorCode": 2, "data": {}})
+            # print(serializer.data)
+            code = serializer.data.get('code')
+            user_info = wechat_app_login(code)
+            if user_info.get('errcode') and user_info.get('errcode') != 0:
+                return Response(user_info)
+            # 根据 unionid 查找用户
+            user = User.objects.filter(union_id=user_info.get('unionid')).first()
+            is_login = 0
+            if not user:
+                is_login = 1
+                user = User()
+                user.group_id = 3
+                user.union_id = user_info.get('unionid')
+                user.nick_name = user_info.get('nickname')
+                user.avatar_url = user_info.get('headimgurl')
+                user.gender = user_info.get('sex')
+                user.region = ' '.join([str(item) for item in [user_info.get('country'), user_info.get('province'), user_info.get('city')] if item != None])
+                user.save()
+            token_data = jwt_response_payload_handler(jwt_encode_handler(jwt_payload_handler(user)), user, request)
+            token_data['is_login'] = is_login
+            user.update_time = datetime.datetime.now()
+            user.save()
+            return Response({"message": "登录成功", "errorCode": 0, "data": token_data})
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+# 用户修改自己的用户信息视图
 class WeChatUpdateUserViewset(mixins.UpdateModelMixin, GenericViewSet):
     '''
     update:更新用户信息
@@ -149,7 +212,7 @@ class WeChatUpdateUserViewset(mixins.UpdateModelMixin, GenericViewSet):
     serializer_class = WeChatUpdateUserSerializer
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id, group__group_type='NormalUser')
+        return User.objects.filter(id=self.request.user.id)
 
 
 # 后台用户管理
