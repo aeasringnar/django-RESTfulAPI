@@ -362,6 +362,15 @@ ALIPUB_KEY_PATH = os.path.join(BASE_DIR, 'utils/ali_keys/ali_public_key.text')
 ALIPAY_NOTIFY_URL = '支付宝支付异步通知url'
 
 
+# 阿里短信设置
+ALI_KEY = "LTAIVu9UxqJhEwxG"
+ALI_SECRET = 'dU30IqVp5RIwR0fBteqKLv9oOc05uI'
+ALI_REGION = 'cn-hangzhou'
+ALI_SIGNNAME = '劲诚科技'
+# 登录使用的信息模板
+ALI_LOGOIN_CODE = 'SMS_156390072'
+
+
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
 FILE_SIZE = 1024 * 1024 * 64
 SERVER_NAME = '127.0.0.1'

@@ -5,8 +5,7 @@ from user.models import AuthPermission
 '''
 mixins.CreateModelMixin	    create   POST	  创建数据
 mixins.RetrieveModelMixin	retrieve GET	  检索数据
-mixins.UpdateModelMixin	    update   PUT	  更新数据
-                            perform_update PATCH 更新数据
+mixins.UpdateModelMixin	    update   PUT	  更新数据   perform_update PATCH 局部更新数据
 mixins.DestroyModelMixin	destroy  DELETE	  删除数据
 mixins.ListModelMixin	    list     GET	  获取数据
 '''

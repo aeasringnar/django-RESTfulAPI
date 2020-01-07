@@ -24,6 +24,7 @@ from django.core.cache import cache
 from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler,google_otp,VisitThrottle,getDistance,NormalObj, \
     wechat_mini_login, wechat_app_login, get_wechat_token
 from utils.WeChatCrypt import WXBizDataCrypt
+from utils.AliMsg import create_code, SendSmsObject
 from utils.jwtAuth import JWTAuthentication
 from utils.pagination import Pagination
 from utils.permissions import JWTAuthPermission, AllowAllPermission, BaseAuthPermission
@@ -196,6 +197,36 @@ class WeChatAppLoginView(generics.GenericAPIView):
             user.update_time = datetime.datetime.now()
             user.save()
             return Response({"message": "登录成功", "errorCode": 0, "data": token_data})
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
+# 发送短信验证码
+class MobileCodeView(generics.GenericAPIView):
+    serializer_class = MobileFormSerializer
+    def post(self, request):
+        '''
+        发送短信验证码接口
+        '''
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response({"message": str(serializer.errors), "errorCode": 2, "data": {}})
+            mobile = serializer.data.get('mobile')
+            check_code = cache.get(mobile)
+            if check_code:
+                Response({"message": "验证码已经发送，请勿重复提交。", "errorCode": 2, "data": {}})
+            random_code = create_code()
+            send_obj = SendSmsObject(settings.ALI_KEY, settings.ALI_SECRET, settings.ALI_REGION)
+            return_msg = send_obj.send_code(settings.ALI_LOGOIN_CODE, mobile, random_code)
+            if return_msg["Code"] != 'OK':
+                json_data['message'] = '发送失败，请更换手机号或重新尝试。'
+                json_data['errorCode'] = '2'
+            # 设置缓存
+            cache.set(mobile, random_code, timeout=5 *60)
+            return Response(json_data)
         except Exception as e:
             print('发生错误：',e)
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})

@@ -187,3 +187,8 @@ class ReturnMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('deleted', 'password', 'group', 'auth')
+
+
+# 发生短信form
+class MobileFormSerializer(serializers.Serializer):
+    mobile = serializers.CharField()
