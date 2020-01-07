@@ -34,7 +34,8 @@ from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
 from django.views.decorators.csrf import csrf_exempt
-from utils.WeChatPay import WeChatJSAPIPay
+from utils.WeChatPay import WeChatUnityPay
+from utils.AliPay import AliPay
 
 
 
@@ -81,6 +82,47 @@ def wechat_notify_url(request):
         return HttpResponse(return_xml,content_type='application/xml;charset=utf-8')
 
 
+class AlipayNotifyUrlView(APIView):
+    
+    def post(self, request):
+        """
+        处理支付宝的notify_url
+        :param request:
+        :return:
+        """
+        try:
+            processed_dict = {}
+            for key, value in request.data.items():
+                processed_dict[key] = value
+            if processed_dict:
+                print('支付宝的参数', processed_dict)
+                sign = processed_dict.pop("sign", None)
+                alipay = AliPay(method='alipay.trade.app.pay')
+                verify_re = alipay.verify(processed_dict, sign)
+                print('支付宝的参数', processed_dict)
+                print('检验参数结果', verify_re)
+                out_trade_no = processed_dict.get('out_trade_no', None)
+                trade_no = processed_dict.get('trade_no', None)
+                # response = VerifyAndDo(out_trade_no, pay_way='alipay')
+                order = Order.objects.filter(order_num=out_trade_no, status=0).first()
+                if order:
+                    order.status = 1
+                    order.wechat_order_num = trade_no
+                    order.pay_time = datetime.datetime.now()
+                    order.pay_type = 2
+                    order.save()
+                    # 整理库存和销量，当订单到这里时会将库存锁死
+                    for detail in order.order_details.all():
+                        detail.good_grade.sales += detail.buy_num
+                        detail.good_grade.stock -= detail.buy_num
+                        detail.good_grade.save()
+                else:
+                    print('未找到订单编号为：的订单...' % order_num)
+            return Response('success')
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
 
 class WxPayViewSerializer(serializers.Serializer):
     order_num = serializers.CharField() # 订单编号
@@ -116,7 +158,7 @@ class WeChatPricePayView(generics.GenericAPIView):
             if not check_stock:
                 return Response({"message": '有规格库存不足，无法发起支付。', "errorCode": 3, "data": {}})
             price = int(float(str(order.all_price)) * 100)
-            wxpay_object = WeChatJSAPIPay(order_num=order_num,body='test',total_fee=price,nonce_str=get_nonce_str(),openid=request.user.open_id)
+            wxpay_object = WeChatUnityPay(out_trade_no=order_num, body='订单' + order_num[12:], total_fee=price, trade_type='JSAPI', openid=request.user.open_id)
             params = wxpay_object.re_finall()
             print('最终得到返回给前端的参数：', params)
             json_data['data'] = params

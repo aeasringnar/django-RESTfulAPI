@@ -348,6 +348,9 @@ WECHAT_MINI_APPID = '微信小程序appid'
 WECHAT_MINI_SECRET = '微信小程序secret'
 WECHAT_APP_APPID = '微信开放平台APP_appid'
 WECHAT_APP_SECRET = '微信开放平台APP_secret'
+# 微信企业付款相关证书
+CERT_PATH = os.path.join(BASE_DIR, 'utils/cert/apiclient_cert.pem')
+CERT_KEY_PATH = os.path.join(BASE_DIR, 'utils/cert/apiclient_key.pem')
 
 
 # 支付宝支付
