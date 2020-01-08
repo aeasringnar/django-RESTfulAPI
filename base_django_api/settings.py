@@ -363,12 +363,17 @@ ALIPAY_NOTIFY_URL = '支付宝支付异步通知url'
 
 
 # 阿里短信设置
-ALI_KEY = "LTAIVu9UxqJhEwxG"
-ALI_SECRET = 'dU30IqVp5RIwR0fBteqKLv9oOc05uI'
-ALI_REGION = 'cn-hangzhou'
-ALI_SIGNNAME = '劲诚科技'
+ALI_KEY = "your key"
+ALI_SECRET = 'your secret'
+ALI_REGION = 'your region'
+ALI_SIGNNAME = 'your signame'
 # 登录使用的信息模板
-ALI_LOGOIN_CODE = 'SMS_156390072'
+ALI_LOGOIN_CODE = 'your msg tempalte id'
+
+
+# 极光推送配置
+JPUSH_APPKEY = 'your key'
+JPUSH_SECRET = 'your secret'
 
 
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
