@@ -117,11 +117,18 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
-            "init_command": "SET foreign_key_checks = 0;",
+            "init_command": "SET foreign_key_checks = 0;",  # 去除强制外键约束
             'charset': 'utf8mb4',
+            'sql_mode': 'traditional'
         }
     }
 }
+'''
+sql_mode
+ANSI模式：宽松模式，对插入数据进行校验，如果不符合定义类型或长度，对数据类型调整或截断保存，报warning警告。
+TRADITIONAL 模式：严格模式，当向mysql数据库插入数据时，进行数据的严格校验，保证错误数据不能插入，报error错误。用于事物时，会进行事物的回滚。
+STRICT_TRANS_TABLES模式：严格模式，进行数据的严格校验，错误数据不能插入，报error错误。
+'''
 
 
 # Password validation
