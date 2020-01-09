@@ -38,6 +38,8 @@ class LogMiddleware(MiddlewareMixin):
             for key in request.META:
                 if key[:5] == 'HTTP_':
                     print(key, request.META[key])
+            print('代理IP：', request.META.get('REMOTE_ADDR'))
+            print('真实IP：', request.META.get('HTTP_X_FORWARDED_FOR'))   # HTTP_X_REAL_IP
             print('==================================== request body信息 ==================================================')
             print('params参数：', request.GET)
             if request.path == '/uploadfile/':

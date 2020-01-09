@@ -217,6 +217,7 @@ class TestView(APIView):
         '''
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            is_open = request.GET.get('is_open')
             if is_open == 'mytestkey':
                 json_data['message'] = '开始了测试'
                 # 测试cache
@@ -224,8 +225,8 @@ class TestView(APIView):
                 cache.set("key", "value", timeout=None)
                 print(cache.get('key'))
                 # 获取celery的结果
-                print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').ready()) # 获取该任务的状态是否完成
-                print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
+                # print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').ready()) # 获取该任务的状态是否完成
+                # print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)

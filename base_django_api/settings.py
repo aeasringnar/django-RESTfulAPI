@@ -1,6 +1,6 @@
 import os, sys, datetime, random
-import pymysql
-pymysql.install_as_MySQLdb()
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -291,12 +291,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'django.db.backends': {
             'handlers': ['null'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
     },
