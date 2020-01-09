@@ -11,7 +11,7 @@
 
 ## 快速入门
 
-如需进一步了解，参见 [django 文档][https://docs.djangoproject.com/en/2.2/]。
+如需进一步了解，参见 [django 文档](https://docs.djangoproject.com/en/2.2/)。
 
 ### 本地开发
 
