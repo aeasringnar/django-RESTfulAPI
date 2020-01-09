@@ -1,5 +1,6 @@
 from django.db import models
 from soft_delete_it.models import SoftDeleteModel
+import datetime
 '''
 objects 返回没有删除的所有数据
 all_objects 返回所有数据
@@ -28,6 +29,17 @@ auto_now_add = True # 在创建的时候插入时间
 auto_now = True # 每次修改都会更新时间
 max_length = 255 # 指定字段容量长度，CharField必须要指定
 '''
+class BigDataFilterManager(models.Manager):
+    
+    def all(self, filter_time=None):
+        if filter_time:
+            if ',' in filter_time:
+                start_time = datetime.datetime.strptime(filter_time.split(',')[0] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+                end_time = datetime.datetime.strptime(filter_time.split(',')[1] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+                return super().all().filter(create_time__gte=start_time, create_time__lte=end_time)
+            return super().all()
+        return super().all()
+
 
 class BaseModel(models.Model):
     # sort = models.IntegerField(default=1, verbose_name='排序')
@@ -35,6 +47,7 @@ class BaseModel(models.Model):
     # sort_time = models.DateTimeField(auto_now_add=True, verbose_name='排序时间')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    # objects = BigDataFilterManager()  # 是否开放大数据时的日期过滤
 
     class Meta:
         abstract = True
