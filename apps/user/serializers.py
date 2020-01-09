@@ -178,7 +178,7 @@ class UpdateMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['status']
+        fields = ['is_freeze']
 
 
 # 后台返回普通用户序列化器

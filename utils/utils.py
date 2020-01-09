@@ -139,7 +139,7 @@ class VisitThrottle(BaseThrottle):
 
     def allow_request(self,request,view):
         remote_addr = request.META.get('HTTP_X_REAL_IP')
-        print('请求的IP：',remote_addr)
+        # print('请求的IP：',remote_addr)
         ctime = time.time()
         if remote_addr not in VISIT_RECORD:
             VISIT_RECORD[remote_addr] = [ctime,]

@@ -11,7 +11,7 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="Django RESTfulAPI",
-        default_version='v2',
+        default_version='v2.2',
         description="Ddescription",
         terms_of_service="https://blog.csdn.net/haeasringnar",
         contact=openapi.Contact(email="aeasringnar@163.com"),
