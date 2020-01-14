@@ -99,6 +99,7 @@ class ConfDictSerializer(serializers.ModelSerializer):
 #         validators = [UniqueTogetherValidator(queryset=Auth.objects.all(), fields=['auth_type',], message='该权限已经存在')] # 多字段联合唯一
     
 #     def validate(self, attrs):
+#         now_user = self.context['request'].user
 #         # 查看前端传来的所有数据
 #         print('查看attrs:', attrs)
 #         # 查看前端是否有通过pk检索数据 来做出相应的改变

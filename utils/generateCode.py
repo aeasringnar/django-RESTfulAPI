@@ -28,17 +28,7 @@ from django.core.cache import cache
                 """
                 # ModelViewSet视图
                 MyViewSet = """
-import uuid
-import os
-import requests
-import json
-import re
-import time
-import datetime
-import random
-import hashlib
-import xml
-import threading
+import uuid, os, sys, requests, json, re, time, datetime, random, hashlib, hmac, base64, xml, subprocess, threading
 from django.db import transaction
 from decimal import Decimal
 from django.db.models import F, Q
@@ -164,6 +154,7 @@ class {name}Viewset(ModelViewSet):
         return Return{name}Serializer
 
     # def get_queryset(self):
+    # self.request.query_params 获取get传参
     #     if bool(self.request.auth) and self.request.user.group_id == 1:
     #         return {name}.objects.all().order_by('-update_time')
     #     elif bool(self.request.auth):
