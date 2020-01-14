@@ -103,7 +103,7 @@ class FormatReturnJsonMiddleware(object):
                 if hasattr(self, 'process_response'):
                     response = self.process_response(request, response)
                 if request.method == 'DELETE':
-                    print(response.data)
+                    # print(response.data)
                     if response.status_code == 204:
                         response.data = {"message": '删除成功', "errorCode": 0, "data": {}}
                     else:

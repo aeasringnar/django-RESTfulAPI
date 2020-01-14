@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.forms.models import model_to_dict
 # 官方JWT
 # from rest_framework_jwt.utils import jwt_payload_handler, jwt_encode_handler ,jwt_response_payload_handler
 # from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -35,7 +36,7 @@ name = serializers.DateField(format=api_settings.DATE_FORMAT, input_formats=None
 name = serializers.BooleanField()
 name = serializers.ListField(child=serializers.IntegerField(min_value=0, max_value=100))
 name = serializers.DictField(child=<A_FIELD_INSTANCE>, allow_empty=True)  DictField(child=CharField())
-(mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,mixins.ListModelMixin,generics.GenericAPIView,viewsets.GenericViewSet)
+(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet, generics.GenericAPIView)
 Q(name__icontains=keyword) 内部是like模糊搜索
 __gt 大于 
 __gte 大于等于
