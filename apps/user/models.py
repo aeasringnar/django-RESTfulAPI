@@ -57,7 +57,7 @@ class User(SoftDeleteModel, BaseModel):
     union_id = models.CharField(max_length=255, default='', blank=True, verbose_name='微信unionid')
     gender = models.IntegerField(choices=((0, '未知'), (1, '男'), (2, '女')), default=0, verbose_name='性别')
     birth_date = models.DateField(verbose_name='生日', null=True, blank=True)
-    is_freeze = models.IntegerField(default=1, choices=((0, '否'),(1, '是')),  verbose_name='是否冻结/是否封号')
+    is_freeze = models.IntegerField(default=0, choices=((0, '否'),(1, '是')),  verbose_name='是否冻结/是否封号')
     # is_admin = models.BooleanField(default=False, verbose_name='是否管理员')
     group = models.ForeignKey(Group, on_delete=models.PROTECT, verbose_name='用户组')
     # 组权分离后 当有权限时必定为管理员类型用户，否则为普通用户
