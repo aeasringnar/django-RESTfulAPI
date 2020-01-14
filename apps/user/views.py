@@ -255,7 +255,7 @@ class UserViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'mobile', 'email',)
     filter_fields = ('is_freeze', 'group', 'auth', )
-    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    ordering_fields = ('update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -282,7 +282,7 @@ class MemberViewset(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'mobile', 'email',)
     filter_fields = ('is_freeze', 'group', 'auth', )
-    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    ordering_fields = ('update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -353,7 +353,7 @@ class AuthViewset(ModelViewSet):
     serializer_class = ReturnAuthSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('auth_type',)
-    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    ordering_fields = ('update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):

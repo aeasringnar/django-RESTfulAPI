@@ -168,7 +168,7 @@ class ConfDictViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('dict_title', )
     filter_fields = ('dict_type', )
-    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    ordering_fields = ('update_time', 'create_time',)
     pagination_class = Pagination
 
 

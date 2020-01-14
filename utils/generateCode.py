@@ -135,7 +135,7 @@ class {name}Viewset(ModelViewSet):
     destroy:  删除{verbose}
     list:  获取{verbose}列表
     '''
-    queryset = {name}.objects.all().order_by('-update_time')
+    queryset = {name}.objects.all().order_by('-create_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -143,7 +143,7 @@ class {name}Viewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     # search_fields = ({searchs})
     # filter_fields = ({filters})
-    ordering_fields = ('update_time', 'sort_time', 'create_time',)
+    ordering_fields = ('update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -153,14 +153,14 @@ class {name}Viewset(ModelViewSet):
             return Update{name}Serializer
         return Return{name}Serializer
 
-    # def get_queryset(self):
-    # self.request.query_params 获取get传参
-    #     if bool(self.request.auth) and self.request.user.group_id == 1:
-    #         return {name}.objects.all().order_by('-update_time')
-    #     elif bool(self.request.auth):
-    #         return {name}.objects.filter(user_id=self.request.user.id).order_by('-update_time')
-    #     else:
-    #         return {name}.objects.filter(id=0).order_by('-update_time')
+    def get_queryset(self):
+        return {name}.objects.all(filter_time=self.request.query_params.get('filter_time')).filter().order_by('-create_time')
+        if bool(self.request.auth) and self.request.user.group_id == 1:
+            return {name}.objects.all().order_by('-create_time')
+        elif bool(self.request.auth):
+            return {name}.objects.filter(user_id=self.request.user.id).order_by('-create_time')
+        else:
+            return {name}.objects.filter(id=0).order_by('-create_time')
                 """.format(name=name, verbose=verbose, searchs=searchs, filters=filters)
                     # 路由
                     MyUrl = """
