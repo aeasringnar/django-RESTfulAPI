@@ -36,9 +36,9 @@ class BaseAuthPermission(object):
             return False
 
     def has_permission(self, request, view):
-        # 动态权限层
-        print('请求的path：', request.path)
-        print('请求的path拆分：', request.path.split('/')[1])
+        # 动态权限层 后期拆分 这里只验证动态权限
+        # print('请求的path：', request.path)
+        # print('请求的path拆分：', request.path.split('/')[1])
         auth_name = request.path.split('/')[1]
         # 无用户登录时
         if not bool(request.auth):
