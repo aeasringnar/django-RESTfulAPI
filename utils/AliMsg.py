@@ -16,10 +16,11 @@ def create_code():
 
 # 阿里短信 
 class SendSmsObject(object):
-    def __init__(self, key, serect, region):
+    def __init__(self, key, serect, region, name):
         self.key = key
         self.serect = serect
         self.region = region
+        self.name = name
 
     def get_template_param(self, **kwargs):
         return json.dumps(kwargs)
@@ -35,7 +36,7 @@ class SendSmsObject(object):
         request.set_action_name('SendSms')
 
         request.add_query_param('RegionId', self.region)
-        request.add_query_param('SignName', '劲诚科技')
+        request.add_query_param('SignName', self.name)
         request.add_query_param('TemplateCode', code_temp)
         request.add_query_param('PhoneNumbers', mobile)
         request.add_query_param('TemplateParam', self.get_template_param(code=code))

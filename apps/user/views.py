@@ -25,6 +25,7 @@ from .serializers import *
 from .filters import *
 from functools import reduce
 from urllib.parse import unquote_plus
+from django.conf import settings
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -194,6 +195,49 @@ class WeChatAppLoginView(generics.GenericAPIView):
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
+class MobileLoginView(generics.GenericAPIView):
+    serializer_class = MobileLoginSerializer
+    def post(self, request):
+        '''
+        手机号快速登录接口
+        '''
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response({"message": str(serializer.errors), "errorCode": 4, "data": {}})
+            mobile = serializer.data.get('mobile')
+            code = serializer.data.get('code')
+            is_login = 1
+            # 搜索用户
+            user_obj = User.objects.filter(mobile=mobile).first()
+            # 搜索缓存
+            need_value = cache.get(mobile)
+            if not need_value:
+                return Response({"message": "验证码未找到，请重新发送后重试。", "errorCode": 2, "data": {}})
+            if need_value != code:
+                return Response({"message": "验证码错误。", "errorCode": 2, "data": {}})
+            if not user_obj:
+                is_login = 0
+                # 1
+                # user_obj = User()
+                # user_obj.group_id = 3
+                # user_obj.nick_name = mobile + '手机用户'
+                # user_obj.save()
+                # 2
+                user_obj = User(group_id=3, nick_name=mobile + '手机用户', mobile=mobile)
+                user_obj.save()
+            token_data = jwt_response_payload_handler(jwt_encode_handler(jwt_payload_handler(user_obj)), user_obj, request)
+            user_obj.update_time = datetime.datetime.now()
+            user_obj.save()
+            # 清除已经使用的验证码 防止验证码被盗用
+            cache.delete(mobile)
+            return Response({"message": "登录成功", "errorCode": 0, "data": {'token': token_data.get('token'), 'is_login': is_login}})
+        except Exception as e:
+            print('发生错误：',e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+
+
 # 发送短信验证码
 class MobileCodeView(generics.GenericAPIView):
     serializer_class = MobileFormSerializer
@@ -211,13 +255,13 @@ class MobileCodeView(generics.GenericAPIView):
             if check_code:
                 Response({"message": "验证码已经发送，请勿重复提交。", "errorCode": 2, "data": {}})
             random_code = create_code()
-            send_obj = SendSmsObject(settings.ALI_KEY, settings.ALI_SECRET, settings.ALI_REGION)
+            send_obj = SendSmsObject(settings.ALI_KEY, settings.ALI_SECRET, settings.ALI_REGION, settings.ALI_SIGNNAME)
             return_msg = send_obj.send_code(settings.ALI_LOGOIN_CODE, mobile, random_code)
             if return_msg["Code"] != 'OK':
                 json_data['message'] = '发送失败，请更换手机号或重新尝试。'
                 json_data['errorCode'] = '2'
             # 设置缓存
-            cache.set(mobile, random_code, timeout=5 *60)
+            cache.set(mobile, random_code, timeout=5 * 60)
             return Response(json_data)
         except Exception as e:
             print('发生错误：',e)

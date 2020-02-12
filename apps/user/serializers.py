@@ -192,3 +192,9 @@ class ReturnMemberSerializer(serializers.ModelSerializer):
 # 发生短信form
 class MobileFormSerializer(serializers.Serializer):
     mobile = serializers.CharField()
+
+
+# 手机号快捷登录form
+class MobileLoginSerializer(serializers.Serializer):
+    mobile = serializers.CharField()
+    code = serializers.CharField()

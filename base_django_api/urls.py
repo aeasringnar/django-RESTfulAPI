@@ -1,5 +1,5 @@
 from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, ConfDictSearchView, UploadLocalFile
-from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset
+from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -44,6 +44,8 @@ urlpatterns = [
     path('adminlogin/', LoginView.as_view(), name='后台登录'),
     path('wxminilogin/', WeChatMiniLoginView.as_view(), name='微信小程序登录'),
     path('wxapplogin/', WeChatAppLoginView.as_view(), name='微信APP三方登录'),
+    path('mobilelogin/', MobileLoginView.as_view(), name='手机快速登录登录'),
+    path('getcode/', MobileCodeView.as_view(), name='获取手机验证码'),
     path('uploadfile/', UploadLocalFile.as_view(), name='文件上传'), # UploadFile UploadLocalFile 
     path('test/', TestView.as_view(), name='测试接口'),
     path('userinfo/', UserInfo.as_view(), name='个人信息'),
