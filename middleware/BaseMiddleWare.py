@@ -80,22 +80,25 @@ class PermissionMiddleware(MiddlewareMixin):
             print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
             auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key
             if auth_key:
-                print('查看秘钥：',cache.get(auth_key))
+                print('查看秘钥：', cache.get(auth_key))
                 if cache.get(auth_key):
+                    print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 # 先解密
                 target_obj = ECBCipher(settings.INTERFACE_KEY)
                 target_key = target_obj.decrypted(auth_key)
+                print('明文：', target_key)
                 # 无法解密时直接禁止访问
                 if not target_key:
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 # 解密成功后
                 # 设置一个redis 记录当前时间戳
                 time_int = int(time.time()) # 记录秒
-                cache.set(auth_key, "true", timeout=settings.INTERFACE_TIMEOUT)
                 target_time, backend_key = target_key.split('+')
-                if (time_int - int(target_time / 1000)) > settings.INTERFACE_TIMEOUT:
+                if (time_int - int(int(target_time) / 1000)) > settings.INTERFACE_TIMEOUT:
+                    print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                cache.set(auth_key, "true", timeout=settings.INTERFACE_TIMEOUT)
                 pass
             else:
                 return JsonResponse({"message": "接口秘钥未找到！禁止访问！" , "errorCode": 10, "data": {}})
