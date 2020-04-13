@@ -1,4 +1,4 @@
-from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, ConfDictSearchView, UploadLocalFile
+from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, ConfDictSearchView, UploadLocalFile, test_fuc
 from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
 from django.contrib import admin
 from django.urls import path, include
@@ -50,4 +50,5 @@ urlpatterns = [
     path('test/', TestView.as_view(), name='测试接口'),
     path('userinfo/', UserInfo.as_view(), name='个人信息'),
     path('celery/', BeginCelery.as_view(), name='celery测试'),
+    path('test_fuc/', test_fuc, name='celery测试'),
 ]

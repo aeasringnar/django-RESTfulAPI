@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import utils
-import json, os, copy, re, jwt
+import json, os, copy, re, jwt, time
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 from rest_framework import status
@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.cache import cache
 from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler, jwt_get_user_id_from_payload_handler
 from user.models import User
+from utils.ECB import ECBCipher
 
 '''
 0 没有错误
@@ -76,15 +77,28 @@ class PermissionMiddleware(MiddlewareMixin):
     def process_request(self, request):
         white_paths = ['/adminlogin/']
         if request.path not in white_paths and request.path != '/wechat/wxnotifyurl' and request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
-            print('查看authkey',request.META.get('HTTP_AUTHKEY'))
-            auth_key = request.META.get('HTTP_AUTHKEY')
-            # if auth_key:
-            #     print('查看秘钥：',cache.get(auth_key))
-            #     if cache.get(auth_key):
-            #         return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
-            #     cache.set(auth_key, "true", timeout=60)
-            # else:
-            #     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+            print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
+            auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key
+            if auth_key:
+                print('查看秘钥：',cache.get(auth_key))
+                if cache.get(auth_key):
+                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                # 先解密
+                target_obj = ECBCipher(settings.INTERFACE_KEY)
+                target_key = target_obj.decrypted(auth_key)
+                # 无法解密时直接禁止访问
+                if not target_key:
+                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                # 解密成功后
+                # 设置一个redis 记录当前时间戳
+                time_int = int(time.time()) # 记录秒
+                cache.set(auth_key, "true", timeout=settings.INTERFACE_TIMEOUT)
+                target_time, backend_key = target_key.split('+')
+                if (time_int - int(target_time / 1000)) > settings.INTERFACE_TIMEOUT:
+                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                pass
+            else:
+                return JsonResponse({"message": "接口秘钥未找到！禁止访问！" , "errorCode": 10, "data": {}})
 
 
 # 格式化返回json中间件

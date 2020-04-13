@@ -11,7 +11,8 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770sdfgertgsdf'
-INTERFACE_KEY = '05d!sfd54*asd86sdf+a5+s-d.f=hg6@dsfg$sdf125key'
+INTERFACE_KEY = '16ed9ecc7d9011eab9c63c6aa7c68b67'
+INTERFACE_TIMEOUT = 60
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -260,7 +261,7 @@ crontab范例：
 每天23点执行   0 23 * * *
 '''
 CRONJOBS = [
-    ('*/5 * * * *', 'base.crontabs.confdict_handle', '>> /tmp/base_api/confdict_handle.log'), # 注意：/tmp/base_api 目录要手动创建
+    ('*/1 * * * *', 'base.crontabs.confdict_handle', ' >> /home/aea/my_project/gitee_project/django-RESTfulAPI/logs/confdict_handle.log'), # 注意：/tmp/base_api 目录要手动创建
 ]
 
 
