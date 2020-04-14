@@ -77,17 +77,17 @@ class PermissionMiddleware(MiddlewareMixin):
     def process_request(self, request):
         white_paths = ['//wechat/wxnotifyurl', '/']
         if request.path not in white_paths and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
-            print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
-            auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key
+            # print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
+            auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key+32位随机字符串(uuid更佳)
             if auth_key:
-                print('查看秘钥：', cache.get(auth_key))
+                # print('查看秘钥：', cache.get(auth_key))
                 if cache.get(auth_key):
                     print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 # 先解密
                 target_obj = ECBCipher(settings.INTERFACE_KEY)
                 target_key = target_obj.decrypted(auth_key)
-                print('明文：', target_key)
+                # print('明文：', target_key)
                 # 无法解密时直接禁止访问
                 if not target_key:
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
