@@ -75,8 +75,8 @@ class LogMiddleware(MiddlewareMixin):
 class PermissionMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
-        white_paths = ['/adminlogin/']
-        if request.path not in white_paths and request.path != '/wechat/wxnotifyurl' and request.path is not '/' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+        white_paths = ['//wechat/wxnotifyurl', '/']
+        if request.path not in white_paths and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
             print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
             auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key
             if auth_key:
@@ -94,7 +94,9 @@ class PermissionMiddleware(MiddlewareMixin):
                 # 解密成功后
                 # 设置一个redis 记录当前时间戳
                 time_int = int(time.time()) # 记录秒
-                target_time, backend_key = target_key.split('+')
+                target_time, backend_key, random_str = target_key.split('+')
+                if backend_key not in settings.DISPATCH_KEYS:
+                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 if (time_int - int(int(target_time) / 1000)) > settings.INTERFACE_TIMEOUT:
                     print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})

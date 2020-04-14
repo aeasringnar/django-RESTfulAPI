@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 SECRET_KEY = '0b($)a_$n$!grvsj!pob$5z4(q+u3fo_)aoz!g)3^=pk@7g770sdfgertgsdf'
 INTERFACE_KEY = '16ed9ecc7d9011eab9c63c6aa7c68b67'
 INTERFACE_TIMEOUT = 60
+DISPATCH_KEYS = ['admin4b67e4c11eab49a3c6aa7c68b67', 'mobile347e4c11eab49a3c6aa7c68b67', 'mini235a7e4c11eab49a3c6aa7c68b67']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
