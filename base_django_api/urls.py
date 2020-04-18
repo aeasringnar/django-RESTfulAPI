@@ -2,6 +2,7 @@ from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, ConfD
 from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 from rest_framework.routers import DefaultRouter
 # 新版swagger
 from django.conf.urls import url
@@ -52,3 +53,11 @@ urlpatterns = [
     path('celery/', BeginCelery.as_view(), name='celery测试'),
     path('test_fuc/', test_fuc, name='celery测试'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns.append(path(r'__debug__/', include(debug_toolbar.urls)))
+    # urlpatterns = [
+    #     path('__debug__/', include(debug_toolbar.urls)),
+    # ] + urlpatterns

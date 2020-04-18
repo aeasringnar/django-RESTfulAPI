@@ -8,6 +8,7 @@ django-softdelete-it==0.1
 django-cors-headers==3.2.1
 drf-renderer-xlsx==0.3.6
 django-aliyun-oss2-storage==0.1.5
+django-debug-toolbar==2.2
 drf-yasg==1.17.0
 django-redis==4.11.0
 PyJWT==1.7.1

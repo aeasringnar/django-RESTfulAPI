@@ -11,6 +11,7 @@ from django.core.cache import cache
 from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler, jwt_get_user_id_from_payload_handler
 from user.models import User
 from utils.ECB import ECBCipher
+from django.db import connection
 
 '''
 0 没有错误
@@ -58,6 +59,9 @@ class LogMiddleware(MiddlewareMixin):
         return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % exception.__str__(), "errorCode": 1, "data": {}})
     
     def process_response(self,request,response):
+        if settings.SHOWSQL:
+            for sql in connection.queries:
+                print(sql)
         if type(response) == Response:
             if type(response.data) != utils.serializer_helpers.ReturnList:
                 if type(response.data) == dict and (response.data.get('errorCode') and response.data.get('errorCode') != 0):
@@ -75,7 +79,7 @@ class LogMiddleware(MiddlewareMixin):
 class PermissionMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
-        white_paths = ['//wechat/wxnotifyurl', '/']
+        white_paths = ['/wechat/wxnotifyurl', '/', '/__debug__/', '/__debug__', '/favicon.ico']
         if request.path not in white_paths and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
             # print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
             auth_key = request.META.get('HTTP_INTERFACEKEY') # key顺序必须符合要求：毫秒时间戳+后端分配的key+32位随机字符串(uuid更佳)

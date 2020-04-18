@@ -20,6 +20,10 @@ DISPATCH_KEYS = ['admin4b67e4c11eab49a3c6aa7c68b67', 'mobile347e4c11eab49a3c6aa7
 # 如果出现报错为：django.template.response.ContentNotRenderedError: The response content must be rendered before it can be accessed.
 # 那么很有可能是数据库的问题：在jwt的认证模块中，搜索用户的位置查找可能的问题
 DEBUG = True  # 开发时设置为True 线上环境设置为False
+SHOWSQL = False # 是否查看运行时的 SQL语句
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 
 
 ALLOWED_HOSTS = ['*']
@@ -56,6 +60,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'haystack',
+    'debug_toolbar',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
 ]
@@ -70,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # debug 中间件
     'middleware.BaseMiddleWare.PUTtoPATCHMiddleware', # 将 put 请求转化为 patch 请求中间件
     'middleware.BaseMiddleWare.LogMiddleware', # 日志格式化中间件
     'middleware.BaseMiddleWare.PermissionMiddleware', # 增加接口检测中间件
