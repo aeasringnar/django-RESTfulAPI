@@ -144,7 +144,7 @@ class {name}Viewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     # search_fields = ({searchs})
     # filter_fields = ({filters})
-    ordering_fields = ('update_time', 'create_time',)
+    ordering_fields = ('id', 'update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):

@@ -292,7 +292,7 @@ class UserViewset(ModelViewSet):
     destroy:  删除用户
     list:  获取用户列表
     '''
-    queryset = User.objects.filter(group__group_type__in=['SuperAdmin', 'Admin']).order_by('-update_time')
+    queryset = User.objects.filter(group__group_type__in=['SuperAdmin', 'Admin']).order_by('-create_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -300,7 +300,7 @@ class UserViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'mobile', 'email',)
     filter_fields = ('is_freeze', 'group', 'auth', )
-    ordering_fields = ('update_time', 'create_time',)
+    ordering_fields = ('id', 'update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -319,7 +319,7 @@ class MemberViewset(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
     update:  更新用户
     list:  获取用户列表
     '''
-    queryset = User.objects.filter(group__group_type='NormalUser').order_by('-update_time')
+    queryset = User.objects.filter(group__group_type='NormalUser').order_by('-create_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
@@ -327,7 +327,7 @@ class MemberViewset(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('username', 'mobile', 'email',)
     filter_fields = ('is_freeze', 'group', 'auth', )
-    ordering_fields = ('update_time', 'create_time',)
+    ordering_fields = ('id', 'update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):
@@ -391,14 +391,14 @@ class AuthViewset(ModelViewSet):
     destroy:  删除权限
     list:  获取权限列表
     '''
-    queryset = Auth.objects.all().order_by('-update_time')
+    queryset = Auth.objects.all().order_by('-create_time')
     authentication_classes = (JWTAuthentication,)
     permission_classes = [BaseAuthPermission, ]
     throttle_classes = [VisitThrottle]
     serializer_class = ReturnAuthSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     search_fields = ('auth_type',)
-    ordering_fields = ('update_time', 'create_time',)
+    ordering_fields = ('id', 'update_time', 'create_time',)
     pagination_class = Pagination
 
     def get_serializer_class(self):

@@ -128,7 +128,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         now_user = self.context['request'].user
-        print(attrs['group'].group_type)
         if attrs.get('group') and now_user.group.group_type != 'SuperAdmin':
             raise serializers.ValidationError("无权修改用户组。")
         return attrs
