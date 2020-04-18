@@ -78,7 +78,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware', # debug 中间件
     'middleware.BaseMiddleWare.PUTtoPATCHMiddleware', # 将 put 请求转化为 patch 请求中间件
     'middleware.BaseMiddleWare.LogMiddleware', # 日志格式化中间件
-    'middleware.BaseMiddleWare.PermissionMiddleware', # 增加接口检测中间件
+    # 'middleware.BaseMiddleWare.PermissionMiddleware', # 增加接口检测中间件
     'middleware.BaseMiddleWare.FormatReturnJsonMiddleware', # response 格式化中间件
     'middleware.BaseMiddleWare.BlockUserMiddleware', # 冻结用户中间件
 ]

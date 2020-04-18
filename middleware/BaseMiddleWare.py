@@ -187,6 +187,8 @@ class BlockUserMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
         if request.META.get('HTTP_AUTHORIZATION'):
+            if ' ' not in request.META.get('HTTP_AUTHORIZATION'):
+                return JsonResponse({"message": 'Token不合法' , "errorCode": 2, "data": {}})
             token = (request.META.get('HTTP_AUTHORIZATION').split(' '))[1]
             try:
                 payload = jwt_decode_handler(token)
