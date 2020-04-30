@@ -17,11 +17,14 @@
 
 ```bash
 $ pip install -r requirements.txt
+$ python manage.py makemigrations
+$ python manage.py migrate
+$ python manage.py loaddata apps/user/user.json
 $ python manage.py ruserver
 $ open http://localhost:8000/
 ```
 
-### 部署
+### 简单部署
 
 ```bash
 $ nohup python manage.py ruserver &
