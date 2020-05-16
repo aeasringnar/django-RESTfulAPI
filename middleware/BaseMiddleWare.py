@@ -47,12 +47,13 @@ class LogMiddleware(MiddlewareMixin):
                 print('body参数：', '文件类型')
             else:
                 print('body参数：', request.body.decode())
-                if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
-                    print('body参数：', urllib.parse.unquote(request.body.decode()))
+                # if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
+                #     print('body参数：', urllib.parse.unquote(request.body.decode()))
             print('================================== View视图函数内部信息 ================================================')
         except Exception as e:
             print('发生错误：已预知的是上传文件导致，非预知错误见下：')
             print('未知错误：', e)
+            return JsonResponse({"message": "出现了无法预料的错误：%s" % e, "errorCode": 1, "data": {}})
 
     def process_exception(self, request, exception):
         print('发生错误的请求地址：', request.path, '。错误原因：',exception)
