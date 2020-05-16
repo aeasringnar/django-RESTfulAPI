@@ -24,8 +24,8 @@ $ python manage.py ruserver
 $ open http://localhost:8000/
 ```
 
-### 简单部署
+### 线上部署
 
 ```bash
-$ nohup python manage.py ruserver &
+bash server.sh start  # 获取帮助：bash sever.sh help
 ```

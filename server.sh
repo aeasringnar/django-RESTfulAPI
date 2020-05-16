@@ -1,7 +1,6 @@
 current_dir=$(dirname $(readlink -f $0))
 port=8001
-echo "项目地址：${current_dir}"
-echo "web服务绑定的端口：${port}"
+echo "项目根目录：${current_dir}"
 pid_list=`lsof -i:${port} | grep -v PID | awk '{print $2}'`
 if [ $# != 0 ]
 then
@@ -12,6 +11,7 @@ then
             kill -9 ${pid_list}
         fi
         uwsgi uwsgi.ini
+        echo "web服务绑定的端口：${port}"
         echo "web服务启动成功..."
     elif [ $1 == 'stop' ]
     then
