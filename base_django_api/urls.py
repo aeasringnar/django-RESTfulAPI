@@ -24,15 +24,15 @@ schema_view = get_schema_view(
 # 使用 viewset 路由管理
 router = DefaultRouter()
 # 账号管理
-router.register(r'user', UserViewset, base_name='账号管理')
+router.register(r'user', UserViewset, basename='账号管理')
 # 普通用户管理
-router.register(r'member', MemberViewset, base_name='用户管理')
+router.register(r'member', MemberViewset, basename='用户管理')
 # 权限管理
-router.register(r'auth', AuthViewset, base_name='权限管理')
+router.register(r'auth', AuthViewset, basename='权限管理')
 # 系统字典管理
-router.register(r'confdict', ConfDictViewset, base_name='系统字典管理')
+router.register(r'confdict', ConfDictViewset, basename='系统字典管理')
 # 全文检索路由 检索系统字典
-router.register(r'searchdict', ConfDictSearchView, base_name='全文检索系统字典')
+router.register(r'searchdict', ConfDictSearchView, basename='全文检索系统字典')
 # 修改用户个人信息
 router.register(r'updateuser', WeChatUpdateUserViewset, basename='修改个人信息')
 
