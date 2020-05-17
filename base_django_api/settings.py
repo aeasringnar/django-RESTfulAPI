@@ -1,4 +1,5 @@
 import os, sys, datetime, random
+from datetime import timedelta
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
@@ -34,7 +35,12 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS= True
-CORS_ALLOW_HEADERS = ('*')
+CORS_ALLOW_HEADERS = (
+    '*'
+)
+CORS_ALLOW_HEADERS = (
+    '*'
+)
 CORS_ALLOW_METHODS = (
     'DELETE',
     'GET',
@@ -60,6 +66,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'haystack',
+    'django_celery_results',
     'debug_toolbar',
     'base.apps.BaseConfig',
     'user.apps.UserConfig',
@@ -131,6 +138,7 @@ DATABASES = {
         }
     }
 }
+
 '''
 sql_mode
 ANSI模式：宽松模式，对插入数据进行校验，如果不符合定义类型或长度，对数据类型调整或截断保存，报warning警告。
@@ -224,6 +232,12 @@ CACHES = {
 }
 
 
+# 缓存扩展：drf-extensions  缓存过期时间配置
+# REST_FRAMEWORK_EXTENSIONS = {
+#     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 5
+# }
+
+
 '''
 # Aliyun OSS
 AliOSS_ACCESS_KEY_ID = "LTAI6hxpAQNHm0hE"
@@ -311,38 +325,74 @@ LOGGING = {
 }
 
 
-# Celery
-# import djcelery
-# djcelery.setup_loader()  # 加载djcelery
-# CELERY_TIMEZONE = TIME_ZONE
-# CELERY_ENABLE_UTC = True
-# # 允许的格式
-# CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'yaml']
-# BROKER_URL = 'redis://127.0.0.1:6379/0'     # redis作为中间件
-# BROKER_TRANSPORT = 'redis'
-# CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'     # Backend数据库
-# # CELERYD_LOG_FILE = BASE_DIR + "/logs/celery/celery.log"         # log路径
-# # CELERYBEAT_LOG_FILE = BASE_DIR + "/logs/celery/beat.log"     # beat log路径
-CELERY_BEAT_SCHEDULER  = 'django_celery_beat.schedulers.DatabaseScheduler'
-# BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
-# CELERY_BROKER_URL = 'amqp://aegis:nji9VFR$@172.17.118.207:5672//'
-# CELERY_RESULT_BACKEND = 'redis://172.17.118.207:6379/5'
-BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
+# Celery配置
+from kombu import Exchange, Queue
+# 设置任务接受的类型，默认是{'json'}
 CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_ENABLE_UTC = False
-CELERY_TIMEZONE = 'Asia/Shanghai'
-DJANGO_CELERY_BEAT_TZ_AWARE = False
+# 设置task任务序列列化为json
 CELERY_TASK_SERIALIZER = 'json'
+# 请任务接受后存储时的类型
 CELERY_RESULT_SERIALIZER = 'json'
-
-
-# 缓存扩展：drf-extensions  缓存过期时间配置
-# REST_FRAMEWORK_EXTENSIONS = {
-#     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 5
+# 时间格式化为中国时间
+CELERY_TIMEZONE = 'Asia/Shanghai'
+# 是否使用UTC时间
+CELERY_ENABLE_UTC = False
+# 指定borker为redis 如果指定rabbitmq CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+# 指定存储结果的地方，支持使用rpc、数据库、redis等等，具体可参考文档 # CELERY_RESULT_BACKEND = 'db+mysql://scott:tiger@localhost/foo' # mysql 作为后端数据库
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+# 使用django数据库存储结果
+CELERY_RESULT_BACKEND = 'django-db'
+# 结果的缓存配置
+CELERY_CACHE_BACKEND = 'default'
+# 设置任务过期时间 默认是一天，为None或0 表示永不过期
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
+# 设置worker并发数，默认是cpu核心数
+# CELERYD_CONCURRENCY = 12
+# 设置每个worker最大任务数
+CELERYD_MAX_TASKS_PER_CHILD = 100
+# 使用队列分流每个任务
+# CELERY_QUEUES = (
+#     Queue("add", Exchange("add"), routing_key="task_add"),
+#     Queue("mul", Exchange("mul"), routing_key="task_mul"),
+#     Queue("xsum", Exchange("xsum"), routing_key="task_xsum"),
+# )
+# 配置队列分流路由，注意可能无效，需要在运行异步任务时来指定不同的队列
+# CELERY_ROUTES = {
+#     'base.tasks.add': {'queue': 'add', 'routing_key':'task_add'},
+#     'base.tasks.mul': {'queue': 'add', 'routing_key':'task_add'},
+#     'base.tasks.xsum': {'queue': 'add', 'routing_key':'task_add'},
+#     # 'base.tasks.mul': {'queue': 'mul', 'routing_key':'task_mul'},
+#     # 'base.tasks.xsum': {'queue': 'xsum', 'routing_key':'task_xsum'},
+#     }
+# 指定任务的位置
+# CELERY_IMPORTS = (
+#     'base.tasks',
+# )
+# 使用beat启动Celery定时任务
+# CELERYBEAT_SCHEDULE = {
+#     'add-every-10-seconds': {
+#         'task': 'base.tasks.cheduler_task',
+#         'schedule': 5,
+#         'args': ('hello', )
+#     },
 # }
-
+'''
+运行的相关命令：
+Celery：
+celery -A poj worker -l info # 前台运行
+nohup celery -A poj worker -l info > ./logs/celery.log 2>&1 & # 后台运行
+celery multi start w1 -A poj -l info # 官方提供的后台运行策略，重启：celery multi restart w1 -A poj -l info；停止：celery multi stop w1 -A poj -l info # 使用这个命令的好处是可以在一台机器上运行多种worker
+celery -A proj worker -P eventlet -c 1000 # 或者 celery -A proj worker -P gevent -c 1000  用协程支持并发 -c 用于这是并发的数量，使用协程时可以比较大。-P 用于设置使用协程来并发(协程并发由于线程并发)
+celery -A proj beat -l info
+Flower(Celery任务可视化插件)：
+flower -A proj --port=5555 # 直接运行
+celery flower -A proj --address=127.0.0.1 --port=5555 # 通过celery运行
+flower -A django_cele_tasks --basic_auth=asd:123 # 指定登录名和密码，多个示例 celery flower --basic_auth=user1:password1,user2:password2
+flower -A django_cele_tasks --auto_refresh=False # 关闭自动刷新
+flower --conf=celeryconfig.py # 使用配置文件启动
+nohup flower -A poj --address=0.0.0.0 --port=5555 --auto_refresh=False --basic_auth=admin:123 > ./logs/flower.log 2>&1 & # 后台运行
+'''
 
 # 全文检索配置
 HAYSTACK_CONNECTIONS = {
@@ -391,6 +441,7 @@ JPUSH_APPKEY = 'your key'
 JPUSH_SECRET = 'your secret'
 
 
+# 文件上传配置
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
 FILE_SIZE = 1024 * 1024 * 64
 SERVER_NAME = '127.0.0.1'
