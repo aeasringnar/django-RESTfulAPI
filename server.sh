@@ -1,6 +1,8 @@
 current_dir=$(dirname $(readlink -f $0))
+wsgi_patch="${current_dir}/base_django_api/wsgi.py"
 port=8001
-echo "项目根目录：${current_dir}"
+echo "项目地址：${current_dir}"
+echo "web服务绑定的端口：${port}"
 pid_list=`lsof -i:${port} | grep -v PID | awk '{print $2}'`
 if [ $# != 0 ]
 then
@@ -10,8 +12,7 @@ then
         then
             kill -9 ${pid_list}
         fi
-        uwsgi uwsgi.ini
-        echo "web服务绑定的端口：${port}"
+        `uwsgi --chdir ${current_dir} --wsgi-file ${wsgi_patch} --socket 127.0.0.1:${port} uwsgi.ini`
         echo "web服务启动成功..."
     elif [ $1 == 'stop' ]
     then
@@ -28,7 +29,7 @@ then
         then
             echo "web服务运行中..."
             echo "进程信息："
-            pid=`lsof -i:$port | grep -v PID | head -1 | awk '{print $2}'` && if [ "$pid" ];then ps -ef | grep $pid | grep -v grep;fi
+            pid=`lsof -i:${port}  | grep -v PID | head -1 | awk '{print $2}'` && if [ "${pid}" ];then ps -ef | grep ${pid} | grep -v grep;fi
             echo "监听的tcp："
             lsof -i:${port}
         else

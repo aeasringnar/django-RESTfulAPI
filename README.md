@@ -27,5 +27,5 @@ $ open http://localhost:8000/
 ### 线上部署
 
 ```bash
-bash server.sh start  # 获取帮助：bash sever.sh help
+bash server.sh start  # 获取帮助：bash sever.sh help 默认启动端口为 8001
 ```
