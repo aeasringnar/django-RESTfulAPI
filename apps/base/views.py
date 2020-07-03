@@ -24,6 +24,7 @@ from functools import reduce
 from urllib.parse import unquote_plus
 from decimal import Decimal
 from django.conf import settings
+from django.core.cache import caches
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -211,6 +212,7 @@ class TestView(APIView):
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             is_open = request.GET.get('is_open')
             if is_open == 'mytestkey':
+                cache = caches['cache_redis'] # 使用多redis库时，可以设置要使用的redis，如果需要默认的，不需要设置cache
                 json_data['message'] = '开始了测试'
                 # 测试cache
                 # timeout=0 立即过期 timeout=None 永不超时
