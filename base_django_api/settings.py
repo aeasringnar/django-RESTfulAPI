@@ -61,11 +61,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'rest_framework_swagger',
     'django_crontab',
     'django_filters',
     'drf_yasg',
-    'haystack',
     'django_celery_results',
     'debug_toolbar',
     'base.apps.BaseConfig',
@@ -401,16 +401,6 @@ flower --conf=celeryconfig.py # 使用配置文件启动
 nohup flower -A poj --address=0.0.0.0 --port=5555 --auto_refresh=False --basic_auth=admin:123 > ./logs/flower.log 2>&1 & # 后台运行
 '''
 
-# 全文检索配置
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
-    },
-}
-# 全文检索配置自动更新索引
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
 
 # 微信开发配置
 WECHAT_MCHID = '微信支付平台商户号'
@@ -451,4 +441,4 @@ JPUSH_SECRET = 'your secret'
 # 文件上传配置
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
 FILE_SIZE = 1024 * 1024 * 64
-SERVER_NAME = '127.0.0.1'
+SERVER_NAME = '128.0.0.1'

@@ -1,4 +1,4 @@
-from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, ConfDictSearchView, UploadLocalFile, test_fuc
+from base.views import UploadFile, TestView, BeginCelery, ConfDictViewset, UploadLocalFile, test_fuc
 from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
 from django.contrib import admin
 from django.urls import path, include
@@ -32,7 +32,7 @@ router.register(r'auth', AuthViewset, basename='权限管理')
 # 系统字典管理
 router.register(r'confdict', ConfDictViewset, basename='系统字典管理')
 # 全文检索路由 检索系统字典
-router.register(r'searchdict', ConfDictSearchView, basename='全文检索系统字典')
+# router.register(r'searchdict', ConfDictSearchView, basename='全文检索系统字典')
 # 修改用户个人信息
 router.register(r'updateuser', WeChatUpdateUserViewset, basename='修改个人信息')
 
