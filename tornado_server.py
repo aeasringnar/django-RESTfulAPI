@@ -28,6 +28,7 @@ def main():
             else:
                 port = sys.argv[2]
                 host = '127.0.0.1'
+            tornado.options.parse_command_line()
             os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'base_django_api.settings')
             wsgi_app = tornado.wsgi.WSGIContainer(get_wsgi_application())
             server = tornado.httpserver.HTTPServer(wsgi_app, xheaders=True)
