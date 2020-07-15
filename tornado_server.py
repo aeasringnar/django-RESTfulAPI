@@ -1,11 +1,18 @@
 import os
 import sys
+import signal
 from tornado.options import options, define
 from django.core.wsgi import get_wsgi_application
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.wsgi
+from multiprocessing import cpu_count
+
+
+def signal_handler(signal,frame):
+    print('\n bye bye')
+    sys.exit()
 
 
 app_path = os.path.abspath(
@@ -22,7 +29,12 @@ def main():
     wsgi_app = tornado.wsgi.WSGIContainer(get_wsgi_application())
     http_server = tornado.httpserver.HTTPServer(wsgi_app, xheaders=True)
     http_server.listen(options.port)
+    http_server.start(cpu_count())
+    print("""[django-tornado-server]Wellcome...
+Starting development server at http://%s:%s/       
+Quit the server with CTRL+C.""" % ('127.0.0.1', str(options.port)))
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT,signal_handler)
     main()
