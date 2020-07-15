@@ -1,6 +1,7 @@
+#!/bin/bash
 current_dir=$(dirname $(readlink -f $0))
 wsgi_patch="${current_dir}/base_django_api/wsgi.py"
-port=8001
+port=8000
 echo "项目地址：${current_dir}"
 echo "web服务绑定的端口：${port}"
 pid_list=`lsof -i:${port} | grep -v PID | awk '{print $2}'`
@@ -12,8 +13,9 @@ then
         then
             kill -9 ${pid_list}
         fi
-        `uwsgi --chdir ${current_dir} --wsgi-file ${wsgi_patch} --socket 127.0.0.1:${port} uwsgi.ini`
+        `uwsgi --chdir ${current_dir} --wsgi-file ${wsgi_patch} --socket 0.0.0.0:${port} uwsgi.ini`
         echo "web服务启动成功..."
+        tail -f /dev/null
     elif [ $1 == 'stop' ]
     then
         if [ "$pid_list" ]
