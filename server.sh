@@ -2,7 +2,7 @@
 current_dir=$(dirname $(readlink -f $0))
 proj_name="base_django_api"
 wsgi_patch="${current_dir}/${proj_name}/wsgi.py"
-port=8000
+port=6000
 pid_list=`lsof -i:${port} | grep -v PID | awk '{print $2}'`
 if [ $# != 0 ]
 then
@@ -37,18 +37,18 @@ then
             elif [ $3 == "uvicorn" ]
             then
                 echo 'choice uvicron server'
-                `nohup uvicorn ${proj_name}.asgi:application --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+                `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
             elif [ $3 == "tornado" ]
             then
                 echo 'choice tornado server'
-                `nohup python3 -u tornado_server.py runserver ${port} > ${current_dir}/logs/web.log 2>&1 &`
+                `nohup python3 -u tornado_server.py runserver 0.0.0.0:${port} > ${current_dir}/logs/web.log 2>&1 &`
             else
                 echo 'choice uvicorn server'
-                `nohup uvicorn ${proj_name}.asgi:application --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+                `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
             fi
         else
             echo 'choice uvicorn server'
-            `nohup uvicorn ${proj_name}.asgi:application --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+            `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
         fi
         # `uwsgi --chdir ${current_dir} --wsgi-file ${wsgi_patch} --socket 0.0.0.0:${port} uwsgi.ini`
         echo "web服务启动成功..."

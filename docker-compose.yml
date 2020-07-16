@@ -5,7 +5,7 @@ services:
   container_name: django-server
   restart: always
   ports:
-   - "8000:8000"
+   - "6000:8000"
   volumes:
    - ./logs:/proj/logs
 
