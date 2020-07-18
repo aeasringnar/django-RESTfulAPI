@@ -12,12 +12,13 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="Django RESTfulAPI",
-        default_version='v2.2',
+        default_version='v3.0',
         description="Ddescription",
         terms_of_service="https://blog.csdn.net/haeasringnar",
         contact=openapi.Contact(email="aeasringnar@163.com"),
-        license=openapi.License(name="BSD License"),
+        license=openapi.License(name="MIT License"),
     ),
+    url="http://www.test.com",
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
