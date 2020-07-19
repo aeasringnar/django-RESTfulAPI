@@ -1,5 +1,5 @@
 from django.db import models
-from soft_delete_it.models import SoftDeleteModel
+from soft_delete_new.models import SoftDeleteModel
 from base.models import BaseModel
 
 
