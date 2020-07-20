@@ -8,4 +8,3 @@ services:
    - "6000:8000"
   volumes:
    - ./logs:/proj/logs
-

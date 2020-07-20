@@ -7,4 +7,5 @@ ENV LANG=zh_CN.utf8
 ENV LANGUAGE=zh_CN.utf8
 RUN pip install -r requirements.txt
 RUN chmod +x server.sh
-CMD ["./server.sh", "start", "dev", "tornado"]
+RUN chmod +x docker_start.sh
+CMD ["./docker_start.sh", "8000", "dev"]
