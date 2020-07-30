@@ -126,7 +126,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'base-api',
+        'NAME': 'base_django_api',
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST': '127.0.0.1',
@@ -136,8 +136,23 @@ DATABASES = {
             'charset': 'utf8mb4',
             'sql_mode': 'traditional'
         }
-    }
+    },
+    'read': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'base_django_api',
+        'USER': 'root',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1',
+        'PORT': '3307',
+        'OPTIONS': {
+            "init_command": "SET foreign_key_checks = 0;",
+            'charset': 'utf8mb4',
+            'sql_mode': 'traditional'
+        }
+    },
 }
+
+DATABASE_ROUTERS = ['base_django_api.router.Router',]  
 
 '''
 sql_mode
