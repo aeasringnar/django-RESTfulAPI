@@ -12,6 +12,7 @@ from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handle
 from user.models import User
 from utils.ECB import ECBCipher
 from django.db import connection
+from utils.logger import logger
 
 '''
 0 没有错误
@@ -33,46 +34,46 @@ class LogMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
         try:
-            print('************************************************* 下面是新的一条日志 ***************************************************')
-            print('拦截请求的地址：', request.path, '请求的方法：', request.method)
-            print('==================================== headers 头信息 ====================================================')
+            logger.info('************************************************* 下面是新的一条日志 ***************************************************')
+            logger.info('拦截请求的地址：%s；请求的方法：%s' % (request.path, request.method))
+            logger.info('==================================== headers 头信息 ====================================================')
             for key in request.META:
                 if key[:5] == 'HTTP_':
-                    print(key, request.META[key])
-            print('代理IP：', request.META.get('REMOTE_ADDR'))
-            print('真实IP：', request.META.get('HTTP_X_FORWARDED_FOR'))   # HTTP_X_REAL_IP
-            print('==================================== request body信息 ==================================================')
-            print('params参数：', request.GET)
+                    logger.debug('%s %s' % (str(key), str(request.META[key])))
+            logger.info('代理IP：%s' % request.META.get('REMOTE_ADDR'))
+            logger.info('真实IP：%s' % request.META.get('HTTP_X_FORWARDED_FOR'))   # HTTP_X_REAL_IP
+            logger.info('==================================== request body信息 ==================================================')
+            logger.info('params参数：%s' % request.GET)
             if request.path == '/uploadfile/':
-                print('body参数：', '文件类型')
+                logger.info('body参数：文件类型')
             else:
-                print('body参数：', request.body.decode())
+                logger.info('body参数：%s' % request.body.decode())
                 # if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
                 #     print('body参数：', urllib.parse.unquote(request.body.decode()))
-            print('================================== View视图函数内部信息 ================================================')
+            logger.info('================================== View视图函数内部信息 ================================================')
         except Exception as e:
-            print('发生错误：已预知的是上传文件导致，非预知错误见下：')
-            print('未知错误：', e)
+            logger.error('发生错误：已预知的是上传文件导致，非预知错误见下：')
+            logger.error('未知错误：%s' % str(e))
             return JsonResponse({"message": "出现了无法预料的错误：%s" % e, "errorCode": 1, "data": {}})
 
     def process_exception(self, request, exception):
-        print('发生错误的请求地址：', request.path, '。错误原因：',exception)
+        logger.error('发生错误的请求地址：%s；错误原因：%s' % (request.path, str(exception)))
         return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % exception.__str__(), "errorCode": 1, "data": {}})
     
     def process_response(self,request,response):
         if settings.SHOWSQL:
             for sql in connection.queries:
-                print(sql)
+                logger.debug(sql)
         if type(response) == Response:
             if type(response.data) != utils.serializer_helpers.ReturnList:
                 if type(response.data) == dict and (response.data.get('errorCode') and response.data.get('errorCode') != 0):
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-                    print(response.data)
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+                    logger.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+                    logger.error(response.data)
+                    logger.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
         if type(response) == JsonResponse:
-            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-            print(json.loads(response.content.decode()))
-            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+            logger.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+            logger.error(json.loads(response.content.decode()))
+            logger.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
         return response
 
 
@@ -87,7 +88,7 @@ class PermissionMiddleware(MiddlewareMixin):
             if auth_key:
                 # print('查看秘钥：', cache.get(auth_key))
                 if cache.get(auth_key):
-                    print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
+                    logger.info('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 # 先解密
                 target_obj = ECBCipher(settings.INTERFACE_KEY)
@@ -103,7 +104,7 @@ class PermissionMiddleware(MiddlewareMixin):
                 if backend_key not in settings.DISPATCH_KEYS:
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 if (time_int - int(int(target_time) / 1000)) > settings.INTERFACE_TIMEOUT:
-                    print('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
+                    logger.info('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 cache.set(auth_key, "true", timeout=settings.INTERFACE_TIMEOUT)
                 pass
@@ -143,7 +144,7 @@ class FormatReturnJsonMiddleware(object):
                     response.render()
                 else:
                     white_list = ['/wxnotifyurl', '/alinotifyurl']
-                    if request.path is not '/' and request.path not in white_list and request.path != '/wechat/wxnotifyurl' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+                    if request.path != '/' and request.path not in white_list and request.path != '/wechat/wxnotifyurl' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
                         # 适配不分页返回数据的格式化
                         if type(response.data) == utils.serializer_helpers.ReturnList:
                             data = {"message": 'ok', "errorCode": 0,"data": response.data}
@@ -174,7 +175,7 @@ class FormatReturnJsonMiddleware(object):
                         response._is_rendered = False
                         response.render()
             except Exception as e:
-                print('发生错误：', e)
+                logger.error('发生错误：%s' % str(e))
                 if e.__str__() == "'HttpResponseNotFound' object has no attribute 'data'":
                     return JsonResponse({"message": '路径/页面未找到。', "errorCode": 2,"data": {}})
                 if e.__str__() == "'JsonResponse' object has no attribute 'data'":
