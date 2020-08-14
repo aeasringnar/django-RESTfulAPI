@@ -128,37 +128,16 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'base-api',
         'USER': 'root',
-        'PASSWORD': '123456',
+        'PASSWORD': 'zeroyz.367',
         'HOST': '127.0.0.1',
         'PORT': '3306',
-        'TEST': {
-            'NAME': 'test_api',  # 配置单元测试时使用的测试数据库
-            'CHARSET': 'utf8mb4', # 配置测试数据库的字符集，注意：根据需求修改，不然容易出问题
-        },
         'OPTIONS': {
             "init_command": "SET foreign_key_checks = 0;",  # 去除强制外键约束
             'charset': 'utf8mb4',
             'sql_mode': 'traditional'
         }
-    },
-    # 暂时关闭读写分离
-    # 'read': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'base_django_api',
-    #     'USER': 'root',
-    #     'PASSWORD': '123456',
-    #     'HOST': '127.0.0.1',
-    #     'PORT': '3307',
-    #     'OPTIONS': {
-    #         "init_command": "SET foreign_key_checks = 0;",
-    #         'charset': 'utf8mb4',
-    #         'sql_mode': 'traditional'
-    #     }
-    # },
+    }
 }
-
-# 读写分离的控制 Router
-# DATABASE_ROUTERS = ['base_django_api.router.Router',]  
 
 '''
 sql_mode
