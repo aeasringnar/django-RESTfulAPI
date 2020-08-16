@@ -40,18 +40,18 @@ then
         elif [ $3 == "uvicorn" ]
         then
             echo 'choice uvicron server'
-            `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+            `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > /dev/null 2>&1 &`
         elif [ $3 == "tornado" ]
         then
             echo 'choice tornado server'
-            `nohup python3 -u tornado_server.py runserver 0.0.0.0:${port} > ${current_dir}/logs/web.log 2>&1 &`
+            `nohup python3 -u tornado_server.py runserver 0.0.0.0:${port} > /dev/null 2>&1 &`
         else
             echo 'choice uvicorn server'
-            `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+            `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > /dev/null 2>&1 &`
         fi
     else
         echo 'choice uvicorn server'
-        `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+        `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > /dev/null 2>&1 &`
     fi
     echo "web服务启动成功..."
     tail -f /dev/null
@@ -63,7 +63,7 @@ else
     echo 'dev'
     `cp ${current_dir}/config/dev_settings.py ${current_dir}/${proj_name}/settings.py`
     echo 'choice uvicron server'
-    `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > ${current_dir}/logs/web.log 2>&1 &`
+    `nohup uvicorn ${proj_name}.asgi:application --host 0.0.0.0 --port ${port} > /dev/null 2>&1 &`
     echo "web服务启动成功..."
     tail -f /dev/null
 fi

@@ -2,7 +2,7 @@
 current_dir=$(dirname $(readlink -f $0))
 proj_name="base_django_api"
 wsgi_patch="${current_dir}/${proj_name}/wsgi.py"
-port=6000
+port=8000
 pid_list=`lsof -i:${port} | grep -v PID | awk '{print $2}'`
 if [ $# != 0 ]
 then
