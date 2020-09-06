@@ -25,6 +25,7 @@ from urllib.parse import unquote_plus
 from decimal import Decimal
 from django.conf import settings
 from django.core.cache import caches
+import oss2
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -68,7 +69,7 @@ class UploadFile(APIView):
             for key_name, up_file in file_i:
                 file_up = TmpFile()
                 is_file = True
-                print(key_name, up_file.name, up_file.size, up_file.read)
+                # print(key_name, up_file.name, up_file.size, up_file.read)
                 file_name = up_file.name
                 file_size = up_file.size
                 check_file = file_name.split('.')[-1]
@@ -81,17 +82,21 @@ class UploadFile(APIView):
                     json_data['message'] = file_name + '文件超过64mb，无法上传'
                     json_data['errorCode'] = 2
                     return Response(json_data)
-                file_up.name = new_file_name
-                request.FILES[key_name].name = new_file_name + '.' + check_file
-                file_up.url = request.FILES[key_name]
-                file_up.save()
-                print(file_up.url)
-                # print(dir(file_up.url))
-                my_need_url = unquote_plus(str(file_up.url.url))
-                if my_need_url[:5] != 'https':
-                    my_need_list = my_need_url.split(":")
-                    my_need_url = 'https:' + my_need_list[1]
-                print(my_need_url)
+                # 直接上传到oss
+                auth = oss2.Auth(settings.ACCESS_KEY_ID, settings.ACCESS_KEY_SECRET)
+                bucket = oss2.Bucket(auth, settings.END_POINT,settings.BUCKET_NAME)
+                file_name = str(uuid.uuid1()) + check_file
+                result = bucket.put_object(file_name, up_file.read())
+                if result.status != 200:
+                    return Response({"message": "上传异常", "errorCode": 3, "data": {}})
+                url = bucket.sign_url('GET', file_name, 60)
+                # print(json.dumps(url))
+                print(url.split('?')[0])
+                my_need_url = url.split('?')[0]
+                # if my_need_url[:5] != 'https':
+                #     my_need_list = my_need_url.split(":")
+                #     my_need_url = 'https:' + my_need_list[1]
+                my_need_url = unquote_plus(my_need_url)
                 up_files.append(my_need_url)
             json_data['data'] = up_files
             return Response(json_data)
