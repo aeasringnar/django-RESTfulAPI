@@ -33,7 +33,7 @@ def debug_task(self):
 # app.conf.update(
 #     CELERYBEAT_SCHEDULE = {
 #         'mul-task': {
-#             'task': 'base.tasks.mul',
+#             'task': 'public.tasks.mul',
 #             'schedule':  timedelta(seconds=30),
 #             'args': (5, 6)
 #         }

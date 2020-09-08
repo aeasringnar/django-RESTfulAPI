@@ -10,7 +10,7 @@ from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from django.conf import settings
 from django.db.models import Q, F
 from users.models import *
-from base.serializers import BaseSerializer
+from public.serializers import BaseSerializer
 from .models import *
 from django.db import transaction
                 

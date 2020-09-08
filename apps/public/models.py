@@ -93,13 +93,3 @@ class ConfDict(SoftDeleteModel, BaseModel):
         db_table = 'A_ConfDict_Table'
         verbose_name = '系统字典表'
         verbose_name_plural = verbose_name
-
-
-class TmpFile(SoftDeleteModel, BaseModel):
-    name = models.CharField(max_length=255, default='', verbose_name='文件名')
-    url = models.FileField(upload_to="base-api/%Y%m")
-
-    class Meta:
-        db_table = 'A_Tmp_File'
-        verbose_name = '文件转存表'
-        verbose_name_plural = verbose_name

@@ -67,7 +67,6 @@ class UploadFile(APIView):
             is_file = False
             up_files = []
             for key_name, up_file in file_i:
-                file_up = TmpFile()
                 is_file = True
                 # print(key_name, up_file.name, up_file.size, up_file.read)
                 file_name = up_file.name

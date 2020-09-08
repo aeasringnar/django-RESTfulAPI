@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_results',
     'debug_toolbar',
-    'base.apps.BaseConfig',
+    'public.apps.PublicConfig',
     'user.apps.UserConfig',
 ]
 
@@ -128,7 +128,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'base-api',
         'USER': 'root',
-        'PASSWORD': 'zeroyz.367',
+        'PASSWORD': '123456',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
@@ -289,7 +289,7 @@ crontab范例：
 每天23点执行   0 23 * * *
 '''
 CRONJOBS = [
-    ('*/1 * * * *', 'base.crontabs.confdict_handle', ' >> /home/aea/my_project/gitee_project/django-RESTfulAPI/logs/confdict_handle.log'), # 注意：/tmp/base_api 目录要手动创建
+    ('*/1 * * * *', 'public.crontabs.confdict_handle', ' >> /home/aea/my_project/gitee_project/django-RESTfulAPI/logs/confdict_handle.log'), # 注意：/tmp/base_api 目录要手动创建
 ]
 
 
@@ -366,20 +366,20 @@ CELERYD_MAX_TASKS_PER_CHILD = 100
 # )
 # 配置队列分流路由，注意可能无效，需要在运行异步任务时来指定不同的队列
 # CELERY_ROUTES = {
-#     'base.tasks.add': {'queue': 'add', 'routing_key':'task_add'},
-#     'base.tasks.mul': {'queue': 'add', 'routing_key':'task_add'},
-#     'base.tasks.xsum': {'queue': 'add', 'routing_key':'task_add'},
-#     # 'base.tasks.mul': {'queue': 'mul', 'routing_key':'task_mul'},
-#     # 'base.tasks.xsum': {'queue': 'xsum', 'routing_key':'task_xsum'},
+#     'public.tasks.add': {'queue': 'add', 'routing_key':'task_add'},
+#     'public.tasks.mul': {'queue': 'add', 'routing_key':'task_add'},
+#     'public.tasks.xsum': {'queue': 'add', 'routing_key':'task_add'},
+#     # 'public.tasks.mul': {'queue': 'mul', 'routing_key':'task_mul'},
+#     # 'public.tasks.xsum': {'queue': 'xsum', 'routing_key':'task_xsum'},
 #     }
 # 指定任务的位置
 # CELERY_IMPORTS = (
-#     'base.tasks',
+#     'public.tasks',
 # )
 # 使用beat启动Celery定时任务
 # CELERYBEAT_SCHEDULE = {
 #     'add-every-10-seconds': {
-#         'task': 'base.tasks.cheduler_task',
+#         'task': 'public.tasks.cheduler_task',
 #         'schedule': 5,
 #         'args': ('hello', )
 #     },

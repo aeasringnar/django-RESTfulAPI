@@ -1,6 +1,6 @@
 from comment.myapps.my_softdelete_models import SafeModel
 from django.db import models
-from base.models import BaseModel
+from public.models import BaseModel
 
 
 class Banner(SafeModel, BaseModel):

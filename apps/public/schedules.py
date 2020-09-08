@@ -7,7 +7,7 @@ base_apth = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 sys.path.append(base_apth)
 os.environ['DJANGO_SETTINGS_MODULE'] ='base_django_api.settings'
 django.setup()
-from base.models import ConfDict
+from public.models import ConfDict
 
 def confdict_handle():
     while True:
