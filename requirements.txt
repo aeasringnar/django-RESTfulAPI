@@ -41,5 +41,5 @@ flower==0.9.4
 aiohttp==3.6.2
 drf-extensions==0.6.0
 tornado==6.0.4
-uvicorn==0.11.5
+uvicorn==0.11.7
 uwsgi==2.0.19
