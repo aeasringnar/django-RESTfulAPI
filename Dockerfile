@@ -1,5 +1,9 @@
-FROM ubuntu-18-env:v3
-MAINTAINER Aeasringnar
+FROM python:3.7
+
+COPY sources.list /etc/apt
+RUN apt update && apt upgrade -y
+RUN apt install -y gcc make vim net-tools python3-dev
+
 WORKDIR /proj
 COPY . .
 ENV LC_ALL=zh_CN.utf8
