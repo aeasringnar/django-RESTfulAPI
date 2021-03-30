@@ -6,7 +6,6 @@ from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 
@@ -114,7 +113,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'base_django_api.wsgi.application'
 
 
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -138,7 +137,7 @@ DATABASES = {
         }
     }
 }
-
+'''
 '''
 sql_mode
 ANSI模式：宽松模式，对插入数据进行校验，如果不符合定义类型或长度，对数据类型调整或截断保存，报warning警告。
