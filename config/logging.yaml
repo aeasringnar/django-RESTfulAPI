@@ -1,0 +1,48 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  debug:
+    format: "%(asctime)s -[%(process)d:%(thread)d] - %(filename)s[line:%(lineno)d] - %(levelname)s - %(message)s"
+  simple:
+    format: "%(levelname)s - %(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: debug
+    stream: ext://sys.stdout
+  debug_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: debug
+    filename: ./logs/debug.log
+    mode: w # 注意：该配置和maxBytes backupCount互斥
+    # maxBytes: 10485760
+    # backupCount: 20
+    encoding: utf8
+  info_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: ./logs/info.log
+    mode: w
+    # maxBytes: 10485760
+    # backupCount: 20
+    encoding: utf8
+  error_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: debug
+    filename: ./logs/errors.log
+    mode: w
+    # maxBytes: 10485760
+    # backupCount: 20
+    encoding: utf8
+loggers:
+  my_module:
+    level: ERROR
+    handlers: [info_file_handler]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [console, info_file_handler, error_file_handler, debug_file_handler]
