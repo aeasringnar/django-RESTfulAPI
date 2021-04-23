@@ -40,16 +40,16 @@ class LogMiddleware(MiddlewareMixin):
             for key in request.META:
                 if key[:5] == 'HTTP_':
                     logging.debug('%s %s' % (str(key), str(request.META[key])))
+            logging.debug('%s %s' % ('Content-Type', str(request.META['CONTENT_TYPE'])))
             logging.info('代理IP：%s' % request.META.get('REMOTE_ADDR'))
             logging.info('真实IP：%s' % request.META.get('HTTP_X_FORWARDED_FOR'))   # HTTP_X_REAL_IP
             logging.info('==================================== request body信息 ==================================================')
             logging.info('params参数：%s' % request.GET)
-            if request.path == '/uploadfile/':
-                logging.info('body参数：文件类型')
-            else:
+            if request.content_type in ('application/json', 'text/plain', 'application/xml'):
                 logging.info('body参数：%s' % request.body.decode())
-                # if 'application/x-www-form-urlencoded' in request.META['CONTENT_TYPE']:
-                #     print('body参数：', urllib.parse.unquote(request.body.decode()))
+            if request.content_type in ('multipart/form-data', 'application/x-www-form-urlencoded'):
+                logging.info('是否存在文件类型数据：%s', bool(request.FILES))
+                logging.info('data参数：%s', request.POST)
             logging.info('================================== View视图函数内部信息 ================================================')
         except Exception as e:
             logging.error('发生错误：已预知的是上传文件导致，非预知错误见下：')
@@ -187,7 +187,7 @@ class FormatReturnJsonMiddleware(object):
 # 冻结用户中间件
 class BlockUserMiddleware(MiddlewareMixin):
     
-    def process_request(self, request):
+    def process_view(self, request, callback, callback_args, callback_kwargs):
         if request.META.get('HTTP_AUTHORIZATION'):
             if ' ' not in request.META.get('HTTP_AUTHORIZATION'):
                 return JsonResponse({"message": 'Token不合法' , "errorCode": 2, "data": {}})
