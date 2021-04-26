@@ -6,6 +6,7 @@ from django.utils.deprecation import MiddlewareMixin
 from rest_framework import status
 import urllib
 from django.http import QueryDict, HttpResponse, JsonResponse
+from django.http.response import HttpResponseNotFound, HttpResponseServerError, HttpResponseNotAllowed
 from django.conf import settings
 from django.core.cache import cache
 from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler, jwt_get_user_id_from_payload_handler
@@ -21,17 +22,19 @@ import logging
 '''
 
 
-# 将 put 请求转为 patch 请求 中间件
 class PUTtoPATCHMiddleware(MiddlewareMixin):
-    
+    '''
+    将 put 请求转为 patch 请求 中间件
+    '''
     def process_request(self, request):
         if request.method == 'PUT':
             request.method = 'PATCH'
 
 
-# 日志中间件
 class LogMiddleware(MiddlewareMixin):
-    
+    '''
+    日志中间件
+    '''
     def process_request(self, request):
         try:
             logging.info('************************************************* 下面是新的一条日志 ***************************************************')
@@ -52,35 +55,27 @@ class LogMiddleware(MiddlewareMixin):
                 logging.info('data参数：%s', request.POST)
             logging.info('================================== View视图函数内部信息 ================================================')
         except Exception as e:
-            logging.error('发生错误：已预知的是上传文件导致，非预知错误见下：')
             logging.error('未知错误：%s' % str(e))
-            return JsonResponse({"message": "出现了无法预料的错误：%s" % e, "errorCode": 1, "data": {}})
+            return JsonResponse({"message": "请求日志输出异常：%s" % e, "errorCode": 1, "data": {}})
 
     def process_exception(self, request, exception):
-        logging.error('发生错误的请求地址：%s；错误原因：%s' % (request.path, str(exception)))
+        logging.error('发生错误的请求地址：%s；错误原因：%s；错误详情：' % (request.path, str(exception)))
+        logging.exception(exception)
         return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % exception.__str__(), "errorCode": 1, "data": {}})
     
-    def process_response(self,request,response):
+    def process_response(self, request, response):
         if settings.SHOWSQL:
             for sql in connection.queries:
                 logging.debug(sql)
-        if type(response) == Response:
-            if type(response.data) != utils.serializer_helpers.ReturnList:
-                if type(response.data) == dict and (response.data.get('errorCode') and response.data.get('errorCode') != 0):
-                    logging.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-                    logging.error(response.data)
-                    logging.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-        if type(response) == JsonResponse:
-            logging.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      出现异常的日志       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-            logging.error(json.loads(response.content.decode()))
-            logging.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      异常日志结束       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
         return response
 
 
-# 权限 加密中间件
+
 class PermissionMiddleware(MiddlewareMixin):
-    
-    def process_request(self, request):
+    '''
+    权限 加密中间件
+    '''
+    def process_view(self, request):
         white_paths = ['/wechat/wxnotifyurl', '/', '/__debug__/', '/__debug__', '/favicon.ico']
         if request.path not in white_paths and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
             # print('查看authkey',request.META.get('HTTP_INTERFACEKEY'))
@@ -93,7 +88,6 @@ class PermissionMiddleware(MiddlewareMixin):
                 # 先解密
                 target_obj = ECBCipher(settings.INTERFACE_KEY)
                 target_key = target_obj.decrypted(auth_key)
-                # print('明文：', target_key)
                 # 无法解密时直接禁止访问
                 if not target_key:
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
@@ -112,76 +106,87 @@ class PermissionMiddleware(MiddlewareMixin):
                 return JsonResponse({"message": "接口秘钥未找到！禁止访问！" , "errorCode": 10, "data": {}})
 
 
-# 格式化返回json中间件
-class FormatReturnJsonMiddleware(object):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-        if not type(response) == HttpResponse:
-            try:
-                if hasattr(self, 'process_request'):
-                    response = self.process_request(request)
-                if not response:
-                    response = self.get_response(request)
-                if hasattr(self, 'process_response'):
-                    response = self.process_response(request, response)
-                if request.method == 'DELETE':
-                    # print(response.data)
-                    if response.status_code == 204:
-                        response.data = {"message": '删除成功', "errorCode": 0, "data": {}}
-                    else:
-                        if response.data.get('detail'):
-                            data = {"message": response.data.get('detail'), "errorCode": 2, "data": {}}
-                        elif response.data.get('message'):
-                            data = response.data
-                        else:
-                            data = {"message": 'error', "errorCode": 2, "data": response.data}
-                        response.data = data
-                    response.status_code = 200
-                    response._is_rendered = False
-                    response.render()
-                else:
-                    white_list = ['/wxnotifyurl', '/alinotifyurl']
-                    if request.path != '/' and request.path not in white_list and request.path != '/wechat/wxnotifyurl' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
-                        # 适配不分页返回数据的格式化
-                        if type(response.data) == utils.serializer_helpers.ReturnList:
-                            data = {"message": 'ok', "errorCode": 0,"data": response.data}
-                            response.data = data
-                        if response.data.get('detail'):
-                            data = {"message": response.data.get('detail'), "errorCode": 2, "data": {}}
-                            response.data = data
-                        elif response.status_code > 200 and response.status_code <= 299:
-                            data = {"message": 'ok', "errorCode": 0,"data": response.data}
-                            response.data = data
-                        elif response.status_code >= 400 and response.status_code <= 499:
-                            if response.data.get('message'):  # 兼容APIView返回data的设置
-                                pass
-                            else:
-                                data = {"message": str(response.data), "errorCode": 2,"data": response.data}
-                                response.data = data
-                        else:
-                            if response.data.get('message'):  # 兼容APIView返回data的设置
-                                pass
-                            elif response.data.get('count') != None:  # 兼容分页返回data的设置
-                                response.data['errorCode'] = 0
-                                response.data['message'] = 'ok'
-                            else:
-                                data = {"message": 'ok', "errorCode": 0,
-                                        "data": response.data}
-                                response.data = data
-                        response.status_code = 200
-                        response._is_rendered = False
-                        response.render()
-            except Exception as e:
-                logging.error('发生错误：%s' % str(e))
-                if e.__str__() == "'HttpResponseNotFound' object has no attribute 'data'":
-                    return JsonResponse({"message": '路径/页面未找到。', "errorCode": 2,"data": {}})
-                if e.__str__() == "'JsonResponse' object has no attribute 'data'":
-                    return response
-                return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % e.__str__(), "errorCode": 1, "data": {}})
+class FormatReturnJsonMiddleware(MiddlewareMixin):
+    '''
+    格式化 response 中间件
+    '''
+    def process_response(self, request, response):
+        try:
+            print(response.reason_phrase)
+            print(type(response))
+            print(dir(response))
+            if isinstance(response, HttpResponseNotFound) : return JsonResponse({"message": response.reason_phrase, "errorCode": 2,"data": {}}, status=response.status_code)
+            if isinstance(response, HttpResponseNotAllowed) : return JsonResponse({"message": response.reason_phrase, "errorCode": 2,"data": {}}, status=response.status_code)
+        except Exception as e:
+            logging.exception(e)
         return response
+
+
+    # def __call__(self, request):
+    #     response = self.get_response(request)
+    #     if not type(response) == HttpResponse:
+    #         try:
+    #             if hasattr(self, 'process_request'):
+    #                 response = self.process_request(request)
+    #             if not response:
+    #                 response = self.get_response(request)
+    #             if hasattr(self, 'process_response'):
+    #                 response = self.process_response(request, response)
+    #             if request.method == 'DELETE':
+    #                 # print(response.data)
+    #                 if response.status_code == 204:
+    #                     response.data = {"message": '删除成功', "errorCode": 0, "data": {}}
+    #                 else:
+    #                     if response.data.get('detail'):
+    #                         data = {"message": response.data.get('detail'), "errorCode": 2, "data": {}}
+    #                     elif response.data.get('message'):
+    #                         data = response.data
+    #                     else:
+    #                         data = {"message": 'error', "errorCode": 2, "data": response.data}
+    #                     response.data = data
+    #                 response.status_code = 200
+    #                 response._is_rendered = False
+    #                 response.render()
+    #             else:
+    #                 white_list = ['/wxnotifyurl', '/alinotifyurl']
+    #                 if request.path != '/' and request.path not in white_list and request.path != '/wechat/wxnotifyurl' and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
+    #                     # 适配不分页返回数据的格式化
+    #                     if type(response.data) == utils.serializer_helpers.ReturnList:
+    #                         data = {"message": 'ok', "errorCode": 0,"data": response.data}
+    #                         response.data = data
+    #                     if response.data.get('detail'):
+    #                         data = {"message": response.data.get('detail'), "errorCode": 2, "data": {}}
+    #                         response.data = data
+    #                     elif response.status_code > 200 and response.status_code <= 299:
+    #                         data = {"message": 'ok', "errorCode": 0,"data": response.data}
+    #                         response.data = data
+    #                     elif response.status_code >= 400 and response.status_code <= 499:
+    #                         if response.data.get('message'):  # 兼容APIView返回data的设置
+    #                             pass
+    #                         else:
+    #                             data = {"message": str(response.data), "errorCode": 2,"data": response.data}
+    #                             response.data = data
+    #                     else:
+    #                         if response.data.get('message'):  # 兼容APIView返回data的设置
+    #                             pass
+    #                         elif response.data.get('count') != None:  # 兼容分页返回data的设置
+    #                             response.data['errorCode'] = 0
+    #                             response.data['message'] = 'ok'
+    #                         else:
+    #                             data = {"message": 'ok', "errorCode": 0,
+    #                                     "data": response.data}
+    #                             response.data = data
+    #                     response.status_code = 200
+    #                     response._is_rendered = False
+    #                     response.render()
+    #         except Exception as e:
+    #             logging.error('发生错误：%s' % str(e))
+    #             if e.__str__() == "'HttpResponseNotFound' object has no attribute 'data'":
+    #                 return JsonResponse({"message": '路径/页面未找到。', "errorCode": 2,"data": {}})
+    #             if e.__str__() == "'JsonResponse' object has no attribute 'data'":
+    #                 return response
+    #             return JsonResponse({"message": "出现了无法预料的view视图错误：%s" % e.__str__(), "errorCode": 1, "data": {}})
+    #     return response
 
 
 # 冻结用户中间件

@@ -216,6 +216,7 @@ REST_FRAMEWORK = {
     'DATE_INPUT_FORMATS': ('%Y-%m-%d',),
     'TIME_FORMAT': '%H:%M:%S',
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
+    'EXCEPTION_HANDLER': 'utils.exceptionHandle.base_exception_handler'
 }
 
 # 使用redis缓存  缓存扩展：drf-extensions 使用redis异常，问题未知

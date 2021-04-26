@@ -26,6 +26,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.cache import caches
 import oss2
+import logging
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -215,6 +216,7 @@ class TestView(APIView):
         try:
             json_data = {"message": "ok", "errorCode": 0, "data": {}}
             is_open = request.GET.get('is_open')
+            print(key)
             if is_open == 'mytestkey':
                 cache = caches['cache_redis'] # 使用多redis库时，可以设置要使用的redis，如果需要默认的，不需要设置cache
                 json_data['message'] = '开始了测试'
@@ -227,7 +229,17 @@ class TestView(APIView):
                 # print(AsyncResult('ec1aab09-003e-46e8-a926-5d9675763709').result)  # 获取该任务的结果
             return Response(json_data)
         except Exception as e:
-            print('发生错误：',e)
+            logging.exception(e)
+            return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
+    
+    def post(self, request):
+        '''
+        POST测试接口
+        '''
+        try:
+            json_data = {"message": "ok", "errorCode": 0, "data": {}}
+            return Response(json_data)
+        except Exception as e:
             return Response({"message": "出现了无法预料的view视图错误：%s" % e, "errorCode": 1, "data": {}})
 
 
