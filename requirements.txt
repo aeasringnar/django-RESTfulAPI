@@ -35,7 +35,7 @@ django-celery-beat==1.5.0
 jieba==0.42
 pycrypto==2.6.1
 gevent==20.5.0
-eventlet==0.25.2
+eventlet==0.31.0
 django-celery-results==1.2.1
 flower==0.9.4
 aiohttp==3.6.2
