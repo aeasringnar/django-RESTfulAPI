@@ -138,7 +138,7 @@ class UserUseGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        exclude = ('deleted',) 
+        exclude = ('deleted', 'create_time', 'update_time', 'id') 
 
 
 # 返回用户使用 userinfo也使用

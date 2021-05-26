@@ -18,7 +18,7 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="aeasringnar@163.com"),
         license=openapi.License(name="MIT License"),
     ),
-    url="http://www.test.com",
+    url="http://127.0.0.1:8000",
     public=True,
     permission_classes=(permissions.AllowAny,),
 )

@@ -218,6 +218,7 @@ REST_FRAMEWORK = {
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
     'EXCEPTION_HANDLER': 'utils.exceptionHandle.base_exception_handler'
 }
+APPEND_SLASH = False
 
 # 使用redis缓存  缓存扩展：drf-extensions 使用redis异常，问题未知
 CACHES = {
@@ -442,4 +443,4 @@ JPUSH_SECRET = 'your secret'
 # 文件上传配置
 FILE_CHECK = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'zip', 'rar', 'xls', 'xlsx', 'doc', 'docx', 'pptx', 'ppt', 'txt', 'pdf']
 FILE_SIZE = 1024 * 1024 * 64
-SERVER_NAME = '128.0.0.1'
+SERVER_NAME = '127.0.0.1'
