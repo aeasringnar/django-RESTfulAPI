@@ -216,7 +216,12 @@ REST_FRAMEWORK = {
     'DATE_INPUT_FORMATS': ('%Y-%m-%d',),
     'TIME_FORMAT': '%H:%M:%S',
     'TIME_INPUT_FORMATS': ('%H:%M:%S',),
-    'EXCEPTION_HANDLER': 'utils.exceptionHandle.base_exception_handler'
+    # DRF异常定制处理方法
+    'EXCEPTION_HANDLER': 'utils.exceptionHandle.base_exception_handler',
+    # DRF返回response定制json
+    'DEFAULT_RENDERER_CLASSES': (
+        'utils.rendererresponse.BaseJsonRenderer',
+    ),
 }
 APPEND_SLASH = False
 
