@@ -5,6 +5,12 @@ from datetime import timedelta
 CURRENT_ENV = os.getenv('ENV', 'dev')
 
 
+# 根据环境变量导入不同的配置
+if CURRENT_ENV == 'dev':
+    from config.dev_settings import *
+else:
+    from config.prod_settings import *
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
@@ -272,15 +278,18 @@ LOGGING = {
     'disable_existing_loggers': False,  # 表示是否禁用所有的已经存在的日志配置
     'formatters': {  # 格式器
         'verbose': {  # 详细
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '[%(levelname)s] %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'standard': {  # 标准
-            'format': '[%(asctime)s] [%(levelname)s] %(message)s'
+            'format': '[%(asctime)s] %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
         },
+        "debug": { # 调试
+            "format": "[%(asctime)s] [%(process)d:%(thread)d] %(filename)s[line:%(lineno)d] (%(name)s)[%(levelname)s] %(message)s",
+        }
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'DEBUG' if DEBUG else 'INFO',  # 当开启调试模式时使用debug模式，否则使用info模式
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout',
             'formatter': 'standard'
@@ -289,6 +298,30 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.NullHandler',
         },
+        "debug_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "debug",
+            "level": "DEBUG",
+            "encoding": "utf8",
+            "filename": "./logs/debug.log",
+            "mode": "w"
+        },
+        "info_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "standard",
+            "level": "INFO",
+            "encoding": "utf8",
+            "filename": "./logs/info.log",
+            "mode": "w"
+        },
+        "error_file_handler": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "debug",
+            "level": "ERROR",
+            "encoding": "utf8",
+            "filename": "./logs/error.log",
+            "mode": "w"
+        }
     },
     'loggers': {
         'django': {
@@ -301,14 +334,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        # 用于关闭django默认的request日志 必要时可开启
+        # 'django.request': {
+        #     'handlers': ['null'],
+        #     'level': 'INFO',
+        #     'propagate': False,
+        # },
     },
+    # 设置默认的root handle 用于将开发手动输出的日志输出到指定文件中
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['debug_file_handler', 'info_file_handler', 'error_file_handler']
+    }
 }
-
-
-
-
-# 根据环境变量导入不同的配置
-if CURRENT_ENV == 'dev':
-    from config.dev_settings import *
-else:
-    from config.prod_settings import *
