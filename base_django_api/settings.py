@@ -243,6 +243,8 @@ SWAGGER_SETTINGS = {
     # 使用这个时需要使用django-rest的admin 也就是需要配置 url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # 'LOGIN_URL': 'rest_framework:login',
     # 'LOGOUT_URL': 'rest_framework:logout',
+    # 自定义swagger的路由tag
+    'DEFAULT_GENERATOR_CLASS': 'config.swagger.BaseOpenAPISchemaGenerator',
     'USE_SESSION_AUTH': False,
     # 'SHOW_EXTENSIONS': False,
     'DOC_EXPANSION': 'none',
