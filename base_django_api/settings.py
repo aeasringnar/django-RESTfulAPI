@@ -13,7 +13,7 @@ else:
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+# sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 CONF_FILE_PATH = os.path.join(BASE_DIR, 'config')
 
 
@@ -73,8 +73,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_celery_results',
     'debug_toolbar',
-    'public.apps.PublicConfig',
-    'user.apps.UserConfig',
+    'apps.public.apps.PublicConfig',
+    'apps.user.apps.UserConfig',
 ]
 
 

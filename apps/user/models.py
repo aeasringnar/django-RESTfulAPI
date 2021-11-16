@@ -1,6 +1,6 @@
 from django.db import models
 from soft_delete_new.models import SoftDeleteModel
-from public.models import BaseModel
+from apps.public.models import BaseModel
 
 
 class Group(SoftDeleteModel, BaseModel):

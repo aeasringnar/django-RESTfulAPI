@@ -2,7 +2,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
 import jwt
 from .utils import jwt_get_user_id_from_payload_handler, jwt_decode_handler
-from user.models import User
+from apps.user.models import User
 from .settings import api_settings
 
 

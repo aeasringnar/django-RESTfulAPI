@@ -10,7 +10,7 @@ from django.http.response import HttpResponseNotFound, HttpResponseServerError
 from django.conf import settings
 from django.core.cache import cache
 from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler, jwt_get_user_id_from_payload_handler
-from user.models import User
+from apps.user.models import User
 from utils.ECB import ECBCipher
 from django.db import connection
 import logging

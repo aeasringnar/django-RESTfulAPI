@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.permissions import DjangoModelPermissions, IsAdminUser
 from rest_framework.permissions import BasePermission
-from user.models import AuthPermission
+from apps.user.models import AuthPermission
 '''
 mixins.CreateModelMixin	    create   POST	  创建数据
 mixins.RetrieveModelMixin	retrieve GET	  检索数据

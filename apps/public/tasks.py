@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from base_django_api.celery import app
 import time
-from user.models import User
+from apps.user.models import User
 
 
 @app.task

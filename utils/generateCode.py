@@ -14,7 +14,7 @@ def main(app_list):
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-from public.serializers import BaseModelSerializer
+from apps.public.serializers import BaseModelSerializer
 from rest_framework.utils import model_meta
 import threading
 from .models import *

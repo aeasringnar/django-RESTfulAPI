@@ -1,5 +1,5 @@
-from public.views import UploadFile, TestView, BeginCelery, ConfDictViewset, UploadLocalFile, test_fuc
-from user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
+from apps.public.views import UploadFile, TestView, BeginCelery, ConfDictViewset, UploadLocalFile, test_fuc
+from apps.user.views import LoginView, UserViewset, UserInfo, AuthViewset, WeChatUpdateUserViewset, WeChatMiniLoginView, WeChatAppLoginView, MemberViewset, MobileLoginView, MobileCodeView
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
