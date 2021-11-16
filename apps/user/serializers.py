@@ -3,7 +3,7 @@ from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from apps.public.serializers import BaseModelSerializer
 from rest_framework.utils import model_meta
-from .models import *
+from .models import Group, Auth, AuthPermission, User
 import time
 import datetime
 import threading

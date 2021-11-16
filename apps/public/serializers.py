@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-from .models import *
+from .models import ConfDict, BaseModel
 import time
 import datetime
 '''

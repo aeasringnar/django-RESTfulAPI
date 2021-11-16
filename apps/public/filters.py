@@ -2,7 +2,7 @@ from django_filters import rest_framework as filters
 from django.db.models import Q
 from django.db.models import F
 import datetime
-from .models import *
+from .models import ConfDict
 
 
 # class MyFilter(filters.FilterSet):

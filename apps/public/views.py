@@ -17,9 +17,9 @@ from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handle
 from utils.jwtAuth import JWTAuthentication
 from utils.pagination import Pagination
 from utils.permissions import JWTAuthPermission,AllowAllPermission, BaseAuthPermission
-from .models import *
-from .serializers import *
-from .filters import *
+from .models import ConfDict
+from .serializers import ConfDictSerializer
+# from .filters import MyFilter
 from functools import reduce
 from urllib.parse import unquote_plus
 from decimal import Decimal
