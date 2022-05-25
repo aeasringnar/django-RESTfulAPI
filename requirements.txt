@@ -12,7 +12,7 @@ django-aliyun-oss2-storage==0.1.5
 django-debug-toolbar==2.2
 drf-yasg==1.17.1
 django-redis==4.12.1
-PyJWT==1.7.1
+PyJWT==2.4.0
 PyMySQL==0.9.3
 mysqlclient==2.0.1
 requests==2.24.0
