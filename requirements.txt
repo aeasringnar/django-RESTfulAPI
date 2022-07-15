@@ -36,7 +36,7 @@ jieba==0.42
 pycrypto==2.6.1
 gevent==20.5.0
 eventlet==0.25.2
-django-celery-results==1.2.1
+django-celery-results==2.4.0
 flower==0.9.4
 aiohttp==3.6.2
 drf-extensions==0.6.0
