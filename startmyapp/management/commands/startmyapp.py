@@ -3,6 +3,7 @@ from django.conf import settings
 from os import system, makedirs
 from pathlib import Path
 
+
 class Command(BaseCommand):
     help = "Command for creating a custom app."
 
