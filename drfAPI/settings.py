@@ -10,6 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
+import os
+
+
+# config environment default dev
+CURRENT_ENV = os.getenv('ENV', 'dev')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -144,3 +149,9 @@ STATIC_URL = '/static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if CURRENT_ENV == 'dev':
+    from configs.dev.settings import *
+else:
+    from configs.prod.settings import *
