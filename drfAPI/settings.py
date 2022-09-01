@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 import os
+from datetime import timedelta
 
 
 # config environment default dev
@@ -217,6 +218,25 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     }
+}
+
+
+JWT_SETTINGS = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7), # 指定token有效期
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # 指定刷新token有效期
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHMS': ['HS256'], # 指定加密的哈希函数
+    'SIGNING_KEY': SECRET_KEY, # jwt的密钥
+    'VERIFY_SIGNATURE': True, # 开启验证密钥
+    'VERIFY_EXP': True, # 开启验证token是否过期
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'LEEWAY': 0,
+    'REQUIRE': ['exp'],
+    'AUTH_HEADER_TYPES': 'Bearer',
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
 
 

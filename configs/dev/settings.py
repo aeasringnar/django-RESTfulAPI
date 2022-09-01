@@ -7,6 +7,8 @@ CONFIG_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# 是否查看运行时的 SQL语句
+SHOWSQL = False
 
 
 # dev atabase
