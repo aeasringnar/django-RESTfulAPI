@@ -146,6 +146,26 @@ STATIC_ROOT = os.path.join(BASE_DIR , 'static/static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            # "SERIALIZER": "django_redis.serializers.msgpack.MSGPackSerializer",
+            # "PASSWORD": ""
+        }
+    },
+    "redis_cli": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+
 # django rest framework config
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
@@ -179,6 +199,39 @@ REST_FRAMEWORK = {
         'extensions.RenderResponse.BaseJsonRenderer',
     ),
 }
+
+
+SWAGGER_SETTINGS = {
+    # 使用这个时需要使用django-rest的admin 也就是需要配置 url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # 'LOGIN_URL': 'rest_framework:login',
+    # 'LOGOUT_URL': 'rest_framework:logout',
+    # 自定义swagger的路由tag
+    'DEFAULT_GENERATOR_CLASS': 'configs.swagger.BaseOpenAPISchemaGenerator',
+    'USE_SESSION_AUTH': False,
+    # 'SHOW_EXTENSIONS': False,
+    'DOC_EXPANSION': 'none',
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+
+# 媒体文件格式限制
+MEDIA_FILE_CHECK = ('png', 'jpg', 'jpeg', 'gif', 'svg', 'mp4', 'mkv', 'avi', 'mp3', 'webm', 'wav', 
+                    'ogg', 'glb', 'gltf', 'vrm', 'txt', 'pdf', 'epub', 'mobi', 'azw3')
+# 媒体文件大小限制
+MEDIA_FILE_SIZE = 1024 * 1024 * 64
+# 图像文件大小限制
+IMAGE_FILE_SIZE = 1024 * 1024 * 8
+IMAGE_FILE_CHECK = ('png', 'jpg', 'jpeg', 'gif', 'svg')
+VIDEO_FILE_CHECK = ('mp4', 'mkv', 'avi')
+SOUND_FILE_CHECK = ('mp3', 'webm', 'wav', 'ogg')
+MODEL_FILE_CHECK = ('glb', 'gltf', 'vrm')
+EBOOK_FILE_CHECK = ('txt', 'pdf', 'epub', 'mobi', 'azw3')
 
 
 if CURRENT_ENV == 'dev':
