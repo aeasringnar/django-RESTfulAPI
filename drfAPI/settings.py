@@ -27,10 +27,9 @@ MY_APPS_DIR = Path.joinpath(BASE_DIR, 'apps')
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-g7!-t_sp)c$lpy4%oq)kv95$b&1+51=6d+0elqui%*b)^^!o#s'
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+INTERFACE_KEY = '16ed9ecc7d9011eab9c63c6aa7c68b67'
+INTERFACE_TIMEOUT = 60
+DISPATCH_KEYS = ['admin4b67e4c11eab49a3c6aa7c68b67', 'mobile347e4c11eab49a3c6aa7c68b67', 'mini235a7e4c11eab49a3c6aa7c68b67']
 
 
 ALLOWED_HOSTS = [
@@ -104,16 +103,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'drfAPI.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -144,11 +133,52 @@ USE_TZ = False  # 不使用UTC格式时间
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    # 指定文件目录，BASE_DIR指的是项目目录，static是指存放静态文件的目录。
+    os.path.join(BASE_DIR , 'static'),
+]
+# 迁移静态文件的目录,这个是线上是需要使用的 python manage.py collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR , 'static/static')
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# django rest framework config
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    # ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'drf_renderer_xlsx.renderers.XLSXRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    # 格式化时间
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'DATETIME_INPUT_FORMATS': ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'),
+    'DATE_FORMAT': '%Y-%m-%d',
+    'DATE_INPUT_FORMATS': ('%Y-%m-%d',),
+    'TIME_FORMAT': '%H:%M:%S',
+    'TIME_INPUT_FORMATS': ('%H:%M:%S',),
+    # DRF异常定制处理方法
+    'EXCEPTION_HANDLER': 'extensions.ExceptionHandle.base_exception_handler',
+    # DRF返回response定制json
+    'DEFAULT_RENDERER_CLASSES': (
+        'extensions.RenderResponse.BaseJsonRenderer',
+    ),
+}
 
 
 if CURRENT_ENV == 'dev':
