@@ -222,7 +222,7 @@ SWAGGER_SETTINGS = {
 
 
 JWT_SETTINGS = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7), # 指定token有效期
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1), # 指定token有效期
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # 指定刷新token有效期
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,

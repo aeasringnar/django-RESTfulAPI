@@ -3,6 +3,8 @@ from typing import *
 import logging
 from datetime import datetime
 import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
+from django.db.models import Model
 
 
 class JwtToken:
@@ -10,6 +12,9 @@ class JwtToken:
     def __init__(self) -> None:
         self.key = settings.JWT_SETTINGS['SIGNING_KEY']
         self.algrithms = settings.JWT_SETTINGS['ALGORITHMS']
+        self.algrithm = settings.JWT_SETTINGS['ALGORITHMS'][0]
+        self.header_type = settings.JWT_SETTINGS['AUTH_HEADER_TYPES']
+        self.header_name = settings.JWT_SETTINGS['AUTH_HEADER_NAME']
         self.options = {
             'verify_signature': settings.JWT_SETTINGS['VERIFY_SIGNATURE'],
             'verify_exp': settings.JWT_SETTINGS['VERIFY_EXP'],
@@ -20,18 +25,51 @@ class JwtToken:
         # self.issuer = settings.JWT_SETTINGS['ISSUER']
         # self.leeway = settings.JWT_SETTINGS['LEEWAY']
     
-    def encode(self, obj: dict) -> str:
-        payload = {
-            'exp': datetime.now() + settings.JWT_SETTINGS['ACCESS_TOKEN_LIFETIME']
+    def encode(self, payload: dict) -> str:
+        tmp = {
+            'exp': datetime.utcnow() + settings.JWT_SETTINGS['ACCESS_TOKEN_LIFETIME']
         }
-        obj.update(payload)
-        return jwt.encode(payload=payload, key=self.key, algorithm=self.algrithms)
+        payload.update(tmp)
+        return jwt.encode(payload=payload, key=self.key, algorithm=self.algrithm)
     
     def decode(self, s: str) -> tuple:
-        res = jwt.decode(
-            jwt=s,
-            key=self.key,
-            algorithms=self.algrithms,
-            options=self.options
-        )
-        return res
+        try:
+            res = jwt.decode(
+                jwt=s,
+                key=self.key,
+                algorithms=self.algrithms,
+                options=self.options
+            )
+            return res, ''
+        except ExpiredSignatureError as e:
+            return None, 'Token expired.'
+        except InvalidSignatureError as e:
+            return None, 'Token is not valid.'
+    
+    def encode_user(self, payload: dict) -> str:
+        if isinstance(payload, dict):
+            raise ValueError("Payload must be a dict type.")
+        if 'id' not in payload or 'jwt_version' not in payload:
+            raise KeyError("Payload must contain the 'id' and 'jwt_ersion' fields.")
+        return self.encode(payload)
+    
+    def decode_user(self, s: str, User: Model) -> tuple:
+        try:
+            obj, msg = self.decode(s)
+            if not obj: return obj, msg
+            user = User.objects.values("id", "jwt_version", "is_freeze").filter(id=obj["id"]).first()
+            if not user: return None, "The account does not exist."
+            if user.get("jwt_version") != obj["jwt_version"]: return None, "The token has been refreshed."
+            if user.get("is_freeze"): return None, "The account was frozen."
+            return User.objects.filter(id=obj["id"]).first(), ""
+        except Exception as e:
+            logging.error(f"将jwt解析为用户时发生异常：{e}")
+            logging.exception(e)
+            return None, str(e)
+    
+    def check_headers_jwt(self, target: str) -> tuple:
+        '''检查请求头中的jwt'''
+        target_ls = target.strip().split(" ")
+        if len(target_ls) != 2: return None, "Invalid Authorization header. No credentials provided."
+        header_type, value = target_ls
+        if header_type != self.header_type: return None, ""
