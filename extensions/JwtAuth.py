@@ -11,7 +11,16 @@ class JwtAuthentication(BaseAuthentication):
         self.jwt = JwtToken()
     
     def authenticate(self, request):
-        return super().authenticate(request)
+        token = request.META.get(self.jwt.header_name, '')
+        if not token:
+            return None
+        token, msg = self.jwt.check_headers_jwt(token)
+        if not token:
+            raise AuthenticationFailed(msg)
+        user, msg = self.jwt.decode_user(token, User)
+        if not user:
+            raise AuthenticationFailed(msg)
+        return user, token
     
     
     def authenticate_header(self, request):

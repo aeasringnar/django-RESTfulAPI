@@ -72,4 +72,5 @@ class JwtToken:
         target_ls = target.strip().split(" ")
         if len(target_ls) != 2: return None, "Invalid Authorization header. No credentials provided."
         header_type, value = target_ls
-        if header_type != self.header_type: return None, ""
+        if header_type != self.header_type: return None, "The message header is invalid."
+        return value, ""
