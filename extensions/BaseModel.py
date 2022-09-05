@@ -20,9 +20,9 @@ class BigDataFilterManager(Manager):
 class BaseModel(Model):
     # sort = models.IntegerField(default=1, verbose_name='排序')
     remark = models.TextField(max_length=1024, default='', blank=True, verbose_name='备注')
-    create_time = models.BigIntegerField(verbose_name='排序时间戳，默认等于创建时间戳')
-    create_time = models.BigIntegerField(verbose_name='创建时间戳')
-    update_time = models.BigIntegerField(verbose_name='更新时间戳')
+    sort_timestamp = models.BigIntegerField(verbose_name='排序时间戳，默认等于创建时间戳')
+    create_timestamp = models.BigIntegerField(verbose_name='创建时间戳')
+    update_timestamp = models.BigIntegerField(verbose_name='更新时间戳')
     # objects = BigDataFilterManager()  # 是否开放大数据时的日期过滤
 
     class Meta:

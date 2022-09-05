@@ -24,4 +24,21 @@ from .tasks import *
 # from .filters import *
 
 
-# Create your views here.
+class UserViewSet(ModelViewSet):
+    '''
+    更新指定ID的用户
+    create:  创建用户
+    retrieve:  检索指定ID的用户
+    update:  更新指定ID的用户
+    destroy:  删除指定ID的用户
+    list:  获取用户列表
+    '''
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = [JWTAuthPermission, ]
+    # throttle_classes = [VisitThrottle]
+    serializer_class = UserViewsetSerializer
+    # filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
+    # search_fields = ('name', 'desc')
+    # filter_fields = ('address', 'user', 'status',)
+    # ordering_fields = ('id', 'update_time', 'create_time',)
+    # pagination_class = Pagination

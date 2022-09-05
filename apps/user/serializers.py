@@ -20,4 +20,14 @@ from .models import *
 from .tasks import *
 
 
-# create your seializers here
+class UserViewsetSerializer(BaseModelSerializer, serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        exclude = ("deleted", )
+        read_only_fields = ('id', 'deleted', 'sort_timestamp', 'create_timestamp', 'update_timestamp')
+
+
+class AdminLoginSerializer(serializers.Serializer):
+    account = serializers.CharField(required=True, max_length=64, label="账号")
+    password = serializers.CharField(required=True, max_length=64, label="密码")
