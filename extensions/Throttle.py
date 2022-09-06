@@ -29,6 +29,6 @@ class VisitThrottle(BaseThrottle):
         return True
 
     def wait(self):
-        es = self.cache.coon.pttl(self.visit_key)
+        es = self.cache.coon.pttl(self.visit_key) # 以毫秒为单位返回键的剩余过期时间
         es = (int(es) / 1000)
         return es

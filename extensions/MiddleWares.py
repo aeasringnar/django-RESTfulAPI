@@ -1,23 +1,17 @@
-from rest_framework.response import Response
-from rest_framework import utils
-import json, os, copy, re, jwt, time
+import logging
+import re
+import time
+from decimal import Decimal
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
-from rest_framework import status
-import urllib
-from django.http import QueryDict, HttpResponse, JsonResponse
-from django.http.response import HttpResponseNotFound, HttpResponseServerError
+from django.http import QueryDict
+from django.http.response import HttpResponseNotFound, HttpResponseServerError, JsonResponse, HttpResponse
 from django.conf import settings
-from django.core.cache import cache
-from utils.utils import jwt_decode_handler,jwt_encode_handler,jwt_payload_handler,jwt_payload_handler,jwt_response_payload_handler, jwt_get_user_id_from_payload_handler
-from utils.web3utils import Web3Utils
-from apps.user.models import User
-from utils.services import NFTUitls
-from utils.Ecb import ECBCipher
+from django.core.cache import cache, caches
 from django.db import connection
-import logging
-from django.core.cache import caches
-from decimal import Decimal
+from rest_framework.response import Response
+from rest_framework import utils, status
+from utils.Ecb import ECBCipher
 '''
 0 没有错误
 1 未知错误  针对此错误  线上版前端弹出网络错误等公共错误
@@ -26,18 +20,16 @@ from decimal import Decimal
 
 
 class PUTtoPATCHMiddleware(MiddlewareMixin):
-    '''
-    将 put 请求转为 patch 请求 中间件
-    '''
+    '''将 put 请求转为 patch 请求 中间件'''
+    
     def process_request(self, request):
         if request.method == 'PUT':
             request.method = 'PATCH'
 
 
 class LogMiddleware(MiddlewareMixin):
-    '''
-    日志中间件
-    '''
+    '''日志中间件'''
+    
     def process_request(self, request):
         try:
             logging.info('************************************************* 下面是新的一条日志 ***************************************************')
@@ -76,9 +68,8 @@ class LogMiddleware(MiddlewareMixin):
 
 
 class PermissionMiddleware(MiddlewareMixin):
-    '''
-    权限 加密中间件
-    '''
+    '''接口加密中间件'''
+    
     def process_view(self, request):
         white_paths = ['/wechat/wxnotifyurl', '/', '/__debug__/', '/__debug__', '/favicon.ico']
         if request.path not in white_paths and not re.match(r'/swagger.*', request.path, re.I) and not re.match(r'/redoc/.*', request.path, re.I) and not re.match(r'/export.*', request.path, re.I):
@@ -110,36 +101,8 @@ class PermissionMiddleware(MiddlewareMixin):
                 return JsonResponse({"message": "接口秘钥未找到！禁止访问！" , "errorCode": 10, "data": {}})
 
 
-class PermissionCallBackMiddleware(MiddlewareMixin):
-    '''
-    回调接口中间件，杜绝黑名单IP的访问
-    '''
-    def process_view(self, request, callback, callback_args, callback_kwargs):
-        white_ips = ['150.158.55.39', '35.227.152.73', '39.182.53.220', '127.0.0.1', '39.182.53.138', '115.236.184.202']
-        white_list = NFTUitls().white_list(list_type='1')
-        white_ips += white_list
-        rip = request.META.get('REMOTE_ADDR')
-        ip = request.META.get('HTTP_X_FORWARDED_FOR')
-        if request.path in ('/callpresell/', ) and (rip not in white_ips and ip not in white_ips):
-            return JsonResponse({"message": "this ip not allow." , "errorCode": 10, "data": {}})
-        if request.path in ('/airport/', '/extract/', ):
-            cache = caches['cache_redis']
-            remote_addr = request.META.get('HTTP_X_REAL_IP') if not request.META.get('REMOTE_ADDR') else request.META.get('REMOTE_ADDR')
-            if cache.get(remote_addr) and int(cache.get(remote_addr)) > settings.DAY_HZ:
-                return JsonResponse({"message": "bad request." , "errorCode": 10, "data": {}})
 
 
-class SecurityInterFaceMiddleware(MiddlewareMixin):
-    '''
-    安全接口中间件，阻挡异常IP的请求
-    '''
-    def process_request(self, request):
-        cache = caches['cache_redis']
-        remote_addr = request.META.get('HTTP_X_REAL_IP') if not request.META.get('REMOTE_ADDR') else request.META.get('REMOTE_ADDR')
-        freeze_key = 'notfound-freeze-%s' % remote_addr
-        if cache.get(freeze_key):
-            return JsonResponse({"message": 'Malicious access has been detected. IP has been blocked.', "errorCode": 3,"data": {}}, status=status.HTTP_400_BAD_REQUEST)
-        
 
 class DevelopSecurityInterFaceMiddleware(MiddlewareMixin):
     '''
@@ -147,7 +110,7 @@ class DevelopSecurityInterFaceMiddleware(MiddlewareMixin):
     '''
     def process_request(self, request):
         white_ips = ['150.158.55.39', '35.227.152.73', '39.182.53.220', '127.0.0.1', '39.182.53.138', '115.236.184.202', '39.182.53.102']
-        white_list = NFTUitls().white_list(list_type='1')
+        white_list = []
         white_ips += white_list
         rip = request.META.get('REMOTE_ADDR')
         ip = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -183,66 +146,3 @@ class FormatReturnJsonMiddleware(MiddlewareMixin):
         except Exception as e:
             logging.exception(e)
         return response
-
-
-class BlockUserMiddleware(MiddlewareMixin):
-    '''
-    冻结用户中间件 暂时弃用 2022-05-14
-    '''
-    def process_view(self, request, callback, callback_args, callback_kwargs):
-        wilte_path = ('/login/', '/indexSpotGoods/', '/indexConfDict/', '/createPopularizeAward/', '/adminlogin/', '/callbuyom/', '/uploadForPro/')
-        if request.path in wilte_path:
-            pass
-        elif request.META.get('HTTP_AUTHORIZATION'):
-            if ' ' not in request.META.get('HTTP_AUTHORIZATION'):
-                return JsonResponse({"message": 'Token is not valid.' , "errorCode": 2, "data": {}})
-            token = (request.META.get('HTTP_AUTHORIZATION').split(' '))[1]
-            try:
-                payload = jwt_decode_handler(token)
-                user_id =  jwt_get_user_id_from_payload_handler(payload)
-                if not user_id:
-                    return JsonResponse({"message": "The user does not exist." , "errorCode": 2, "data": {}})
-                now_user = User.objects.values('id', 'is_freeze').filter(id=user_id).first()
-                if not now_user:
-                    return JsonResponse({"message": "The user does not exist." , "errorCode": 2, "data": {}})
-                if now_user.get('is_freeze'):
-                    return JsonResponse({"message": "Account frozen!", "errorCode": 2, "data": {}})
-            except jwt.ExpiredSignature:
-                return JsonResponse({"message": 'Token expired.' , "errorCode": 2, "data": {}})
-            except jwt.DecodeError:
-                return JsonResponse({"message": 'Token is not valid.' , "errorCode": 2, "data": {}})
-            except jwt.InvalidTokenError as e:
-                return JsonResponse({"message": "An unexpected view error occurred: %s" % e, "errorCode": 1, "data": {}})
-            
-            
-class CheckTokenVersionAndUserFreezeMiddleware(MiddlewareMixin):
-    '''
-    检查token版本和用户是否冻结中间件，目的基本一样，都是检查大部分鉴权接口中，token的版本和用户是否冻结
-    只用一个中间件，可以提升性能
-    '''
-    def process_view(self, request, callback, callback_args, callback_kwargs):
-        white_path = ('/login/', '/indexSpotGoods/', '/indexConfDict/', '/myAward/', '/createPopularizeAward/', '/adminlogin/', '/callTransfer/', '/uploadForPro/')
-        if request.path in white_path:
-            pass
-        elif request.META.get('HTTP_AUTHORIZATION'):
-            if ' ' not in request.META.get('HTTP_AUTHORIZATION'):
-                return JsonResponse({"message": 'Token is not valid.' , "errorCode": 2, "data": {}})
-            token = (request.META.get('HTTP_AUTHORIZATION').split(' '))[1]
-            try:
-                payload = jwt_decode_handler(token)
-                user_id =  jwt_get_user_id_from_payload_handler(payload)
-                if not user_id:
-                    return JsonResponse({"message": "The user does not exist." , "errorCode": 2, "data": {}})
-                now_user = User.objects.values('id', 'token_version', 'is_freeze').filter(id=user_id).first()
-                if not now_user:
-                    return JsonResponse({"message": "The user does not exist." , "errorCode": 2, "data": {}})
-                if now_user.get('token_version') != payload.get('version'):
-                    return JsonResponse({"message": "The token is implemented", "errorCode": 2, "data": {}})
-                if now_user.get('is_freeze'):
-                    return JsonResponse({"message": "Account frozen!", "errorCode": 2, "data": {}})
-            except jwt.ExpiredSignature:
-                return JsonResponse({"message": 'Token expired.' , "errorCode": 2, "data": {}})
-            except jwt.DecodeError:
-                return JsonResponse({"message": 'Token is not valid.' , "errorCode": 2, "data": {}})
-            except jwt.InvalidTokenError as e:
-                return JsonResponse({"message": "An unexpected view error occurred: %s" % e, "errorCode": 1, "data": {}})

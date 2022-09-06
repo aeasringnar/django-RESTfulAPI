@@ -1,8 +1,8 @@
-from django.conf import settings
-from typing import *
-import logging
-from datetime import datetime
 import jwt
+import logging
+from typing import *
+from datetime import datetime
+from django.conf import settings
 from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from django.db.models import Model
 

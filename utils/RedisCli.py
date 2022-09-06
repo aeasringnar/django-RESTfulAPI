@@ -5,16 +5,13 @@ from django.conf import settings
 from .Singleton import Singleton
 
 
-
-
-
 class RedisCli(Singleton):
     
     def __init__(self):
         '''初始化'''
-        self.connect_url = settings.CACHES['redis_cli']['LOCATION'] # settings.CACHES['redis_cli']['LOCATION']
-        self.current_db = int(self.connect_url[-1])
-        self.pool = redis.ConnectionPool().from_url(self.connect_url)
+        self._connect_url = settings.CACHES['redis_cli']['LOCATION'] # settings.CACHES['redis_cli']['LOCATION']
+        self.current_db = int(self._connect_url[-1])
+        self.pool = redis.ConnectionPool().from_url(self._connect_url)
         self.coon = redis.Redis(connection_pool=self.pool)
     
     def key_exists(self, key):
