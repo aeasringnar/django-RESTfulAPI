@@ -39,10 +39,11 @@ class UserViewSet(ModelViewSet):
     destroy:  删除指定ID的用户
     list:  获取用户列表
     '''
+    queryset = User.objects.filter()
+    serializer_class = UserViewsetSerializer
     # authentication_classes = (JwtAuthentication, )
     # permission_classes = (AllowAny, )
     # throttle_classes = (VisitThrottle, )
-    serializer_class = UserViewsetSerializer
     # filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     # search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
     # filter_fields = ('status', )

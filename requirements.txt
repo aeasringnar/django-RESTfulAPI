@@ -16,3 +16,4 @@ PyYAML==6.0
 lxml==4.9.1
 Markdown==3.4.1
 pycrypto==2.6.1
+six==1.16.0
