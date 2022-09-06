@@ -78,6 +78,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'extensions.MiddleWares.PUTtoPATCHMiddleware',
+    'extensions.MiddleWares.LogMiddleware',
+    # 'extensions.MiddleWares.PermissionMiddleware',
+    'extensions.MiddleWares.FormatReturnJsonMiddleware',
 ]
 
 
