@@ -2,7 +2,7 @@ import time
 from typing import *
 from datetime import datetime
 from django.db.models import Model, Manager
-from django.db import models
+from django.db import models, transaction
 
 
 class BigDataFilterManager(Manager):
@@ -28,16 +28,18 @@ class BaseModel(Model):
     class Meta:
         abstract = True
     
-    def save(self, force_insert: bool, force_update: bool, using: Optional[str], update_fields: Optional[Iterable[str]]) -> None:
-        now_time = int(time.time() * 1000)
-        print("数据正则创建")
-        print(dir(self))
-        self.update_time = now_time
-        return super().save(force_insert, force_update, using, update_fields)
+    # @transaction.atomic
+    # def save(self, force_insert: bool, force_update: bool, using: Optional[str], update_fields: Optional[Iterable[str]]) -> None:
+    #     now_time = int(time.time() * 1000)
+    #     print("数据正则创建")
+    #     print(dir(self))
+    #     self.update_time = now_time
+    #     return super().save(force_insert, force_update, using, update_fields)
     
-    def delete(self, using: Any, keep_parents: bool) -> Tuple[int, Dict[str, int]]:
-        now_time = int(time.time() * 1000)
-        print("数据正则删除")
-        print(dir(self))
-        self.update_time = now_time
-        return super().delete(using, keep_parents)
+    # @transaction.atomic
+    # def delete(self, using: Any, keep_parents: bool) -> Tuple[int, Dict[str, int]]:
+    #     now_time = int(time.time() * 1000)
+    #     print("数据正则删除")
+    #     print(dir(self))
+    #     self.update_time = now_time
+    #     return super().delete(using, keep_parents)

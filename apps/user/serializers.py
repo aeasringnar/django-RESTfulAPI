@@ -24,8 +24,8 @@ class UserViewsetSerializer(BaseModelSerializer, serializers.ModelSerializer):
     
     class Meta:
         model = User
-        exclude = ("deleted", )
-        read_only_fields = ('id', 'deleted', 'sort_timestamp', 'create_timestamp', 'update_timestamp')
+        exclude = ('deleted', 'is_freeze')
+        read_only_fields = ('id', 'sort_timestamp', 'create_timestamp', 'update_timestamp', 'bf_logo_time')
 
 
 class AdminLoginSerializer(serializers.Serializer):

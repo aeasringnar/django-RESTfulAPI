@@ -1,8 +1,8 @@
-from rest_framework.views import exception_handler
-from django.http import JsonResponse
 import logging
-from rest_framework import status
 import json
+from rest_framework.views import exception_handler
+from rest_framework.response import Response
+from rest_framework import status
 
 
 def handle_re_str(datas: dict):
@@ -31,13 +31,11 @@ def base_exception_handler(exc, context):
     '''
     logging.debug('DRF主动提示异常')
     response = exception_handler(exc, context)
-    if not response:
-        pass
-    else:
+    if response:
         logging.debug(response.data)
         msg = ''
         new_data = json.loads(json.dumps(response.data))
         msg = handle_re_str(new_data)[:-2]
         code = 0 if response.status_code == 200 else 2
-        return JsonResponse({"message": msg, "errorCode": code, "data": {}}, status=status.HTTP_200_OK)
-    return response
+        return Response({"message": msg, "errorCode": code, "data": {}}, status=status.HTTP_200_OK)
+    return Response({"message": str(exc), "errorCode": 1, "data": {}}, status=status.HTTP_200_OK)
