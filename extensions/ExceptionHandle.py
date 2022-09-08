@@ -32,10 +32,13 @@ def base_exception_handler(exc, context):
     logging.debug('DRF主动提示异常')
     response = exception_handler(exc, context)
     if response:
+        logging.debug('可处理异常')
         logging.debug(response.data)
         msg = ''
         new_data = json.loads(json.dumps(response.data))
         msg = handle_re_str(new_data)[:-2]
         code = 0 if response.status_code == 200 else 2
         return Response({"message": msg, "errorCode": code, "data": {}}, status=status.HTTP_200_OK)
+    logging.debug('未知异常')
+    logging.exception(exc)
     return Response({"message": str(exc), "errorCode": 1, "data": {}}, status=status.HTTP_200_OK)

@@ -28,18 +28,22 @@ class BaseModel(Model):
     class Meta:
         abstract = True
     
-    # @transaction.atomic
-    # def save(self, force_insert: bool, force_update: bool, using: Optional[str], update_fields: Optional[Iterable[str]]) -> None:
-    #     now_time = int(time.time() * 1000)
-    #     print("数据正则创建")
-    #     print(dir(self))
-    #     self.update_time = now_time
-    #     return super().save(force_insert, force_update, using, update_fields)
+    @transaction.atomic
+    def save(self, *args, **kwargs) -> None:
+        now_time = int(time.time() * 1000)
+        # print(dir(self))
+        if self.pk is None:
+            # print("数据正则创建")
+            self.create_timestamp = now_time
+            self.sort_timestamp = now_time
+        else:
+            pass
+            # print("数据正则修改")
+        self.update_timestamp = now_time
+        super().save(*args, **kwargs)
     
-    # @transaction.atomic
-    # def delete(self, using: Any, keep_parents: bool) -> Tuple[int, Dict[str, int]]:
-    #     now_time = int(time.time() * 1000)
-    #     print("数据正则删除")
-    #     print(dir(self))
-    #     self.update_time = now_time
-    #     return super().delete(using, keep_parents)
+    @transaction.atomic
+    def delete(self, *args, **kwargs) -> None:
+        now_time = int(time.time() * 1000)
+        self.update_time = now_time
+        super().delete(*args, **kwargs)

@@ -28,7 +28,7 @@ class BaseModelSerializer(serializers.Serializer):
     update_time_format = serializers.SerializerMethodField(label='更新时间')
     
     def get_create_time_format(self, obj):
-        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], obj.create_timestamp)
+        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], time.localtime(obj.create_timestamp / 1000))
 
     def get_update_time_format(self, obj):
-        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], obj.update_timestamp)
+        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], time.localtime(obj.update_timestamp / 1000))
