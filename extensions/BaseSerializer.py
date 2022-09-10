@@ -1,6 +1,7 @@
+import time
 from rest_framework import serializers
 from django.conf import settings
-import time
+from utils.MyDateTime import MyDateTime
 '''
 serializers 常用字段
 name = serializers.CharField(required=False, label='描述', max_length=None, min_length=None, allow_blank=False, trim_whitespace=True)
@@ -28,7 +29,7 @@ class BaseModelSerializer(serializers.Serializer):
     update_time_format = serializers.SerializerMethodField(label='更新时间')
     
     def get_create_time_format(self, obj):
-        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], time.localtime(obj.create_timestamp / 1000))
+        return MyDateTime.timestamp_str(obj.create_timestamp, settings.REST_FRAMEWORK['DATETIME_FORMAT'])
 
     def get_update_time_format(self, obj):
-        return time.strftime(settings.REST_FRAMEWORK['DATETIME_FORMAT'], time.localtime(obj.update_timestamp / 1000))
+        return MyDateTime.timestamp_str(obj.update_timestamp, settings.REST_FRAMEWORK['DATETIME_FORMAT'])
