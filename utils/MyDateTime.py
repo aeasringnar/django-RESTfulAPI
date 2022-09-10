@@ -21,13 +21,13 @@ class MyDateTime:
             raise e
     
     @staticmethod
-    def str_timestamp(time_str: str, format: str) -> int:
+    def str_timestamp(time_str: str, format: str="%Y-%m-%d %H:%M:%S") -> int:
         '''将时间字符串转为 毫秒 时间戳，传入的时间字符串要和格式化字符串相匹配
         注：支持毫秒的时间戳转换，例如 2022-01-01 00:10:10.567 对应的时间格式化字符串为 %Y-%m-%d %H:%M:%S.%f
         '''
         try:
             # int(time.mktime(time.strptime(time_str, format)) * 1000) # 废弃，因为无法处理带毫秒的时间字符串
-            return (datetime.strptime(time_str, format)).timestamp() * 1000
+            return int((datetime.strptime(time_str, format)).timestamp() * 1000)
         except Exception as e:
             logging.error(str(e))
             raise e
@@ -52,7 +52,7 @@ class MyDateTime:
             raise e
     
     @staticmethod
-    def str_datetime(time_str: str, format: str) -> datetime:
+    def str_datetime(time_str: str, format: str="%Y-%m-%d %H:%M:%S") -> datetime:
         '''将时间字符串转为datetime对象'''
         try:
             return datetime.strptime(time_str, format)
@@ -61,7 +61,7 @@ class MyDateTime:
             raise e
     
     @staticmethod
-    def datetime_str(date_time: datetime, format: str) -> str:
+    def datetime_str(date_time: datetime, format: str="%Y-%m-%d %H:%M:%S") -> str:
         '''将datetime对象转为时间字符串'''
         try:
             return datetime.strftime(date_time, format)
@@ -95,3 +95,16 @@ class MyDateTime:
         except Exception as e:
             logging.error(str(e))
             raise e
+
+
+if __name__ == "__main__":
+    t = int(time.time() * 1000)
+    print(MyDateTime.timestamp_str(t))
+    print(MyDateTime.str_timestamp("2022-09-10 10:10:10.324", "%Y-%m-%d %H:%M:%S.%f"))
+    print(MyDateTime.timestamp_datetime(t))
+    print(MyDateTime.datetime_timestamp(datetime.now()))
+    print(MyDateTime.str_datetime("2022-09-10 10:10:10"))
+    print(MyDateTime.datetime_str(datetime.now(), "%Y-%m-%dT%H:%M:%S"))
+    print(MyDateTime.timetuple_datetime(time.localtime()))
+    print(MyDateTime.datetime_timetuple(datetime.now()))
+    print(MyDateTime.timestr_newtimestr("2022-09-10 10:10:10", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"))
