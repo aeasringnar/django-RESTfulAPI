@@ -1,9 +1,8 @@
 from django.db import models
-from soft_delete_new.models import SoftDeleteModel
 from extensions.BaseModel import BaseModel
 
 
-class User(SoftDeleteModel, BaseModel):
+class User(BaseModel):
     # 管理员时使用账户密码登录
     gender_choice = (
         ('privacy', '保密'), 

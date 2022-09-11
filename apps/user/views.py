@@ -39,7 +39,7 @@ class UserViewSet(ModelViewSet):
     destroy:  删除指定ID的用户
     list:  获取用户列表
     '''
-    queryset = User.objects.filter()
+    queryset = User.all_objects.filter()
     serializer_class = UserViewsetSerializer
     # authentication_classes = (JwtAuthentication, )
     # permission_classes = (AllowAny, )

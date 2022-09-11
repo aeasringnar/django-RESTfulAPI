@@ -102,13 +102,13 @@ class MyDateTime:
 
 if __name__ == "__main__":
     t = int(time.time() * 1e6)
-    # print(MyDateTime.timestamp_str(t, "%Y-%m-%d %H:%M:%S.%f"))
+    print(MyDateTime.timestamp_str(1662886461423443, "%Y-%m-%d %H:%M:%S.%f"))
     # print(MyDateTime.timestamp_str(t, "%Y-%m-%d %H:%M:%S"))
     # print(MyDateTime.str_timestamp("2022-09-10 10:10:10.324567", "%Y-%m-%d %H:%M:%S.%f"))
-    print(MyDateTime.str_timestamp("2020-09-10 10:10:10"))
-    print(MyDateTime.str_timestamp("2022-09-10 10:10:10"))
-    print(MyDateTime.str_timestamp("2027-09-10 10:10:10"))
-    print(MyDateTime.str_timestamp("2032-09-10 10:10:10"))
+    # print(MyDateTime.str_timestamp("2020-09-10 10:10:10"))
+    # print(MyDateTime.str_timestamp("2022-09-10 10:10:10"))
+    # print(MyDateTime.str_timestamp("2027-09-10 10:10:10"))
+    # print(MyDateTime.str_timestamp("2032-09-10 10:10:10"))
     # print(MyDateTime.timestamp_datetime(t))
     # print(MyDateTime.datetime_timestamp(datetime.now()))
     # print(MyDateTime.str_datetime("2022-09-10 10:10:10.324567", "%Y-%m-%d %H:%M:%S.%f"))
