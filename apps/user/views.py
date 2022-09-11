@@ -19,6 +19,7 @@ from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from django.forms.models import model_to_dict
 from django.http.response import HttpResponseNotFound
+from drf_yasg.utils import swagger_auto_schema
 from extensions.Pagination import Pagination
 from extensions.Throttle import VisitThrottle
 from extensions.JwtAuth import JwtAuthentication
@@ -31,11 +32,10 @@ from .tasks import *
 
 class UserViewSet(ModelViewSet):
     '''
-    
+    更新指定ID的用户，局部更新
     create:  创建用户
     retrieve:  检索指定ID的用户
     update:  更新指定ID的用户
-    perform_update:  更新指定ID的用户，局部更新
     destroy:  删除指定ID的用户
     list:  获取用户列表
     '''
@@ -49,3 +49,8 @@ class UserViewSet(ModelViewSet):
     # filter_fields = ('status', )
     # ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
     # pagination_class = Pagination
+    
+    # 测试对Swagger的指定备注
+    @swagger_auto_schema(operation_description="创建用户", operation_summary="创建用户")
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)

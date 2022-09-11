@@ -6,7 +6,7 @@ from typing import *
 
 class MyDateTime:
     '''自定义的时间处理类
-    定义时间戳为整型的，纳秒时间戳13位，纳秒时间戳16位。
+    定义时间戳为整型的，纳秒时间戳13位，纳秒时间戳当前时间到百年之内位16位，当时间更大，会出现16位以上。
     本例时间戳定义为纳秒级别，更加精确。
     '''
     
@@ -16,8 +16,6 @@ class MyDateTime:
         try:
             if not isinstance(timestamp, int):
                 raise ValueError("The timestamp need int type.")
-            if len(str(timestamp)) != 16:
-                raise ValueError("The timestamp length need 16.")
             timestamp /= 1e6
             # time.strftime(format, time.localtime(timestamp)) # 废弃，因为精度不高，不支持纳秒的精度
             return datetime.fromtimestamp(timestamp).strftime(format)
@@ -104,10 +102,13 @@ class MyDateTime:
 
 if __name__ == "__main__":
     t = int(time.time() * 1e6)
-    print(MyDateTime.timestamp_str(t, "%Y-%m-%d %H:%M:%S.%f"))
+    # print(MyDateTime.timestamp_str(t, "%Y-%m-%d %H:%M:%S.%f"))
     # print(MyDateTime.timestamp_str(t, "%Y-%m-%d %H:%M:%S"))
     # print(MyDateTime.str_timestamp("2022-09-10 10:10:10.324567", "%Y-%m-%d %H:%M:%S.%f"))
-    # print(MyDateTime.str_timestamp("2022-09-10 10:10:10", "%Y-%m-%d %H:%M:%S"))
+    print(MyDateTime.str_timestamp("2020-09-10 10:10:10"))
+    print(MyDateTime.str_timestamp("2022-09-10 10:10:10"))
+    print(MyDateTime.str_timestamp("2027-09-10 10:10:10"))
+    print(MyDateTime.str_timestamp("2032-09-10 10:10:10"))
     # print(MyDateTime.timestamp_datetime(t))
     # print(MyDateTime.datetime_timestamp(datetime.now()))
     # print(MyDateTime.str_datetime("2022-09-10 10:10:10.324567", "%Y-%m-%d %H:%M:%S.%f"))
