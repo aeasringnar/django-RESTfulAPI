@@ -213,7 +213,8 @@ SWAGGER_SETTINGS = {
     # 'LOGIN_URL': 'rest_framework:login',
     # 'LOGOUT_URL': 'rest_framework:logout',
     # 自定义swagger的路由tag
-    'DEFAULT_GENERATOR_CLASS': 'configs.swagger.BaseOpenAPISchemaGenerator',
+    # 'DEFAULT_GENERATOR_CLASS': 'configs.swagger.BaseOpenAPISchemaGenerator',
+    # 'DEFAULT_AUTO_SCHEMA_CLASS': 'configs.swagger.CustomSwaggerAutoSchema',
     'USE_SESSION_AUTH': False,
     # 'SHOW_EXTENSIONS': False,
     'DOC_EXPANSION': 'none',
@@ -228,7 +229,7 @@ SWAGGER_SETTINGS = {
 
 
 JWT_SETTINGS = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1), # 指定token有效期
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7), # 指定token有效期
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # 指定刷新token有效期
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
@@ -258,6 +259,10 @@ VIDEO_FILE_CHECK = ('mp4', 'mkv', 'avi')
 SOUND_FILE_CHECK = ('mp3', 'webm', 'wav', 'ogg')
 MODEL_FILE_CHECK = ('glb', 'gltf', 'vrm')
 EBOOK_FILE_CHECK = ('txt', 'pdf', 'epub', 'mobi', 'azw3')
+
+
+# 限制每个接口请求频次
+MINUTE_HZ = 30
 
 
 if CURRENT_ENV == 'dev':
