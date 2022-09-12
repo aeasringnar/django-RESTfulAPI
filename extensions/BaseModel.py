@@ -241,9 +241,9 @@ class BaseModel(models.Model):
     '''
     deleted = models.UUIDField(default=None, null=True, blank=True, verbose_name='删除标志')
     remark = models.TextField(max_length=1024, default='', blank=True, verbose_name='备注')
-    sort_timestamp = TimestampField(auto_now_add=True, validators=[MinValueValidator(limit_value=0)], verbose_name='排序时间戳，默认等于创建时间戳')
-    create_timestamp = TimestampField(auto_now_add=True, validators=[MinValueValidator(limit_value=0)], verbose_name='创建时间戳')
-    update_timestamp = TimestampField(auto_now=True,validators=[MinValueValidator(limit_value=0)], verbose_name='更新时间戳')
+    sort_timestamp = TimestampField(auto_now_add=True, db_index=True, validators=[MinValueValidator(limit_value=0)], verbose_name='排序时间戳，默认等于创建时间戳')
+    create_timestamp = TimestampField(auto_now_add=True, db_index=True, validators=[MinValueValidator(limit_value=0)], verbose_name='创建时间戳')
+    update_timestamp = TimestampField(auto_now=True, db_index=True, validators=[MinValueValidator(limit_value=0)], verbose_name='更新时间戳')
 
     objects = SoftDeleteManager()
     all_objects = SoftDeleteManager(deleted_also=True)
