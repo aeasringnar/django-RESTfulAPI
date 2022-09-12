@@ -3,6 +3,7 @@ import json
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework import status
+from extensions.MyResponse import MyJsonResponse
 
 
 def handle_re_str(datas: dict):
@@ -29,16 +30,19 @@ def base_exception_handler(exc, context):
     '''
     用于处理drf的异常定制返回，目的是统一返回信息，只有drf出现异常时才会执行，其他情况不执行
     '''
-    logging.debug('DRF主动提示异常')
+    logging.error('DRF主动提示异常')
+    error_msg = ["DRF主动提示异常"]
     response = exception_handler(exc, context)
-    if response:
-        logging.debug('可处理异常')
-        logging.debug(response.data)
+    if response: # 主要是用来处理字段验证的异常，将异常改为可读性更高的返回值
+        error_msg.append("可处理的异常")
+        logging.error('可处理的异常')
+        logging.error(response.data)
         msg = ''
         new_data = json.loads(json.dumps(response.data))
         msg = handle_re_str(new_data)[:-2]
         code = 0 if response.status_code == 200 else 2
-        return Response({"message": msg, "errorCode": code, "data": {}}, status=status.HTTP_200_OK)
-    logging.debug('未知异常')
+        return MyJsonResponse({"message": msg, "errorCode": code}, status=status.HTTP_200_OK).data
+    logging.error('未处理的异常')
     logging.exception(exc)
-    return Response({"message": str(exc), "errorCode": 1, "data": {}}, status=status.HTTP_200_OK)
+    error_msg.append("未处理的异常")
+    return MyJsonResponse({"message": str(exc), "errorCode": 1}, status=status.HTTP_200_OK).data
