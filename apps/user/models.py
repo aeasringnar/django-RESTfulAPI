@@ -20,6 +20,7 @@ class User(BaseModel):
     birth_date = models.CharField(max_length=10, default='', blank=True, verbose_name='生日')
     is_freeze = models.BooleanField(default=False, verbose_name='是否冻结/是否封号')
     bf_logo_time = models.BigIntegerField(default=0, verbose_name='上次登录时间戳')
+    jwt_version = models.IntegerField(default=0, verbose_name='jwt token版本')
     # is_admin = models.BooleanField(default=False, verbose_name='是否管理员')
     # group = models.ForeignKey(Group, on_delete=models.PROTECT, verbose_name='用户组')
     # 组权分离后 当有权限时必定为管理员类型用户，否则为普通用户
