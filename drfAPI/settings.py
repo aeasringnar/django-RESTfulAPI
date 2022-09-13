@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'drf_yasg',
+    'django_celery_results',
     'apps.user',
 ]
 
@@ -245,6 +246,49 @@ JWT_SETTINGS = {
     'AUTH_HEADER_TYPES': 'Bearer',
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
+
+
+# Celery配置
+# 设置任务接受的类型，默认是{'json'}
+CELERY_ACCEPT_CONTENT = ['application/json']
+# 设置task任务序列列化为json
+CELERY_TASK_SERIALIZER = 'json'
+# 请任务接受后存储时的类型
+CELERY_RESULT_SERIALIZER = 'json'
+# 时间格式化为中国时间
+CELERY_TIMEZONE = 'Asia/Shanghai'
+# 是否使用UTC时间
+CELERY_ENABLE_UTC = False
+# 指定borker为redis 如果指定rabbitmq CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/3'
+# 指定存储结果的地方，支持使用rpc、数据库、redis等等，具体可参考文档 # CELERY_RESULT_BACKEND = 'db+mysql://scott:tiger@localhost/foo' # mysql 作为后端数据库
+# CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/4'
+# 使用django数据库存储结果 来自 django_celery_results
+CELERY_RESULT_BACKEND = 'django-db'
+# 结果的缓存配置 来自 django_celery_results
+CELERY_CACHE_BACKEND = 'django-cache'
+# 设置任务过期时间 默认是一天，为None或0 表示永不过期
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24
+# 设置异步任务结果永不过期，如果不设置的话，每天04点celery会自动清空过期的异步任务结果
+CELERY_RESULT_EXPIRES = 0
+# 设置worker并发数，默认是cpu核心数
+# CELERYD_CONCURRENCY = 12
+# 设置每个worker最大任务数
+CELERYD_MAX_TASKS_PER_CHILD = 100
+# 使用队列分流每个任务
+# CELERY_QUEUES = (
+#     Queue("add", Exchange("add"), routing_key="task_add"),
+#     Queue("mul", Exchange("mul"), routing_key="task_mul"),
+#     Queue("xsum", Exchange("xsum"), routing_key="task_xsum"),
+# )
+# 配置队列分流路由，注意可能无效，需要在运行异步任务时来指定不同的队列
+# CELERY_ROUTES = {
+#     'public.tasks.add': {'queue': 'add', 'routing_key':'task_add'},
+#     'public.tasks.mul': {'queue': 'add', 'routing_key':'task_add'},
+#     'public.tasks.xsum': {'queue': 'add', 'routing_key':'task_add'},
+#     # 'public.tasks.mul': {'queue': 'mul', 'routing_key':'task_mul'},
+#     # 'public.tasks.xsum': {'queue': 'xsum', 'routing_key':'task_xsum'},
+#     }
 
 
 # 媒体文件格式限制
