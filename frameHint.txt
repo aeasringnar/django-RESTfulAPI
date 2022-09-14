@@ -1,0 +1,50 @@
+对于Django、DRF的一些框架功能提示：
+1、模型相关
+    字段的常用、通用Option
+    null = True # 该字段允许值为空，也就是MySQL上的NULL，默认为False
+    blank = True # 允许键为空，指定的字段可以不传，注意，这与null不同。null纯属数据库相关，而blank则与验证相关。默认为False
+    choices = ((0,'男'),('1','女'),) # 选项类型，类似于枚举类型，会被模型验证，如果传入的值不在选项中会引发验证异常。
+    default = 1 # 指定默认值，可以是一个值或者是个可调用的对象，如果是个可调用对象，每次实例化模型时都会调用该对象。
+    db_index=True # 为字段设置普通索引
+    verbose_name = '描述' # 指定label 或字段描述，相当于MySQL中字段的备注。
+    validators = [] # 接收一个验证器列表，用于对指定字段传入数据的验证。
+    db_column = 'test' # 指定这个字段要使用的数据库列名，如果没有给出，将使用字段名。
+    primary_key = False # 指定字段为主键，通常用不到，使用内置的ID作为主键即可。
+    unique = True # 指定字段唯一性约束也是唯一索引，通常会使用联合唯一，因此这个也不常用。
+    editable = True # 如果为False表示字段不会被修改，因为会被模型验证跳过。默认为True
+
+    常用模型字段类型：
+    CharField # 字符串类型，存在一个特殊的必传参数：
+        max_length = 255 # 指定字段容量，无论中英文值得都是字符总长度，必须要指定，并且最大为255。
+                           那么需要更大一点但是又不需要使用大字段时怎么办呢？其实就是使用TextField设置max_length而已
+    TextField # 大文本类型，这个字段比较特殊，当你设置了max_length，并且没有超过65535个字节时，它实际在数据库使用的varchar类型。
+    JSONField # 存储json字符串类型，Django3.1开始新增的的一个类型，本质上是字符串类型。
+    DateField # 日期类型，存在两个特殊参数
+        auto_now = False # 每次保存对象时，自动将该字段设置为现在。对于 最后修改 的时间戳很有用。默认为False
+        auto_now_add = False # 当第一次创建对象时，自动将该字段设置为现在。对创建时间戳很有用。默认为False
+        注：目前 将 auto_now 或 auto_now_add 设置为 True，将导致该字段设置为 editable=False 和 blank=True。
+            auto_now_add、auto_now 和 default 选项是相互排斥的。这些选项的任何组合都会导致错误。
+    DateTimeField # 时间类型，同样支持 auto_now_add、auto_now
+    TimeField # 时间类型，同样支持 auto_now_add、auto_now
+    IntegerField # 一个整数类型，32位的，取值 -2147483648 到 2147483647
+    BigIntegerField # 一个大整数，64位的，取值 -9223372036854775808 到 9223372036854775807 
+    BooleanField # bool类型，注：建议定义默认值，否则会导致null为True，就是允许为NULL
+    DecimalField # 一个固定精度的十进制数 可以指定长度和小数位数，存在两个必传参数：
+        max_digits = 15 # 指定这个数的最大长度，包括小数位在内
+        decimal_places = 2 # 指定小数点后小数位数
+    EmailField # 邮箱类型，本质上是字符串，好处是会自动进行邮箱格式验证。
+    FloatField # 浮点数类型
+    UUIDField # 一个用于存储唯一UUID的类型，可以通过default=uuid.uuid1 来赋默认值。
+        例如想指定主键为UUID：id = UUIDField(primary_key=True, default=uuid.uuid1, editable=False)
+    
+    字段关系
+    ForeignKey(OtherModel, on_delete=PROTECT, verbose_name='label', related_name='related_name') # 外键类型
+    OneToOneField(OtherModel, on_delete=PROTECT, verbose_name='label', related_name='related_name') # 一对一的外键类型
+    ManyToManyField(OtherModel, verbose_name='label', blank=True, related_name='related_name') # 多对多类型，django会自己维护一个中间表。如果需求更多，可以自己使用中间表实现多对多关系
+    related_name 的作用是将被外键关联的数据，通过related_name定义的命令来访问所有关联到它的数据，并且要求这个字段对于被关联表是唯一的。
+    on_delete属性选项的意义：
+    PROTECT：当外键数据删除时，指向外键的的数据不删除。
+    CASCADE：当外键数据删除时，指向外键的数据一起删除。
+    SET_NULL：当外键数据删除时，指向外键的数据该列设置为null。
+    SET_DEFAULT：当外键数据删除时，指向外键的数据该列恢复默认值。
+    SET(自定义方法)：当外键数据删除时，指向外键的数据使用自定义方法来设置值。具体可参考官方文档。
