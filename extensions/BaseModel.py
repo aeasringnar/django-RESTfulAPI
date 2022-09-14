@@ -121,7 +121,7 @@ class SoftDeleteHelper():
                 self.send_signal(model, instances, "pre_save")
             try:
                 if self.delete_type == 'soft_delete':
-                    self.sql_model_wise_batch_update(model, instances, deleted=uuid.uuid4())
+                    self.sql_model_wise_batch_update(model, instances, deleted=uuid.uuid1())
                 else:
                     self.sql_model_wise_batch_update(model, instances, deleted=None)
                 deleted_counter[model._meta.model_name] += len(instances)

@@ -4,7 +4,7 @@ import sys
 import threading
 import time
 import logging
-from uuid import uuid4
+from uuid import uuid1
 from decimal import Decimal
 from datetime import datetime, timedelta
 from rest_framework import serializers
