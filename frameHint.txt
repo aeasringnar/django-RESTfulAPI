@@ -195,9 +195,9 @@ class AddUserSerializer(serializers.ModelSerializer):
     # 指定这个字段在返回给前端之前，也就是序列化时 可以按照指定的函数进行序列化
     order_int = serializers.SerializerMethodField(label='订单数')
     # 当有模型的外键指向当前模型时，可以通过related_name反向插入所有关联的子数据 接收的子的Serializer
-    oilcan_datas = DepotUseOilcanDataSerializer(read_only=True, many=True)
+    oilcan_datas = DepotUseOilcanDataSerializer(read_only=True, many=True)  # 通过related_name和模型的序列化器来返回序列化的反向数据集，也可以通过函数字段自行实现，父找子
     # 将对应的外键通过 父Serializer序列化后返回给前端
-    depart = ReturnDepartSerializer()
+    depart = ReturnDepartSerializer() # 通过外键和外键模型的序列化器来返回序列化的外键数据，也可以通过函数字段自行实现，子找父
     # 用于指定日期的输入格式、返回格式，注意可以在settings中统一设置后，可以省略这里的代码
     start_date = serializers.DateTimeField(label='开始日期', format='%Y-%m-%d %H:%M:%S', input_formats=['%Y-%m-%d %H:%M:%S', '%Y-%m-%d'], required=False, allow_null=True)
 
@@ -208,6 +208,7 @@ class AddUserSerializer(serializers.ModelSerializer):
         validators = [UniqueTogetherValidator(queryset=Auth.objects.all(), fields=['auth_type',], message='该权限已经存在')] # 多字段联合唯一
     
     def validate(self, attrs):
+        # 重写验证器
         now_user = self.context['request'].user
         # 查看前端传来的所有数据
         print('查看attrs:', attrs)
@@ -221,6 +222,28 @@ class AddUserSerializer(serializers.ModelSerializer):
         attrs['object_flow'] = flow_obj
         return attrs
     
+    def validate_name(self, value):
+        try:
+            # 用于独立验证name字段
+            # do something
+            return value
+        except Exception as e:
+            raise serializers.ValidationError(e)
+    
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # 重写更新方法
+        obj = super().update(instance, validated_data)
+        # do something
+        return obj
+    
+    @transaction.atomic
+    def create(self, validated_data):
+        # 重写创建方法
+        obj = super().create(validated_data)
+        # do something
+        return obj
+    
     def get_order_int(self, obj):
         # 这种方法只会在返回时被调用
         # 在这里可以通过GET参数 做一些返回操作 注意：只有在使用viewset里面才有效
@@ -232,4 +255,9 @@ class AddUserSerializer(serializers.ModelSerializer):
     隐藏字段会将字段完全隐藏，可以设置默认值，但是默认值前端不可见，例如在创建数据时 创建者 字段是一个隐藏字段，默认值是当前调用者，此时数据创建成功后，该字段也不会返回给用户。
     只读字段会禁止前端传入数据给字段赋值，赋值可以在后台完成，这样的好处是被操作的字段可以在数据创建成功后返回给用户。
     隐藏字段只在创建数据时有效，只读字段在数据创建和修改时都有效。
-    
+2、前端新增或修改时 即不需要设置也不需要返回 使用 exclude 包含进去
+    前端新增时 即不需要设置也不需要返回 但需要后端设置值的 使用 HiddenField 因为 HiddenField 只在新增时有效
+    前端新增或修改时 不需要设置但需要返回的 使用 read_only_fields 包含进去
+2、单独验证字段和在validate中统一验证的区别
+    单独验证字段，可以进行同时验证，被验证的字段会被统一返回验证信息
+    在validate中统一验证，存在先后顺序，先验证的字段会触发异常，并返回验证信息
