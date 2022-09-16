@@ -65,7 +65,97 @@
     constraints = [
             models.CheckConstraint(check=models.Q(age__gte=18), name='age_gte_18'), # 假设存在一个age字段，这个约束就是保证年龄必须大等于18
         ]  # 定义模型的约束列表
-    
+
+2、ORM相关
+    ORM操作指南
+    由于本项目使用了假删除(或称软删除)，因此在实际使用上会多出一些功能。
+    objects 返回没有删除的所有数据
+    all_objects 返回所有数据，包括已删除的数据
+    delete 删除数据，假删
+    undelete 恢复假删数据 意味着之前获取的实例是通过 all_objects 获取的
+    hard_delete 硬删除，数据会真的从数据表中删除
+    假设有一个 User 模型类如下示：
+    class User(models.Model):
+        gender_choice = (
+            ('privacy', '保密'), 
+            ('male', '男'), 
+            ('female', '女')
+        )
+        name = models.CharField(max_length=32, verbose_name='用户账号')
+        mobile = models.CharField(max_length=12, verbose_name='用户手机号')
+        email = models.EmailField(default='', null=True, verbose_name='用户邮箱')
+        gender = models.CharField(max_length=16, choices=gender_choice, default='privacy', verbose_name='性别')
+
+        class Meta:
+            db_table = 'user'
+            verbose_name = '用户表'
+            verbose_name_plural = verbose_name
+            indexes = [
+                models.Index(fields=['name']),
+            ]
+            unique_together = [
+                ['mobile'],
+            ]
+    新增数据：
+    方法一：
+        user = User(name='asd', mobile='123').save()
+    方法二：
+        User.objects.create(name='asd', mobile='123')
+    方法三：
+        users = [User(name='asd', mobile='123'), User(name='qwe', mobile='345')]
+        User.objects.bulk_create(users) # 批量创建
+    查找数据：
+        User.objects.all() # 查询所有数据
+        User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
+        User.objects.filter(id=1).last() # 查询最后一个数据
+        User.objects.get(id=1) # 得到一个对象，如果没有会抛出 Entry.DoesNotExist 异常
+        User.objects.filter(id__gte=1) # 查询id大等于1的数据 __gt 大于
+        User.objects.filter(id__lte=1) # 查询id小等于1的数据 __lt 小于 
+        User.objects.filter(id__in=[1,2,3]) # 查询id指定区间的数据
+        User.objects.exclude(id=10) # 查询id不等于10的数据
+        User.objects.filter(name='test').exclude(id=10) # 查询name为test但id不等于10的数据，ORM支持链式调用 并且exclude内同样支持范围查询
+        User.objects.order_by('date') # 对结果集进行排序，使用date字段升序，-date表示倒序
+        User.objects.count() # 返回数据的总数
+        User.objects.filter(name__icontains='文') # 查询用户名字里面包含 文
+            __iexact       精确等于 忽略大小写 ilike 'aaa'
+            __contains     包含 like '%aaa%'
+            __icontains    包含 忽略大小写 ilike '%aaa%'，但是对于sqlite来说，contains的作用效果等同于icontains
+        User.objects.filter(username__isnull=True) # 查询用户名为空的用户
+        User.objects.exclude(username__isnull=True) # 查询用户名不为空的用户
+        User.objects.filter(name='test', statu='1') # 表示与查询，名称为test且status为1的数据
+        User.objects.filter(Q(state=0) | Q(state=1)) # 利用django.db.models.Q实现或查询
+    修改数据：
+    方法一：
+        user = User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
+        user.name = 'zxc'
+        user.save()
+    方法二：
+        User.objects.filter(id=1).update(name='zxc') # 这个可以批量更新一批数据，但是有个缺点是无法触发signals中的信号，如果需要触发信号需要使用save
+    方法三：批量更新
+        users = User.objects.all()
+        users[0].name = 'test1'
+        users[1].name = 'test2'
+        Entry.objects.bulk_update(users, ['name']) # 比逐个更新性能更好
+    删除数据：
+    方法一：
+        user = User.objects.filter(id=1).first()
+        user.delete()
+    方法二：
+        User.objects.filter(id__gte=1).delete() # 批量删除一批数据
+    F对象的使用：
+    class Test(models.Model):
+        all_num= models.IntegerField(default=0,  verbose_name='总数量 ')
+        have_num= models.IntegerField(default=0,  verbose_name='已有数量')
+
+        class Meta:
+            db_table = 'A_Test_Table'
+            verbose_name = '测试表'
+            verbose_name_plural = verbose_name
+    要实现SQL语句：select * from a_test_tablewhere all_num > have_num
+    from django.db.models import F
+    test= Test.objects.filter(all_num__gt=F('have_num'))
+
+3、序列化器相关
     序列化器字段的通用、常用Option
     read_only = True # 表示字段只读，默认为False
     write_only = True # 表示字段只写，默认为False
@@ -142,16 +232,8 @@
     depth = 2 # 表示对外键和嵌套关系的处理，例如有外键指向别的模型或别的模型指向自己，可通过depth快速进行层次序列化，缺点是无法指定字段，造成浪费和无法控制
         因此建议自行实现管理数据的序列化。后面会给出实例
 
-    ORM操作指南
-    由于本项目使用了假删除(或称软删除)，因此在实际使用上会多出一些功能。
-    objects 返回没有删除的所有数据
-    all_objects 返回所有数据，包括已删除的数据
-    delete 删除数据，假删
-    undelete 恢复假删数据 意味着之前获取的实例是通过 all_objects 获取的
-    Q(name__icontains=keyword) 内部是like模糊搜索
 
-
-针对序列化器的针对示例：
+针对序列化器的详细示例：
 def get_ObjectFlow(type):
     '''
     返回对象
