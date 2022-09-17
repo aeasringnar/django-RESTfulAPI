@@ -112,18 +112,20 @@
         最简单的 例如 User.objects.all() 返回了一个 QuerySet。示例一个链式调用 User.objects.filter().all()
         详细的QuerySet文档地址：https://docs.djangoproject.com/zh-hans/3.2/ref/models/querysets/#filter
         主要的QuerySet方法释义：
-        filter()
-        all
-        excluede()
-        order_by()
-        reverse
-        distinct
-        union
-        values
-
+        filter(*args, **kwargs) 用于传递参数做where查询，多个字段为and
+        all() 用于返回所有数据
+        excluede(*args, **kwargs) 用于查询不匹配的数据
+        order_by(*fields) 用于对传入字段进行排序
+        reverse() 用于翻转查询得到的数据集
+        distinct(*fields) 用于查询去重，可以指定比较哪些字段，不传表示比较所有字段
+        union(*other_qs, all=False) 用于组合两个或多个 QuerySet 的结果 例如 qs1.union(qs2, qs3)
+        values(*fields, **expressions) 用于查询指定的字段，会得到一个字典数据集
+        raw(raw_query, params=(), translations=None, using=None) 用于执行原生SQL语句
+        select_for_update(nowait=False, skip_locked=False, of=(), no_key=False) 用于加排它锁查，例如 User.objects.select_for_update().filter(id=1).first()
         
     查找数据：
         User.objects.all() # 查询所有数据
+        User.objects.filter(id=1).exists() # 查询是否存在数据，如果 QuerySet 包含任何结果，则返回 True，如果不包含，则返回 False。
         User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
         User.objects.filter(id=1).last() # 查询最后一个数据
         User.objects.get(id=1) # 得到一个对象，如果没有会抛出 Entry.DoesNotExist 异常
@@ -144,7 +146,8 @@
         User.objects.filter(Q(state=0) | Q(state=1)) # 利用django.db.models.Q实现或查询
         User.objects.values('id', 'name').filter(id=1).first() # 只查询数据的id、name字段，返回不是模型实例，而是一个类似字典的结构，可以通过key获取数据
         User.objects.values('id', 'name').filter(id=1)# 只查询数据的id、name字段，返回一个列表，列表内元素是类似字典的结构
-
+        更详细的字段查找参考：https://docs.djangoproject.com/zh-hans/3.2/ref/models/querysets/#field-lookups
+        更详细的聚合函数参考：https://docs.djangoproject.com/zh-hans/3.2/ref/models/querysets/#aggregation-functions
     修改数据：
     方法一：
         user = User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
@@ -152,6 +155,13 @@
         user.save()
     方法二：
         User.objects.filter(id=1).update(name='zxc') # 这个可以批量更新一批数据，但是有个缺点是无法触发signals中的信号，如果需要触发信号需要使用save
+        官方对QuerySet.update的说法
+            QuerySet.update() 用于保存更改，所以这比遍历模型列表并对每个模型调用 save() 更有效，但它有一些注意事项：
+             你不能更新模型的主键。
+             每个模型的 save() 方法没有被调用，而且 pre_save 和 post_save 信号没有被发送。
+             如果更新大量行中的大量列，生成的 SQL 可能非常大。通过指定一个合适的 batch_size 来避免这种情况。
+             更新定义在多表继承祖先上的字段将给每个祖先带来额外的查询。
+             当单个批处理包含重复项时，该批处理中只有第一个实例会产生更新。
     方法三：批量更新
         users = User.objects.all()
         users[0].name = 'test1'
@@ -208,7 +218,6 @@
         def viewfunc(request):
             # This code executes in autocommit mode (Django's default).
             do_stuff()
-
             with transaction.atomic():
                 # This code executes inside a transaction.
                 do_more_stuff()
@@ -402,3 +411,107 @@ class AddUserSerializer(serializers.ModelSerializer):
 2、单独验证字段和在validate中统一验证的区别
     单独验证字段，可以进行同时验证，被验证的字段会被统一返回验证信息
     在validate中统一验证，存在先后顺序，先验证的字段会触发异常，并返回验证信息
+
+
+# 针对ViewSet的相关示例
+class UserViewSet(ModelViewSet):
+    '''
+    更新指定ID的用户，局部更新
+    create:  创建用户
+    retrieve:  检索指定ID的用户
+    update:  更新指定ID的用户
+    destroy:  删除指定ID的用户
+    list:  获取用户列表
+    '''
+    # 指定使用的QuerySet
+    queryset = User.objects.filter()
+    # 指定使用的序列化器
+    serializer_class = UserViewsetSerializer
+    # 指定使用的认证类
+    authentication_classes = (JwtAuthentication, )
+    # 指定使用的权限类
+    permission_classes = (AllowAny, )
+    # 指定使用的频率限制类
+    throttle_classes = (VisitThrottle, )
+    # 指定使用的分页类
+    pagination_class = Pagination
+    # 指定搜索、过滤、排序使用的类
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    # 指定支持搜索的字段
+    search_fields = ('name', 'desc') # 注意 尽量针对有索引的字段进行搜索
+    # 指定支持过滤的字段，搜索和过滤的区别：搜索是部分匹配，过滤是全匹配
+    filter_fields = ('status', )
+    # 指定支持排序的字段，注意 尽量使用有索引的字段进行排序
+    ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
+
+    def get_serializer_class(self):
+        '''重写返回序列化的方法，可以根据自己的需求动态的返回序列化器类'''
+        if self.action in ['create']:
+            return AddUserSerializer
+        if self.action in ['update', 'partial_update']:
+            return UpdateUserSerializer
+        return ReturnUserSerializer
+    
+    # 针对Swagger可以指定描述和tag，可以提现在Swagger文档中
+    @swagger_auto_schema(operation_description="创建用户", operation_summary="创建用户")
+    def create(self, request, *args, **kwargs):
+        '''重写创建对象的类，可以在这里进行自定义，一般这里需要自定义的逻辑可以转移到序列化中，重写序列化器的创建方法'''
+        obj = super().create(request, *args, **kwargs)
+        return obj
+    
+    def get_queryset(self):
+        '''重写get_queryset，这样就可以根据不同的情况返回不同的QuerySet'''
+        if self.request.auth:
+            return User.objects.filter(id=self.request.user.id)
+        return None
+    
+    def list(self, request, *args, **kwargs):
+        '''重写返回数据方法，可以自定义实现，本例使接口返回的数据是一个对象而不是数组'''
+        instance = User.objects.filter(id=self.request.user.id).first()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        '''重写删除数据的方法，在这里可以实现自己的逻辑，比如删除数据时校验是否支持删除'''
+        res = super().destroy(request, *args, **kwargs)
+        return res
+    
+    def update(self, request, *args, **kwargs):
+        '''重写更新数据的方法，一般这里需要自定义的逻辑可以转移到序列化中，重写序列化器的更新方法'''
+        res = super().update(request, *args, **kwargs)
+        return res
+
+ModelViewSet本质上就是
+class ModelViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
+    """
+    A viewset that provides default `create()`, `retrieve()`, `update()`,
+    `partial_update()`, `destroy()` and `list()` actions.
+    """
+    pass
+因此如果你的接口可以按需继承不同的类，来实现需要的请求方式。
+例如现在需要一个接口通过用户的token返回用户信息，就可以这么写：
+class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
+    '''
+    list:  获取自己的用户信息
+    '''
+    serializer_class = OwnerUserViewsetSerializer
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (IsAuthPermission, )
+    throttle_classes = (VisitThrottle, )
+    
+    def get_queryset(self):
+        '''重写get_queryset，用来返回目标用户的数据，因为在token验证那里已经确定了用户是否存在'''
+        if self.request.auth:
+            return User.objects.filter(id=self.request.user.id)
+        return None
+    
+    def list(self, request, *args, **kwargs):
+        '''重写list方法，使接口返回的数据是一个对象而不是数组'''
+        instance = User.objects.filter(id=self.request.user.id).first()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
