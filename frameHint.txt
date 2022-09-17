@@ -104,6 +104,24 @@
     方法三：
         users = [User(name='asd', mobile='123'), User(name='qwe', mobile='345')]
         User.objects.bulk_create(users) # 批量创建
+    理解QuerySet：
+        在Django中模型建立后，可以通过ORM和数据库交互，其中最重要的一个就是QuerySet对象，它包含在模型中，通过模型类的 Manager 构建一个 QuerySet。
+        一个 QuerySet 代表来自数据库中对象的一个集合。它可以有 0 个，1 个或者多个 filters. Filters，可以根据给定参数缩小查询结果量。
+        简单来说QuerySet就是专门用来通过ORM查询数据库数据，并且返回后会映射为你定义好的模型实例。
+        QuerySet支持链式调用，也就意味着你得到一个QuerySet对象后，可以返回的通过链式写法调用不同的QuerySet方法。
+        最简单的 例如 User.objects.all() 返回了一个 QuerySet。示例一个链式调用 User.objects.filter().all()
+        详细的QuerySet文档地址：https://docs.djangoproject.com/zh-hans/3.2/ref/models/querysets/#filter
+        主要的QuerySet方法释义：
+        filter()
+        all
+        excluede()
+        order_by()
+        reverse
+        distinct
+        union
+        values
+
+        
     查找数据：
         User.objects.all() # 查询所有数据
         User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
@@ -124,6 +142,9 @@
         User.objects.exclude(username__isnull=True) # 查询用户名不为空的用户
         User.objects.filter(name='test', statu='1') # 表示与查询，名称为test且status为1的数据
         User.objects.filter(Q(state=0) | Q(state=1)) # 利用django.db.models.Q实现或查询
+        User.objects.values('id', 'name').filter(id=1).first() # 只查询数据的id、name字段，返回不是模型实例，而是一个类似字典的结构，可以通过key获取数据
+        User.objects.values('id', 'name').filter(id=1)# 只查询数据的id、name字段，返回一个列表，列表内元素是类似字典的结构
+
     修改数据：
     方法一：
         user = User.objects.filter(id=1).first() # 得到一个对象，如果没有返回None
@@ -143,17 +164,55 @@
     方法二：
         User.objects.filter(id__gte=1).delete() # 批量删除一批数据
     F对象的使用：
-    class Test(models.Model):
-        all_num= models.IntegerField(default=0,  verbose_name='总数量 ')
-        have_num= models.IntegerField(default=0,  verbose_name='已有数量')
+        class Test(models.Model):
+            all_num= models.IntegerField(default=0,  verbose_name='总数量 ')
+            have_num= models.IntegerField(default=0,  verbose_name='已有数量')
 
-        class Meta:
-            db_table = 'A_Test_Table'
-            verbose_name = '测试表'
-            verbose_name_plural = verbose_name
-    要实现SQL语句：select * from a_test_tablewhere all_num > have_num
-    from django.db.models import F
-    test= Test.objects.filter(all_num__gt=F('have_num'))
+            class Meta:
+                db_table = 'A_Test_Table'
+                verbose_name = '测试表'
+                verbose_name_plural = verbose_name
+        要实现SQL语句：select * from a_test_tablewhere all_num > have_num
+        from django.db.models import F
+        test= Test.objects.filter(all_num__gt=F('have_num'))
+    执行原始SQL语句：
+    方法一：
+        Manager.raw(raw_query, params=(), translations=None)
+            该方法接受一个原生 SQL 查询语句，执行它，并返回一个 django.db.models.query.RawQuerySet 实例。这个 RawQuerySet 能像普通的 QuerySet 一样被迭代获取对象实例。
+        User.objects.raw("select * from user") 等价于 User.objects.all()
+        User.objects.raw("select * from user")[0] 等价于 User.objects.first()
+        users = Person.objects.raw('SELECT *, age(birth_date) AS age FROM user') # 支持别名
+        for u in users:
+            print("%s is %s." % (u.first_name, u.age)) # 支持别名
+        Person.objects.raw('SELECT * FROM user WHERE name = %s', ['lname']) # 支持传递参数
+    方法二：有时候，甚至 Manager.raw() 都无法满足需求：你可能要执行不明确映射至模型的查询语句，或者就是直接执行 UPDATE， INSERT 或 DELETE 语句。
+        from django.db import connection
+        def my_custom_sql(self):
+            with connection.cursor() as cursor:
+                cursor.execute("UPDATE bar SET foo = 1 WHERE baz = %s", [self.baz])
+                cursor.execute("SELECT foo FROM bar WHERE baz = %s", [self.baz])
+                row = cursor.fetchone()
+            return row
+        注意，要避免 SQL 注入，你绝对不能在 SQL 字符串中用引号包裹 %s 占位符。
+        注意，若要在查询中包含文本的百分号，你需要在传入参数使用两个百分号:
+        cursor.execute("SELECT foo FROM bar WHERE baz = '30%'")
+        cursor.execute("SELECT foo FROM bar WHERE baz = '30%%' AND id = %s", [self.id])
+    显式的使用事务
+        from django.db import transaction
+        @transaction.atomic
+        def viewfunc(request):
+            # This code executes inside a transaction.
+            do_stuff()
+        
+        from django.db import transaction
+        def viewfunc(request):
+            # This code executes in autocommit mode (Django's default).
+            do_stuff()
+
+            with transaction.atomic():
+                # This code executes inside a transaction.
+                do_more_stuff()
+
 
 3、序列化器相关
     序列化器字段的通用、常用Option
