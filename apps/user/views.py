@@ -1,31 +1,32 @@
-import json
 import os
 import sys
-import threading
+import json
 import time
 import logging
-from datetime import datetime, timedelta
+import threading
 from decimal import Decimal
-from rest_framework import serializers, status, generics, mixins, viewsets
+from datetime import datetime, timedelta
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework import status, mixins
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import AllowAny
-from django.db.models import F, Q, Count, Sum, Max, Min
+from rest_framework.generics import GenericAPIView
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from django.conf import settings
 from django.db import transaction
 from django.core.cache import caches
-from django.conf import settings
-from django_filters.rest_framework import DjangoFilterBackend
 from django.forms.models import model_to_dict
 from django.http.response import HttpResponseNotFound
+from django.db.models import F, Q, Count, Sum, Max, Min
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
+from extensions.JwtToken import JwtToken
 from extensions.Pagination import Pagination
 from extensions.Throttle import VisitThrottle
+from extensions.MyResponse import MyJsonResponse
 from extensions.JwtAuth import JwtAuthentication
 from extensions.Permission import IsAuthPermission
-from extensions.MyResponse import MyJsonResponse
-from extensions.JwtToken import JwtToken
 from .models import *
 from .serializers import *
 from .tasks import *
@@ -80,7 +81,7 @@ class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
         return Response(serializer.data)
 
 
-class AdminLoginView(generics.GenericAPIView):
+class AdminLoginView(GenericAPIView):
     '''后台登录接口'''
     serializer_class = AdminLoginSerializer
     
