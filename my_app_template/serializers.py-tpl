@@ -19,4 +19,3 @@ from .models import *
 from .tasks import *
 
 
-# create your seializers here
