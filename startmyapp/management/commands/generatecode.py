@@ -11,7 +11,7 @@ class Command(BaseCommand):
     # def add_arguments(self, parser):
     #     '''为命令添加一个参数，就是要创建app的名称，用来调用内置的startapp的必传参数。'''
     #     parser.add_argument('app_name')
-    now_dir = Path.absolute(__file__).parent.parent.parent
+    now_dir = Path(__file__).resolve().parent.parent.parent
     generate_template_dir = Path.joinpath(now_dir, 'generate_template')
     base_str_path_dic = {
         'serializer': Path.joinpath(generate_template_dir, 'serializer.txt'),
@@ -25,7 +25,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         json_path = Path.joinpath(settings.CONFIG_DIR, 'generateCode.json')
-        generate_data = json.load(json_path)
+        with open(json_path, 'r') as f:
+            generate_data = json.loads(f.read())
         for data in generate_data:
             app_name = data['app_name']
             app_path = Path(Path.joinpath(settings.MY_APPS_DIR, app_name))
@@ -43,5 +44,5 @@ class Command(BaseCommand):
                 searchs = model_item.get('searchs')
                 filters = model_item.get('filters')
                 w_serializer.append(base_ser.format(model_name=model_name, verbose=verbose))
-            with open(app_path, 'a') as f:
-                f.write('\n\n'.join(w_serializer))
+            with open(Path.joinpath(app_path, 'serializers.py'), 'a') as f:
+                f.write('\n\n\n'.join(w_serializer))
