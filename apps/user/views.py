@@ -19,6 +19,7 @@ from django.core.cache import caches
 from django.forms.models import model_to_dict
 from django.http.response import HttpResponseNotFound
 from django.db.models import F, Q, Count, Sum, Max, Min
+from django.contrib.auth.hashers import check_password, make_password
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from extensions.JwtToken import JwtToken
@@ -31,6 +32,7 @@ from .models import *
 from .serializers import *
 from .tasks import *
 # from .filters import *
+# 不建议导入所有，建议按需导入
 
 
 class UserViewSet(ModelViewSet):

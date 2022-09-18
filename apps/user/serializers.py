@@ -1,26 +1,26 @@
-import json
 import os
 import sys
-import threading
+import json
 import time
 import logging
+import threading
 from uuid import uuid1
 from decimal import Decimal
 from datetime import datetime, timedelta
-from rest_framework import serializers
-from rest_framework.serializers import SerializerMethodField
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-from rest_framework.utils import model_meta
-from django.db.models import F, Q, Count, Sum, Max, Min
+from django.conf import settings
 from django.db import transaction
 from django.core.cache import caches
-from django.conf import settings
+from django.db.models import F, Q, Count, Sum, Max, Min
+from django.contrib.auth.hashers import check_password, make_password
+from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField, ModelSerializer
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from extensions.BaseSerializer import BaseModelSerializer
 from .models import *
 from .tasks import *
 
 
-class UserViewsetSerializer(BaseModelSerializer, serializers.ModelSerializer):
+class UserViewsetSerializer(BaseModelSerializer, ModelSerializer):
     
     class Meta:
         model = User
@@ -29,7 +29,7 @@ class UserViewsetSerializer(BaseModelSerializer, serializers.ModelSerializer):
         read_only_fields = ('id', 'deleted', 'is_freeze', 'sort_timestamp', 'create_timestamp', 'update_timestamp', 'bf_logo_time')
 
 
-class OwnerUserViewsetSerializer(BaseModelSerializer, serializers.ModelSerializer):
+class OwnerUserViewsetSerializer(BaseModelSerializer, ModelSerializer):
     
     class Meta:
         model = User

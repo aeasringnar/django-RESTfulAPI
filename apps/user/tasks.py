@@ -14,6 +14,8 @@ from celery import shared_task
 from drfAPI.celery import app
 
 
+# create your async task here
+
 # @app.task(bind=True)
 # def async_task(self, *args, **kwargs):
 #     try:
