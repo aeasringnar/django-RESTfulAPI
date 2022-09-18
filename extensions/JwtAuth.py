@@ -1,6 +1,6 @@
-from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from .JwtToken import JwtToken
+from rest_framework.authentication import BaseAuthentication
+from extensions.JwtToken import JwtToken
 from apps.user.models import User
 
 

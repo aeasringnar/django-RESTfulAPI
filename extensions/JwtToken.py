@@ -1,10 +1,10 @@
 import jwt
 import logging
-from typing import *
+# from typing import *
 from datetime import datetime
 from django.conf import settings
-from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError, DecodeError
 from django.db.models import Model
+from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError, DecodeError
 
 
 class JwtToken:

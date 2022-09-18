@@ -1,5 +1,6 @@
-from rest_framework.throttling import BaseThrottle
+import logging
 from django.conf import settings
+from rest_framework.throttling import BaseThrottle
 from utils.RedisCli import RedisCli
 
 
@@ -11,13 +12,13 @@ class VisitThrottle(BaseThrottle):
 
     def allow_request(self, request, view):
         remote_addr = request.META.get('HTTP_X_REAL_IP') if not request.META.get('REMOTE_ADDR') else request.META.get('REMOTE_ADDR')
-        # print('请求的IP：', remote_addr)
-        # print('请求的路径：', request.path)
-        # print('请求的方法：', request.method)
+        # logging.info("{}-{}".format('请求的IP：', remote_addr))
+        # logging.info("{}-{}".format('请求的路径：', request.path))
+        # logging.info("{}-{}".format('请求的方法：', request.method))
         if request.user and request.user.id:
             remote_addr = 'user%s' % request.user.id
         self.visit_key = remote_addr + request.path
-        # print('构造请求的key', self.visit_key)
+        # logging.info("{}-{}".format('构造请求的key', self.visit_key))
         counts = self.cache.coon.get(self.visit_key)
         if not counts:
             self.cache.coon.set(self.visit_key, 1, 60, nx=True)

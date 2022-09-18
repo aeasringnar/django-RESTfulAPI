@@ -1,6 +1,7 @@
 import time
+import logging
 import threading
-from .RedisCli import RedisCli
+from utils.RedisCli import RedisCli
 
 
 class RedisReadWriteLock(object):

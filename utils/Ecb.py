@@ -1,7 +1,7 @@
+import time
 from base64 import b64decode
 from base64 import b64encode
 from Crypto.Cipher import AES # pip install pycrypto==2.6.1
-import time
 
 
 class ECBCipher(object):

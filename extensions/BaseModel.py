@@ -1,13 +1,12 @@
-from cProfile import label
-import uuid
 import six
+from uuid import uuid1
 from datetime import datetime
+from operator import attrgetter
 from collections import Counter
 from django.db import models, router, transaction
 from django.db.models import signals, sql, Manager
 from django.contrib.admin.utils import NestedObjects
 from django.core.exceptions import FieldDoesNotExist
-from operator import attrgetter
 from django.core.validators import MaxValueValidator, MinValueValidator
 from utils.MyDateTime import MyDateTime
 from extensions.MyFields import TimestampField
@@ -121,7 +120,7 @@ class SoftDeleteHelper():
                 self.send_signal(model, instances, "pre_save")
             try:
                 if self.delete_type == 'soft_delete':
-                    self.sql_model_wise_batch_update(model, instances, deleted=uuid.uuid1())
+                    self.sql_model_wise_batch_update(model, instances, deleted=uuid1())
                 else:
                     self.sql_model_wise_batch_update(model, instances, deleted=None)
                 deleted_counter[model._meta.model_name] += len(instances)

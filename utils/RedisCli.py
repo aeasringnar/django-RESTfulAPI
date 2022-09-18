@@ -1,8 +1,8 @@
+import time
 import redis
 import logging
-import time
 from django.conf import settings
-from .Singleton import Singleton
+from utils.Singleton import Singleton
 
 
 class RedisCli(Singleton):

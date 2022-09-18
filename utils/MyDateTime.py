@@ -1,7 +1,6 @@
 import time
 import logging
 from datetime import datetime, timedelta
-from typing import *
 
 
 class MyDateTime:

@@ -1,8 +1,8 @@
 # from typing import *
 from datetime import datetime
+from django.db import models, transaction
 from django.db.models import Model, Manager
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models, transaction
 from utils.MyDateTime import MyDateTime
 from extensions.MyFields import TimestampField
 

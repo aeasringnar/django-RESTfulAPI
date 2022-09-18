@@ -1,9 +1,9 @@
-import hashlib
+import math
 import hmac
 import random
-from datetime import datetime
+import hashlib
 from uuid import uuid1
-import math
+from datetime import datetime
 '''
 Python中UUID的区别
 uuid1(node=None, clock_seq=None) 根据主机 ID、序列号和当前时间生成一个 UUID。 如果没有给出 node，则使用 getnode() 来获取硬件地址。

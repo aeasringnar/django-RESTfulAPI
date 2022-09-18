@@ -33,7 +33,7 @@ class OwnerUserViewsetSerializer(BaseModelSerializer, serializers.ModelSerialize
     
     class Meta:
         model = User
-        exclude = ('deleted', 'is_freeze')
+        exclude = ('deleted', 'is_freeze', 'password', 'jwt_version')
 
 
 class AdminLoginSerializer(serializers.Serializer):
