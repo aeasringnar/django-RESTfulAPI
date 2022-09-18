@@ -43,13 +43,13 @@ class UserViewSet(ModelViewSet):
     '''
     queryset = User.objects.filter()
     serializer_class = UserViewsetSerializer
-    # authentication_classes = (JwtAuthentication, )
-    # permission_classes = (AllowAny, )
-    # throttle_classes = (VisitThrottle, )
-    # filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    # search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
-    # filter_fields = ('status', )
-    # ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
+    filter_fields = ('status', )
+    ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
     pagination_class = Pagination
     
     # 测试对Swagger的指定备注

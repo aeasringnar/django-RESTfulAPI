@@ -300,8 +300,29 @@
     depth = 2 # 表示对外键和嵌套关系的处理，例如有外键指向别的模型或别的模型指向自己，可通过depth快速进行层次序列化，缺点是无法指定字段，造成浪费和无法控制
         因此建议自行实现管理数据的序列化。后面会给出实例
 
+4、信号
+    什么是信号：
+    Django有一个 信号调度器(signal dispatcher)，用来帮助解耦的应用获知框架内任何其他地方发生了操作。
+    简单地说，信号允许某些 发送器 去通知一组 接收器 某些操作发生了。当许多代码段都可能对同一事件感兴趣时，信号特别有用。
+    Django 提供了 内置信号集 使用户代码能够获得 Django 自身某些操作的通知。其中包括一些有用的通知：
+        django.db.models.signals.pre_save & django.db.models.signals.post_save
+        一个模型的 save() 方法被调用之前或之后发出。
 
-针对序列化器的详细示例：
+        django.db.models.signals.pre_delete & django.db.models.signals.post_delete
+        一个模型的 delete() 方法或查询结果集的 delete() 方法被调用之前或之后发出。
+
+        django.db.models.signals.m2m_changed
+        一个模型的 ManyToManyField 更改后发出。
+
+        django.core.signals.request_started & django.core.signals.request_finished
+        Django 发起或结束一个 HTTP 请求后发出。
+    详细的信号文档参考：https://docs.djangoproject.com/zh-hans/3.2/topics/signals/
+    内置信号文档：https://docs.djangoproject.com/zh-hans/3.2/ref/signals/
+    定义和发送信号：https://docs.djangoproject.com/zh-hans/3.2/topics/signals/#defining-and-sending-signals
+
+
+# 针对序列化器的详细示例：
+from rest_framework import serializers
 def get_ObjectFlow(type):
     '''
     返回对象
@@ -413,7 +434,8 @@ class AddUserSerializer(serializers.ModelSerializer):
     在validate中统一验证，存在先后顺序，先验证的字段会触发异常，并返回验证信息
 
 
-# 针对ViewSet的相关示例
+# 针对ViewSet的相关示例：
+from rest_framework.viewsets import ModelViewSet
 class UserViewSet(ModelViewSet):
     '''
     更新指定ID的用户，局部更新
@@ -482,6 +504,8 @@ class UserViewSet(ModelViewSet):
         return res
 
 ModelViewSet本质上就是
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
 class ModelViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
@@ -515,3 +539,89 @@ class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
         instance = User.objects.filter(id=self.request.user.id).first()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+# 针对过滤类的相关示例：
+from django_filters.rest_framework import FilterSet, CharFilter
+from django.db.models import Q
+from django.db import transaction
+class MyFilter(FilterSet):
+    '''
+    过滤类
+    '''
+    my_type = CharFilter(field_name='my_type', method='return_my_type', label='自定义类型过滤')
+    filter_date = CharFilter(field_name='filter_date', method='return_filter_date', label='自定义时间段过滤')
+
+    class Meta:
+        model = YourModel
+        fields = ['status', ] # 原本支持的过滤字段
+
+    def return_my_type(self, queryset, name, value):
+        logging.debug(f'查看传递的值：{value}')
+        if value == '0':
+            return queryset.filter(Q(my_type=0) | Q(my_type=2) | Q(my_type=4))
+        elif value == '1':
+            return queryset.filter(Q(my_type=1) | Q(my_type=3) | Q(my_type=5))
+        else:
+            return queryset.all()
+    
+    def return_filter_date(self, queryset, name, value):
+        logging.debug(f'查看传递的值：{value}')
+        if ',' not in value:
+            return queryset.all()
+        else:
+            date_list = value.split(',')
+            start_date = datetime.strptime(date_list[0], '%Y-%m-%d')
+            end_date = datetime.strptime(date_list[1] + ' 23:59:59', '%Y-%m-%d %H:%M:%S')
+            return queryset.filter(update_time__gt=start_date, update_time__lt=end_date)
+
+
+# 针对signals的相关示例：
+import logging
+from django.db.models.signals import pre_save, post_save, pre_delete, post_delete
+from django.dispatch import receiver
+from django.db import transaction
+
+@transaction.atomic
+@receiver(pre_save, sender=YourModel)
+def pre_save_object(sender, instance=None, **kwargs):
+    '''接收模型调用save前的信号
+    args：
+        sender Model：发送信号的模型类
+        instance object：实际被保存的实例
+    '''
+    logging.info('即将被保存的对象：{}'.format(instance))
+
+@transaction.atomic
+@receiver(post_save, sender=YourModel)
+def create_update_object(sender, instance=None, created=False, **kwargs):
+    '''接收模型调用save后的信号
+    args：
+        sender Model：发送信号的模型类
+        instance object：实际被保存的实例
+        created bool：是否是创建数据
+    '''
+    if created:
+        logging.info('新增时：{}'.format(instance))
+    else:
+        logging.info('修改时：{}'.format(instance))
+
+@transaction.atomic
+@receiver(pre_delete, sender=YourModel)
+def pre_delete_object(sender, instance=None, **kwargs):
+    '''接收模型调用delete前的信号
+    args：
+        sender Model：发送信号的模型类
+        instance object：实际被保存的实例
+    '''
+    logging.info('即将删除的对象：{}'.format(instance))
+
+@transaction.atomic
+@receiver(post_delete, sender=YourModel)
+def delete_object(sender, instance=None, **kwargs):
+    '''接收模型调用delete后的信号
+    args：
+        sender Model：发送信号的模型类
+        instance object：实际被保存的实例
+    '''
+    logging.info('已经被删除的对象：{}'.format(instance))
