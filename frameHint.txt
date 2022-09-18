@@ -463,6 +463,7 @@ class UserViewSet(ModelViewSet):
     search_fields = ('name', 'desc') # 注意 尽量针对有索引的字段进行搜索
     # 指定支持过滤的字段，搜索和过滤的区别：搜索是部分匹配，过滤是全匹配
     filter_fields = ('status', )
+    # filterset_class = YourFilter # 如果使用了filter类的写法，和filter_fields只能存在其中一个
     # 指定支持排序的字段，注意 尽量使用有索引的字段进行排序
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
 
@@ -542,6 +543,7 @@ class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
 
 
 # 针对过滤类的相关示例：
+# 详细的官方文档：https://django-filter.readthedocs.io/en/main/
 from django_filters.rest_framework import FilterSet, CharFilter
 from django.db.models import Q
 from django.db import transaction
