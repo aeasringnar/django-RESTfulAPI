@@ -49,16 +49,36 @@ class UserViewSet(ModelViewSet):
     authentication_classes = (JwtAuthentication, )
     permission_classes = (AllowAny, )
     throttle_classes = (VisitThrottle, )
+    pagination_class = Pagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
     filter_fields = ('status', )
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
-    pagination_class = Pagination
     
     # 测试对Swagger的指定备注
-    @swagger_auto_schema(operation_description="创建用户", operation_summary="创建用户")
+    @swagger_auto_schema(operation_summary="创建用户")
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="删除指定ID的用户")
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="更新指定ID的用户")
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="更新指定ID的用户，局部更新")
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="获取用户列表")
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="检索指定ID的用户")
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 
 class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):

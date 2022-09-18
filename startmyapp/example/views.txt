@@ -1,0 +1,59 @@
+# {verbose}ModelViewSet视图
+class {model_name}Viewset(ModelViewSet):
+    '''
+    更新指定ID的{verbose}，局部更新
+    create:  创建{verbose}
+    retrieve:  检索指定ID的{verbose}
+    update:  更新指定ID的{verbose}
+    destroy:  删除指定ID的{verbose}
+    list:  获取{verbose}列表
+    '''
+    queryset = {model_name}.objects.all()
+    serializer_class = Return{model_name}Serializer
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, ) # or IsAuthPermission
+    throttle_classes = (VisitThrottle, )
+    pagination_class = Pagination
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    search_fields = ({search_str})
+    filter_fields = ({filter_str})
+    ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return Create{model_name}Serializer
+        if self.action in {'update', 'partial_update'}:
+            return Update{model_name}Serializer
+        return Return{model_name}Serializer
+
+    def get_queryset(self):
+        # return {model_name}.objects.all(filter_time=self.request.query_params.get('filter_time')).filter()
+        if self.request.auth and self.request.user.group_id == 1:
+            return {model_name}.objects.all()
+        elif self.request.auth:
+            return {model_name}.objects.filter(user_id=self.request.user.id)
+        return {model_name}.objects.filter(id=0)
+    
+    @swagger_auto_schema(operation_summary="创建{verbose}")
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="删除指定ID的{verbose}")
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="更新指定ID的{verbose}")
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="更新指定ID的{verbose}，局部更新")
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="获取{verbose}列表")
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(operation_summary="检索指定ID的{verbose}")
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)

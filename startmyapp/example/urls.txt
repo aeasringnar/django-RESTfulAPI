@@ -1,0 +1,3 @@
+from apps.{app_name}.views import {viewsets}
+
+router.register(r'{lower}', {name}Viewset, basename='{verbose}接口') # {verbose}接口

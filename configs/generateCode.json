@@ -1,0 +1,18 @@
+[
+  {
+    "app_name": "public",
+    "models": [
+      {
+        "model_name": "ConfDict",
+        "verbose": "系统字典",
+        "searchs": [
+          "dict_key",
+          "dict_value"
+        ],
+        "filters": [
+          "dict_type"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+# 新增{verbose}序列化器
+class Create{model_name}ModelSerializer(BaseModelSerializer, ModelSerializer):
+    class Meta:
+        model = {model_name}
+        exclude = ('deleted', ) # or fields = '__all__' or fields = ('field01', 'field01', )
+        # read_only_fields = ('field01', )
+
+# 修改{verbose}序列化器
+class Update{model_name}ModelSerializer(BaseModelSerializer, ModelSerializer):
+    class Meta:
+        model = {model_name}
+        exclude = ('deleted', ) # or fields = '__all__' or fields = ('field01', 'field01', )
+        # read_only_fields = ('field01', )
+
+# 返回{verbose}序列化器
+class Return{model_name}ModelSerializer(BaseModelSerializer, ModelSerializer):
+    class Meta:
+        model = {model_name}
+        exclude = ('deleted', ) # or fields = '__all__' or fields = ('field01', 'field01', )
+        # read_only_fields = ('field01', )
