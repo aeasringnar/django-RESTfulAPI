@@ -14,15 +14,13 @@ class {model_name}Viewset(ModelViewSet):
     permission_classes = (AllowAny, ) # or IsAuthPermission
     throttle_classes = (VisitThrottle, )
     pagination_class = Pagination
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ({search_str})
-    filter_fields = ({filter_str})
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter){search_str}{filter_str}
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
     
     def get_serializer_class(self):
         if self.action == 'create':
             return Create{model_name}Serializer
-        if self.action in {'update', 'partial_update'}:
+        if self.action in {{'update', 'partial_update'}}:
             return Update{model_name}Serializer
         return Return{model_name}Serializer
 
