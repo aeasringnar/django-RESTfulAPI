@@ -41,6 +41,9 @@ class Command(BaseCommand):
             models = data.get('models')
             w_serializer = []
             w_view = []
+            w_url_router = []
+            viewsets = []
+            w_url_import, base_url_router = self.get_base_str('url').split('\n')
             for model_item in models:
                 model_name = model_item.get('model_name')
                 verbose = model_item.get('verbose')
@@ -60,8 +63,15 @@ class Command(BaseCommand):
                     filter_str = ''
                 base_view = self.get_base_str('view')
                 w_view.append(base_view.format(verbose=verbose, model_name=model_name, search_str=search_str, filter_str=filter_str))
-            # 生成序列化器文件
+                viewsets.append("{}Viewset".format(model_name))
+                lower = "{}{}".format(model_name[0].lower(), model_name[1:])
+                w_url_router.append(base_url_router.format(lower=lower, model_name=model_name, verbose=verbose))
+            
+            w_url_import = w_url_import.format(app_name=app_name, viewsets=', '.join(viewsets))
             # self.generate_item_code(app_path, 'serializers.py', '\n\n\n'.join(w_serializer))
             print("App：{} 的序列化器文件生成完毕。".format(app_name))
-            self.generate_item_code(app_path, 'views.py', '\n\n\n'.join(w_view))
+            # self.generate_item_code(app_path, 'views.py', '\n\n\n'.join(w_view))
             print("App：{} 的视图文件生成完毕。".format(app_name))
+            self.generate_item_code(app_path, 'urls.py', '%s\n' % w_url_import)
+            self.generate_item_code(app_path, 'urls.py', '\n'.join(w_url_router))
+            print("App：{} 的路由文件生成完毕。".format(app_name))
