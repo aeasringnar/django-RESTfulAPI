@@ -68,9 +68,9 @@ class Command(BaseCommand):
                 w_url_router.append(base_url_router.format(lower=lower, model_name=model_name, verbose=verbose))
             
             w_url_import = w_url_import.format(app_name=app_name, viewsets=', '.join(viewsets))
-            # self.generate_item_code(app_path, 'serializers.py', '\n\n\n'.join(w_serializer))
+            self.generate_item_code(app_path, 'serializers.py', '\n\n\n'.join(w_serializer))
             print("App：{} 的序列化器文件生成完毕。".format(app_name))
-            # self.generate_item_code(app_path, 'views.py', '\n\n\n'.join(w_view))
+            self.generate_item_code(app_path, 'views.py', '\n\n\n'.join(w_view))
             print("App：{} 的视图文件生成完毕。".format(app_name))
             self.generate_item_code(app_path, 'urls.py', '%s\n' % w_url_import)
             self.generate_item_code(app_path, 'urls.py', '\n'.join(w_url_router))

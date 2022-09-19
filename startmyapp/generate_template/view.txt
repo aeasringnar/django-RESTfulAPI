@@ -9,7 +9,7 @@ class {model_name}Viewset(ModelViewSet):
     list:  获取{verbose}列表
     '''
     queryset = {model_name}.objects.all()
-    serializer_class = Return{model_name}Serializer
+    serializer_class = Return{model_name}ModelSerializer
     authentication_classes = (JwtAuthentication, )
     permission_classes = (AllowAny, ) # or IsAuthPermission
     throttle_classes = (VisitThrottle, )
@@ -19,10 +19,10 @@ class {model_name}Viewset(ModelViewSet):
     
     def get_serializer_class(self):
         if self.action == 'create':
-            return Create{model_name}Serializer
+            return Create{model_name}ModelSerializer
         if self.action in {{'update', 'partial_update'}}:
-            return Update{model_name}Serializer
-        return Return{model_name}Serializer
+            return Update{model_name}ModelSerializer
+        return Return{model_name}ModelSerializer
 
     def get_queryset(self):
         # return {model_name}.objects.all(filter_time=self.request.query_params.get('filter_time')).filter()
