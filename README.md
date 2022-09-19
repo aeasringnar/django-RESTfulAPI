@@ -46,6 +46,42 @@ INSTALLED_APPS = [
 4. 根据视图文件编写您的路由文件 urls.py
 5. 最后将您的路由添加到入口路由文件中，默认它位于 ./drfAPI/urls.py
 
+4、本项目提供了对于 CRUD 代码的自动生成命令
+
+首先需要创建好需要的模型文件
+
+然后将需要生成的信息更新到生成代码的json文件中，它需要遵循以下的逻辑，它的位置在./configs/generateCode.json
+
+注意：json 文件中的 key 是不能更改的
+
+```bash
+[
+  {
+    "app_name": "public", # 标明你要生成代码的AppName
+    "models": [ # 标明你要生成代码的模型
+      {
+        "model_name": "ConfDict", # 具体的模型类名
+        "verbose": "系统字典", # 模型的中文标识
+        "searchs": [ # 标明这个模型生成的代码需要的搜索字段，如果不需要可以删除
+          "dict_key",
+          "dict_value"
+        ],
+        "filters": [ # 标明这个模型生成的代码需要的过滤字段，如果不需要可以删除
+          "dict_type"
+        ]
+      }
+    ]
+  }
+]
+```
+
+执行生成代码的命令
+
+```bash
+python manage.py generatecode
+```
+
+然后查看你的 App，再进行自定义的微调。
 
 ### 线上部署
 
