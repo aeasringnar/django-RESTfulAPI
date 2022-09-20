@@ -30,7 +30,7 @@ from extensions.JwtAuth import JwtAuthentication
 from extensions.Permission import IsAuthPermission
 from .models import *
 from .serializers import *
-from .tasks import *
+# from .tasks import *
 # from .filters import *
 # 不建议导入所有，建议按需导入
 
