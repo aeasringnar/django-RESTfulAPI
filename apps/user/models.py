@@ -3,6 +3,21 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from extensions.BaseModel import BaseModel
 
 
+class Group(BaseModel):
+    group_type_choices = (
+        ('SuperAdmin', '超级管理员'),
+        ('Admin', '管理员'),
+        ('NormalUser', '普通用户'),
+    )
+    group_type = models.CharField(max_length=128, choices=group_type_choices, verbose_name='用户组类型')
+    group_type_cn = models.CharField(max_length=128, verbose_name='用户组类型_cn')
+
+    class Meta:
+        db_table = 'a_group'
+        verbose_name = '用户组表'
+        verbose_name_plural = verbose_name
+
+
 class User(BaseModel):
     # 管理员时使用账户密码登录
     gender_choice = (
@@ -10,6 +25,7 @@ class User(BaseModel):
         ('male', '男'), 
         ('female', '女')
     )
+    group = models.ForeignKey(Group, on_delete=models.PROTECT, null=True, verbose_name='用户组')
     username = models.CharField(max_length=32, default='', blank=True, verbose_name='用户账号')
     password = models.CharField(max_length=255, default='',blank=True, verbose_name='用户密码')
     mobile = models.CharField(max_length=16, default='', blank=True, verbose_name='手机号')

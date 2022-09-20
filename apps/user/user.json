@@ -1,0 +1,48 @@
+[
+    {
+      "model": "user.Group",
+      "pk": 1,
+      "fields": {
+        "group_type": "SuperAdmin",
+        "group_type_cn": "超级管理员",
+        "sort_timestamp": 1663684491004977,
+        "create_timestamp": 1663684491004977,
+        "update_timestamp": 1663684491004977
+      }
+    },
+    {
+      "model": "user.Group",
+      "pk": 2,
+      "fields": {
+        "group_type": "Admin",
+        "group_type_cn": "管理员",
+        "sort_timestamp": 1663684491004977,
+        "create_timestamp": 1663684491004977,
+        "update_timestamp": 1663684491004977
+      }
+    },
+    {
+      "model": "user.Group",
+      "pk": 3,
+      "fields": {
+        "group_type": "NormalUser",
+        "group_type_cn": "普通用户",
+        "sort_timestamp": 1663684491004977,
+        "create_timestamp": 1663684491004977,
+        "update_timestamp": 1663684491004977
+      }
+    },
+    {
+      "model": "user.User",
+      "pk": 1,
+      "fields": {
+        "username": "superadmin",
+        "password": "123456",
+        "group": 1,
+        "sort_timestamp": 1663684491004977,
+        "create_timestamp": 1663684491004977,
+        "update_timestamp": 1663684491004977
+      }
+    }
+  ]
+  
