@@ -4,6 +4,7 @@ import json
 import time
 import logging
 import threading
+from uuid import uuid4
 from decimal import Decimal
 from datetime import datetime, timedelta
 from rest_framework.views import APIView
@@ -65,7 +66,7 @@ class UploadLocalFile(APIView):
                 os.makedirs(base_dir, exist_ok=True)
                 os.chmod(base_dir, mode=0o755)
             # 得到目录+文件名
-            file_name = os.path.join(datetime.datetime.now().strftime('%Y-%m-%d'), '%su' % request.user.id + str(uuid.uuid1()).replace('-', '') + check_file.lower())
+            file_name = os.path.join(datetime.datetime.now().strftime('%Y-%m-%d'), '%su' % request.user.id + str(uuid4()).replace('-', '') + check_file.lower())
             # 实际保存的路径
             file_path = os.path.join(settings.UPLOAD_DIR, file_name)
             if check_file[1:].lower() in ('jpg', 'jpeg'):
