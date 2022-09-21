@@ -37,9 +37,9 @@ from .tasks import *
 # 不建议导入所有，建议按需导入
 
 
-class UploadLocalFile(APIView):
+class UploadLocalFileView(APIView):
     authentication_classes = (JwtAuthentication, )
-    permission_classes = (IsAuthPermission, )
+    # permission_classes = (IsAuthPermission, )
     throttle_classes = (VisitThrottle, )
     
     def post(self, request):
