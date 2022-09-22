@@ -80,7 +80,8 @@ class UploadLocalFileView(APIView):
             res.update(data={key_name: host_file_url})
             os.chmod(file_path, mode=0o644)
             return res.data
-        except StopIteration:
+        except StopIteration as e:
+            logging.exception(e)
             res.update(message="File not uploaded", errorCode=2)
             return res.data
         except Exception as e:
