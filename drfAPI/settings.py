@@ -91,6 +91,8 @@ MIDDLEWARE = [
 
 
 ROOT_URLCONF = 'drfAPI.urls'
+# RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. 
+APPEND_SLASH=False 
 
 
 TEMPLATES = [
