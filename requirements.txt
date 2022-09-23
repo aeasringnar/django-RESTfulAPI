@@ -20,3 +20,6 @@ pillow==9.2.0
 celery==5.2.7
 django-celery-beat==2.3.0
 django-celery-results==2.4.0
+django-haystack==3.1.1
+drf-haystack==1.8.11
+whoosh==2.7.4
