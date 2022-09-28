@@ -318,6 +318,17 @@ EBOOK_FILE_CHECK = ('txt', 'pdf', 'epub', 'mobi', 'azw3')
 MINUTE_HZ = 30
 
 
+# 全文检索配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+# 使用自定义的自动更新索引类
+HAYSTACK_SIGNAL_PROCESSOR = 'extensions.CustomRealtimeSignal.RealtimeSignalProcessor'
+
+
 if CURRENT_ENV == 'dev':
     from configs.dev.settings import *
 else:

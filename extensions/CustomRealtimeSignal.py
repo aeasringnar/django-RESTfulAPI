@@ -15,7 +15,7 @@ class RealtimeSignalProcessor(BaseSignalProcessor):
         update should be sent to & update the object on those backends.
         """
         using_backends = self.connection_router.for_write(instance=instance)
-        # 只在发现是创建数据的时候才更新索引。原因是不知道什么导致，model在保存是更新索引大致大量的重复索引。
+        # 只在发现是创建数据的时候才更新索引。原因是不知道什么导致，model在保存是更新索引导致大量的重复索引。
         if not kwargs.get('created', False):
             return
         for using in using_backends:
