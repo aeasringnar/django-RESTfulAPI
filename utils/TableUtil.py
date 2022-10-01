@@ -86,12 +86,12 @@ table tr:nth-child(even) {
 '''
 
 
-class TableToImg:
-    '''将DataFrame对象转为PNG的文件流对象'''
+class TableToUtil:
+    '''操作表格数据的类，包括二维数组和dataframe'''
 
     current_dir = Path(__file__).absolute().parent
 
-    def __init__(self, table_title: str, headers: list, rows: list, wkimg_path: str = None, wkpdf_path: str = None) -> None:
+    def __init__(self, table_title: str, headers: list, rows: list, kit_path: str = None) -> None:
         '''初始化工具类
         args：
             table_titile str：设置导入图片的标题
@@ -101,15 +101,14 @@ class TableToImg:
         returns：
             None
         '''
-        # 在默认样式中表格设置的宽度为800px，由于html的body存在margin=8px。所以输出图片时应当设置宽度为816px
         self.table_css_style = CSS_STYLE
         self.table_title = table_title
         self.headers = headers
         self.rows = rows
         self.imgkit_conf = imgkit.config(
-            wkhtmltoimage=wkimg_path) if wkimg_path else None
+            wkhtmltoimage=kit_path) if kit_path else None
         self.pdfkit_conf = pdfkit.configuration(
-            wkhtmltopdf=wkpdf_path) if wkpdf_path else None
+            wkhtmltopdf=kit_path) if kit_path else None
         self.imgkit_options = {
             'format': 'png',
             # 'crop-h': '400',
@@ -149,8 +148,6 @@ class TableToImg:
 
     def to_png(self) -> Tuple[bool, Union[None, BytesIO], str]:
         '''导出为png图片
-        args：
-            file_name str：设置导出的文件名，如果设置将生成图片文件，否则只返回BytesIO对象
         returns：
             BytesIO：返回文件流对象
         '''
@@ -160,7 +157,7 @@ class TableToImg:
                 return flag, data, msg
             tmp_name = "{}.png".format(str(uuid4()))
             tmp_path = os.path.join('/tmp', tmp_name)
-            imgkit.from_string(data, tmp_path, options=self.imgkit_options)
+            imgkit.from_string(data, tmp_path, options=self.imgkit_options, config=self.imgkit_conf)
             with open(tmp_path, 'rb') as f:
                 return True, BytesIO(f.read()), 'ok'
         except Exception as e:
@@ -180,7 +177,7 @@ class TableToImg:
                 return flag, data, msg
             tmp_name = "{}.pdf".format(str(uuid4()))
             tmp_path = os.path.join('/tmp', tmp_name)
-            pdfkit.from_string(data, tmp_path, configuration=self.pdfkit_conf)
+            pdfkit.from_string(data, tmp_path, options=self.pdfkit_options, configuration=self.pdfkit_conf)
             with open(tmp_path, 'rb') as f:
                 return True, BytesIO(f.read()), 'ok'
         except Exception as e:
