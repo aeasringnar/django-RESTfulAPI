@@ -89,3 +89,13 @@ class UploadLocalFileView(APIView):
             logging.exception(e)
             res.update(message="An unexpected view error occurred: {}".format(e), errorCode=1)
             return res.data
+
+
+class TestView(APIView):
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    
+    def get(self, request):
+        res = MyJsonResponse(res_data={'message': '测试成功'})
+        return res.data

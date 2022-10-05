@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UploadLocalFileView
+from .views import UploadLocalFileView, TestView
 
 
 router = DefaultRouter()
 urlpatterns = [
     path('', include(router.urls)),
     path('uploadFile/', UploadLocalFileView.as_view(), name='上传文件到本地接口'),
+    path('test/', TestView.as_view(), name='测试接口'),
 ]

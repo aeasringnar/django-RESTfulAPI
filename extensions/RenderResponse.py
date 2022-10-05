@@ -7,7 +7,7 @@ class BaseJsonRenderer(JSONRenderer):
     '''
     def render(self, data, accepted_media_type=None, renderer_context=None):
         if renderer_context:
-            if isinstance(data, dict) and data.get('message') and data.get('errorCode'): return super().render(data, accepted_media_type, renderer_context)
+            if isinstance(data, dict) and 'message' in data and 'errorCode' in data: return super().render(data, accepted_media_type, renderer_context)
             ret = {
                 'message': 'ok',
                 'errorCode': 0,
