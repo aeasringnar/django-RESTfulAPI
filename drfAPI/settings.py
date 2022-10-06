@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
 
 
 # config environment default dev
@@ -135,6 +136,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
+LANGUAGES = [
+    ('en', _('English')),
+    ('zh-hans', _('中文')),
+]
 LANGUAGE_CODE = 'zh-hans'  # 中文语言
 TIME_ZONE = 'Asia/Shanghai'  # 中文时区
 USE_I18N = True
