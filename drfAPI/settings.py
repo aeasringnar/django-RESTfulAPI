@@ -142,7 +142,8 @@ LOCALE_PATHS = [
 ]
 LANGUAGES = [
     ('en', _('English')),
-    ('zh-hans', _('中文')),
+    ('zh-hans', _('Simplified Chinese')),
+    ('de', _('German')),
 ]
 LANGUAGE_CODE = 'zh-hans'  # 中文语言
 TIME_ZONE = 'Asia/Shanghai'  # 中文时区
