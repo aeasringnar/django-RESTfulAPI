@@ -18,6 +18,7 @@ from django.conf import settings
 from django.db import transaction
 from django.core.cache import caches
 from django.forms.models import model_to_dict
+from django.utils.translation import gettext_lazy
 from django.http.response import HttpResponseNotFound
 from django.db.models import F, Q, Count, Sum, Max, Min
 from django.contrib.auth.hashers import check_password, make_password
