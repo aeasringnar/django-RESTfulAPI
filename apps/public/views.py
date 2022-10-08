@@ -98,5 +98,5 @@ class TestView(APIView):
     throttle_classes = (VisitThrottle, )
     
     def get(self, request):
-        res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
+        res = MyJsonResponse(res_data={'message': gettext_lazy('test success')})
         return res.data

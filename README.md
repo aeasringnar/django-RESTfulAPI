@@ -7,7 +7,7 @@
 - **框架选择**：基于 Django 3.2 + django-rest-framework 3.12
 - **数据模型**：基于 MySQL 存储，使用 mysqlclient 作为驱动，测试也可使用内置 sqlite3
 - **授权验证**：基于 JWT 鉴权，来自 PyJWT，并做了单点登录的优化。
-- **内置功能**：自定义命令、代码生成、文件处理、用户系统、异常处理、异步处理、全文检索、动态权限、接口返回格式化、日志格式化、分页、模糊查询、过滤、排序、缓存、分布式锁等
+- **内置功能**：自定义命令、代码生成、文件处理、用户系统、异常处理、异步处理、全文检索、动态权限、接口返回格式化、日志格式化、分页、模糊查询、过滤、排序、缓存、分布式锁、国际化等
 
 ## 快速入门
 
@@ -83,6 +83,110 @@ python manage.py generatecode
 
 然后查看你的 App，再进行自定义的微调。
 
+### 国际化支持
+
+当前模版使用英文作为默认语言
+在 settings 中已经做了中英文适配，要实现 i18n 的流程如下
+
+1、修改 settings 配置文件
+```python
+...
+from django.utils.translation import gettext_lazy as _
+...
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware', # 国际化中间件
+    ...
+]
+...
+LOCALE_PATHS = [
+    Path.joinpath(Path.joinpath(BASE_DIR, 'i18n'), 'locale')
+]
+LANGUAGES = [
+    ('en', _('English')),
+    ('zh-hans', _('Simplified Chinese')),
+]
+LANGUAGE_CODE = 'en'  # 默认使用英文
+...
+```
+
+2、标记需要翻译的文本
+注意的是你在返回 json 时需要翻译的文本，需要先进行标记，例如：
+
+```python
+from django.utils.translation import gettext_lazy
+
+
+class TestView(APIView):
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    
+    def get(self, request):
+        # 使用 gettext_lazy 标记需要翻译的文本
+        res = MyJsonResponse(res_data={'message': gettext_lazy('test success')})
+        return res.data
+```
+
+3、使用命令生成消息文件
+
+在项目根目录执行命令
+
+如果你在根目录使用了虚拟环境，需要使用 -i 指定你的虚拟环境目录，用去忽略该目录。如果不这么做可能会发生问题
+
+-l en 表示生成英文的翻译文件
+
+-l zh_hans 表示生成中文的翻译文件
+```bash
+python manage.py makemessages -l zh_hans -i venv
+```
+如果看到输出 processing locale zh_hans 表明消息文件生成好了
+
+并且可以看到设置 LOCALE_PATHS 目录内会生成好指定的 django.po 文件，内容如下
+
+```bash
+...
+#: apps/public/views.py:101
+msgid "test success"
+msgstr ""
+
+#: drfAPI/settings.py:144
+msgid "English"
+msgstr ""
+
+#: drfAPI/settings.py:145
+msgid "Simplified Chinese"
+msgstr ""
+...
+```
+
+这个文件需要手动修改 msgstr 为对应的中文翻译，如下示
+
+```bash
+...
+#: apps/public/views.py:101
+msgid "test success"
+msgstr "测试成功"
+
+#: drfAPI/settings.py:144
+msgid "English"
+msgstr "英语"
+
+#: drfAPI/settings.py:145
+msgid "Simplified Chinese"
+msgstr "简体中文"
+...
+```
+
+4、生成二进制 .mo 文件
+
+在项目根目录执行命令
+```bash
+python manage.py compilemessages -i venv
+```
+如果看到输出 processing file django.po in 你的项目目录/django-RESTfulAPI/i18n/locale/zh_hans/LC_MESSAGES 表明二进制文件生成好了
 ### 线上部署
 
 ```bash
