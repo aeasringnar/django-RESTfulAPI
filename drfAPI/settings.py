@@ -30,7 +30,7 @@ UPLOAD_DIR = Path.joinpath(BASE_DIR, 'meida', 'upload')
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-g7!-t_sp)c$lpy4%oq)kv95$b&1+51=6d+0elqui%*b)^^!o#s'
-INTERFACE_KEY = '16ed9ecc7d9011eab9c63c6aa7c68b67'
+AES_KEY = '16ed9ecc7d9011eab9c63c6aa7c68b67'
 INTERFACE_TIMEOUT = 60
 DISPATCH_KEYS = ['admin4b67e4c11eab49a3c6aa7c68b67', 'mobile347e4c11eab49a3c6aa7c68b67', 'mini235a7e4c11eab49a3c6aa7c68b67']
 

@@ -80,7 +80,7 @@ class PermissionMiddleware(MiddlewareMixin):
                     logging.info('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
                     return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
                 # 先解密
-                target_obj = ECBCipher(settings.INTERFACE_KEY)
+                target_obj = ECBCipher(settings.AES_KEY)
                 target_key = target_obj.decrypted(auth_key)
                 # 无法解密时直接禁止访问
                 if not target_key: return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})

@@ -2,17 +2,19 @@ import time
 from base64 import b64decode
 from base64 import b64encode
 from Crypto.Cipher import AES # pip install pycrypto==2.6.1
+from django.conf import settings
 
 
 class ECBCipher(object):
     '''
     定义一个基于AES的ECB模式的加解密类
     '''
-    def __init__(self, key):
+    def __init__(self, key: str=''):
         '''
         定义构造方法，初始化key和加解密对象
         :params key:长度必须为16位
         '''
+        if not key : key = settings.AES_KEY
         if len(key) % 16 != 0:
             raise ValueError('key的长度必须为16的倍数。')
         self.key = key
