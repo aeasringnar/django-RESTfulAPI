@@ -30,4 +30,5 @@ numpy==1.23.3
 prettytable==3.4.1
 pyecharts==1.9.1
 simplejson==3.17.6
-BeautifulSoup4-4.11.0
+BeautifulSoup4==4.11.0
+uwsgi==2.0.20
