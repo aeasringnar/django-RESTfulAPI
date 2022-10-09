@@ -38,7 +38,7 @@ class LogMiddleware(MiddlewareMixin):
             for key in request.META:
                 if key[:5] == 'HTTP_':
                     logging.debug('%s %s' % (str(key), str(request.META[key])))
-            logging.debug('%s %s' % ('Content-Type', str(request.META['CONTENT_TYPE'])))
+            logging.debug(f"Content-Type {request.META.get('CONTENT_TYPE')}")
             logging.info('代理IP：%s' % request.META.get('REMOTE_ADDR'))
             logging.info('真实IP：%s' % request.META.get('HTTP_X_FORWARDED_FOR'))   # HTTP_X_REAL_IP
             logging.info('==================================== request body信息 ==================================================')
