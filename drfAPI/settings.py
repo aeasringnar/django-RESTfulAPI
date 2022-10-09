@@ -141,10 +141,10 @@ LOCALE_PATHS = [
     Path.joinpath(Path.joinpath(BASE_DIR, 'i18n'), 'locale')
 ]
 LANGUAGES = [
-    ('en', _('English')),
-    ('zh-hans', _('Simplified Chinese')),
+    ('en', _('英语')),
+    ('zh-hans', _('简体中文')),
 ]
-LANGUAGE_CODE = 'en'  # 默认使用英文
+LANGUAGE_CODE = 'zh-hans'  # 默认使用中文
 TIME_ZONE = 'Asia/Shanghai'  # 中文时区
 USE_I18N = True
 USE_L10N = True
