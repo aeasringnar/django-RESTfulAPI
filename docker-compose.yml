@@ -1,0 +1,10 @@
+version: "2"
+services:
+ django_app:
+  build: .
+  container_name: django-server
+  restart: always
+  ports:
+   - "6000:8000"
+  volumes:
+   - ./logs:/proj/logs
