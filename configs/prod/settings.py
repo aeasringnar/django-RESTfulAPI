@@ -14,9 +14,9 @@ SHOWSQL = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'anymeta',
+        'NAME': 'drfAPI',
         'USER': 'debian-sys-maint',
-        'PASSWORD': 'ztV6GraofMkqmDL7',
+        'PASSWORD': 'O34wGEAp4Afmay51',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
