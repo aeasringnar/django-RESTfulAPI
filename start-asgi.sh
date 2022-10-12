@@ -33,7 +33,6 @@ then
             `rm -f ${current_dir}/logs/${proj_name}.log`
             `sleep 1`
         fi
-        `uwsgi --chdir ${current_dir} --wsgi-file ${wsgi_patch} --socket 127.0.0.1:${port} uwsgi.ini`
         `gunicorn ${asgi_app} -k uvicorn.workers.UvicornWorker --bind 127.0.0.1:${port}`
         echo "web服务启动成功..."
         if [ "$celery_list" ]
