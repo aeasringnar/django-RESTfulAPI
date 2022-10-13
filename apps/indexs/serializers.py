@@ -16,7 +16,7 @@ from rest_framework.serializers import SerializerMethodField, ModelSerializer
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from extensions.BaseSerializer import BaseModelSerializer
 from drf_haystack.serializers import HaystackSerializer
-from .search_indexes import UserIndex
+from .indexes import UserIndex
 from .models import *
 # from .tasks import *
 
