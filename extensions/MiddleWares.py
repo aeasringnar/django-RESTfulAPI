@@ -50,6 +50,9 @@ class LogMiddleware(MiddlewareMixin):
                 logging.info('是否存在文件类型数据：%s', bool(request.FILES))
                 logging.info('data参数：%s', request.POST)
             logging.info('================================== View视图函数内部信息 ================================================')
+            if request.method in {'DELETE', 'delete'}:
+                logging.info(f"{'>'*9} 发现删除数据 {'<'*9}")
+                logging.info(f"删除请求的地址：{request.path}，执行用户：{request.user}")
         except Exception as e:
             logging.error('未知错误：%s' % str(e))
             return JsonResponse({"message": "请求日志输出异常：%s" % e, "errorCode": 1, "data": {}})
