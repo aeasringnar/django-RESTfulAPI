@@ -1,16 +1,25 @@
 [
   {
-    "app_name": "public",
+    "app_name": "classes",
     "models": [
       {
-        "model_name": "ConfDict",
-        "verbose": "系统字典",
+        "model_name": "Classes",
+        "verbose": "班级",
         "searchs": [
-          "dict_key",
-          "dict_value"
+          "name"
         ],
         "filters": [
-          "dict_type"
+          "name"
+        ]
+      },
+      {
+        "model_name": "Student",
+        "verbose": "学生",
+        "searchs": [
+          "sex"
+        ],
+        "filters": [
+          "sex"
         ]
       }
     ]

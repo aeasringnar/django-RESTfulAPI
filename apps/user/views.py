@@ -52,7 +52,7 @@ class UserViewSet(ModelViewSet):
     pagination_class = Pagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
-    filter_fields = ('status', )
+    filterset_fields = ('status', )
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
     
     # 测试对Swagger的指定备注

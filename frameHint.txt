@@ -462,8 +462,8 @@ class UserViewSet(ModelViewSet):
     # 指定支持搜索的字段
     search_fields = ('name', 'desc') # 注意 尽量针对有索引的字段进行搜索
     # 指定支持过滤的字段，搜索和过滤的区别：搜索是部分匹配，过滤是全匹配
-    filter_fields = ('status', )
-    # filterset_class = YourFilter # 如果使用了filter类的写法，和filter_fields只能存在其中一个
+    filterset_fields = ('status', )
+    # filterset_class = YourFilter # 如果使用了filter类的写法，和filterset_fields只能存在其中一个
     # 指定支持排序的字段，注意 尽量使用有索引的字段进行排序
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
 

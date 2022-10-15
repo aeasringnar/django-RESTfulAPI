@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 if model_item.get('filters'):
                     filters = ["'{}'".format(item) for item in model_item.get('filters')]
                     filter_str = ", ".join(filters) if len(filters) > 1 else "%s, " % filters[0]
-                    filter_str = '''\n    filter_fields = (%s)''' % filter_str
+                    filter_str = '''\n    filterset_fields = (%s)''' % filter_str
                 else:
                     filter_str = ''
                 base_view = self.get_base_str('view')
