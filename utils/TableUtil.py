@@ -1,129 +1,23 @@
-import os
-import time
 from io import BytesIO
-from pathlib import Path
-from uuid import uuid4
-import imgkit
-import pdfkit
-import pandas as pd
+from tempfile import NamedTemporaryFile
+from typing import Tuple, Union
+
+from bs4 import BeautifulSoup
 from pyecharts.components import Table
 from pyecharts.options import ComponentTitleOpts
-from bs4 import BeautifulSoup
-from tempfile import NamedTemporaryFile
-from shutil import copyfile
-from typing import Union, Tuple
+
+from utils.HtmlToImgPdfKit import HtmlToImgPdfKit
 
 
-CSS_STYLE = '''
-body {
-    margin: 16px
-}
+class TableUtil:
+    '''操作表格数据的类，包括二维数组和DataFrame'''
 
-table {
-    /* margin: 20px; */
-    border-radius: 5px;
-    font-size: 12px;
-    border: none;
-    border-collapse: collapse;
-    max-width: 100%;
-    white-space: nowrap;
-    word-break: keep-all;
-    text-align: center;
-    width: 800px;
-}
-
-table th {
-    font-size: 20px;
-    background-color: #F6F6F6;
-}
-
-table tr {
-    display: table-row;
-    vertical-align: inherit;
-    border-color: inherit;
-}
-
-table tr:hover td {
-    background: #00d1b2;
-    color: #F8F8F8;
-}
-
-table td, table th {
-    border-style: none;
-    border-top: 1px solid #dbdbdb;
-    border-left: 1px solid #dbdbdb;
-    border-bottom: 1px solid #dbdbdb;
-    border-right: 1px solid #dbdbdb;
-    padding: .5em .55em;
-    font-size: 15px;
-}
-
-table td {
-    border-style: none;
-    font-size: 17px;
-    vertical-align: middle;
-    border-bottom: 1px solid #dbdbdb;
-    border-left: 1px solid #dbdbdb;
-    border-right: 1px solid #dbdbdb;
-    height: 30px;
-}
-
-table td:first-child {
-    width: 75px;
-}
-
-table td:last-child {
-    width: 75px;
-}
-
-table tr:nth-child(even) {
-    background: #F6FBFF;
-}
-
-.title {
-    margin-bottom: 12px;
-}
-'''
-
-
-class TableToUtil:
-    '''操作表格数据的类，包括二维数组和dataframe'''
-
-    current_dir = Path(__file__).absolute().parent
-
-    def __init__(self, table_title: str, headers: list, rows: list, kit_path: str = None) -> None:
-        '''初始化工具类
-        args：
-            table_titile str：设置导入图片的标题
-            datas DataFrame：设置要导出的数据
-            wkimg_path str：用于配置wkhtmltoimage工具的可执行文件路径
-            wkpdf_path str：用于配置wkhtmltopdf工具的可执行文件路径
-        returns：
-            None
-        '''
-        self.table_css_style = CSS_STYLE
+    def __init__(self, table_title: str, headers: list, rows: list) -> None:
+        self.table_css_style = ""
         self.table_title = table_title
         self.headers = headers
         self.rows = rows
-        self.imgkit_conf = imgkit.config(
-            wkhtmltoimage=kit_path) if kit_path else None
-        self.pdfkit_conf = pdfkit.configuration(
-            wkhtmltopdf=kit_path) if kit_path else None
-        self.imgkit_options = {
-            'format': 'png',
-            # 'crop-h': '400',
-            'crop-w': '832',
-            'crop-y': '0',
-            'crop-x': '0',
-            'encoding': "UTF-8",
-        }
-        self.pdfkit_options = {
-            "encoding": "UTF-8",
-            'margin-top': '0.75in',
-            'margin-right': '0.75in',
-            'margin-bottom': '0.75in',
-            'margin-left': '0.75in',
-        }
+        self.img_pdf_kit = HtmlToImgPdfKit()
 
     def to_html(self) -> Tuple[bool, Union[None, str], str]:
         '''处理数据，将数据转为目标html的str内容'''
@@ -133,55 +27,31 @@ class TableToUtil:
             table.set_global_opts(
                 title_opts=ComponentTitleOpts(title=self.table_title)
             )
-            # 构建好相关的中转文件，后面会删除，由于pyecharts、imgkit、bs4并没有给读文件流和输出文件流的方式，因此这里只能使用文件中转
-            # 使用临时文件实现
             # 创建临时文件
             tmp_file = NamedTemporaryFile()
             # 输出表格到临时文件
             table.render(tmp_file.name)
+            # 使用 BeautifulSoup 读取html
             soup = BeautifulSoup(tmp_file.read(), 'html.parser')
-            for item in soup.find_all('style'):
-                item.string = self.table_css_style
+            # 修改样式 如果有定制样式的话
+            if self.table_css_style:
+                for item in soup.find_all('style'):
+                    item.string = self.table_css_style
             return True, soup.prettify(), 'ok'
         except Exception as e:
             return False, None, str(e)
 
-    def to_png(self) -> Tuple[bool, Union[None, BytesIO], str]:
-        '''导出为png图片
-        returns：
-            BytesIO：返回文件流对象
-        '''
-        try:
-            flag, data, msg = self.to_html()
-            if not flag:
-                return flag, data, msg
-            tmp_name = "{}.png".format(str(uuid4()))
-            tmp_path = os.path.join('/tmp', tmp_name)
-            imgkit.from_string(data, tmp_path, options=self.imgkit_options, config=self.imgkit_conf)
-            with open(tmp_path, 'rb') as f:
-                return True, BytesIO(f.read()), 'ok'
-        except Exception as e:
-            return False, None, str(e)
-        finally:
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+    def get_img_or_pdf(self, out_type: str = 'img', out_path: str = '', options: dict = {}) -> Tuple[bool, Union[BytesIO, None], str]:
+        flag, data, msg = self.to_html()
+        if not flag:
+            return flag, data, msg
+        if out_type == 'img':
+            return self.img_pdf_kit.to_img(data, data_type=2, out_path=out_path, options=options)
+        return self.img_pdf_kit.to_pdf(data, data_type=2, out_path=out_path, options=options)
 
-    def to_pdf(self) -> Tuple[bool, Union[None, BytesIO], str]:
-        '''导出为pdf文件
-        returns：
-            BytesIO：返回文件流对象
-        '''
-        try:
-            flag, data, msg = self.to_html()
-            if not flag:
-                return flag, data, msg
-            tmp_name = "{}.pdf".format(str(uuid4()))
-            tmp_path = os.path.join('/tmp', tmp_name)
-            pdfkit.from_string(data, tmp_path, options=self.pdfkit_options, configuration=self.pdfkit_conf)
-            with open(tmp_path, 'rb') as f:
-                return True, BytesIO(f.read()), 'ok'
-        except Exception as e:
-            return False, None, str(e)
-        finally:
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+
+if __name__ == "__main__":
+    tu = TableUtil(table_title='test', headers=[
+                   'a', 'b'], rows=[[1, 2], [3, 4]])
+    tu.get_img_or_pdf(out_path='test.png')
+    # tu.get_img_or_pdf(out_type='pdf', out_path='test.pdf')
