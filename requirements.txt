@@ -34,4 +34,4 @@ BeautifulSoup4==4.11.0
 uwsgi==2.0.20
 gunicorn==20.1.0
 uvicorn==0.18.3
-gevent==22.10.1
+gevent==20.12.1
