@@ -18,7 +18,7 @@ class NormalObj:
     '''一个统一的类，目的是将分散的一些通用方法进行归集'''
 
     @staticmethod
-    def create_password(password):
+    def create_password(password: str) -> str:
         '''生成基于哈希256的密码散列值'''
         h = hashlib.sha256()
         h.update(bytes(password, encoding='utf-8'))
@@ -26,14 +26,14 @@ class NormalObj:
         return h_result
 
     @staticmethod
-    def create_code(length=6, abc=True):
+    def create_code(length: int=6, abc: bool=True) -> str:
         '''生成随机验证码'''
         base_str = '0123456789qwerrtyuioplkjhgfdsazxcvbnm' if abc else '01234567890123456789'
         # return ''.join([random.choice(base_str) for _ in range(length)])
         return ''.join(random.choices(list(base_str), k=length))
 
     @staticmethod
-    def create_order():
+    def create_order() -> str:
         now_date_time_str = str(
             datetime.now().strftime('%Y%m%d%H%M%S%f'))
         base_str = '01234567890123456789'
@@ -42,11 +42,11 @@ class NormalObj:
         return ''.join(now_date_time_str, random_num, random_num_two)
     
     @staticmethod
-    def uuid_int():
+    def uuid_int() -> int:
         return int(uuid1())
 
     @staticmethod
-    def get_distance(lat1, lng1, lat2, lng2):
+    def get_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
         '''计算两经纬度之间的距离 返回距离单位为公里'''
         radLat1 = (lat1 * math.pi / 180.0)
         radLat2 = (lat2 * math.pi / 180.0)

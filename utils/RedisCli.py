@@ -3,22 +3,23 @@ import redis
 import logging
 from django.conf import settings
 from utils.Singleton import Singleton
+from typing import Optional, Any, List
 
 
 class RedisCli(Singleton):
     
-    def __init__(self):
+    def __init__(self) -> None:
         '''初始化'''
         self._connect_url = settings.CACHES['redis_cli']['LOCATION'] # settings.CACHES['redis_cli']['LOCATION']
         self.current_db = int(self._connect_url[-1])
         self.pool = redis.ConnectionPool().from_url(self._connect_url)
         self.coon = redis.Redis(connection_pool=self.pool)
     
-    def key_exists(self, key):
+    def key_exists(self, key: str) -> bool:
         '''判断键是否存在'''
         return bool(self.coon.exists(key))
     
-    def select_db(self, db):
+    def select_db(self, db: int) -> int:
         '''切换Redis数据库'''
         self.coon.select(db)
         self.current_db = db
@@ -27,7 +28,7 @@ class RedisCli(Singleton):
 
 class RedisHash(object):
     
-    def __init__(self, hash_key):
+    def __init__(self, hash_key: str) -> None:
         '''初始化，需要传入哈希表的key'''
         self.redis = RedisCli()
         self.coon = self.redis.coon
@@ -38,7 +39,7 @@ class RedisHash(object):
         if self.has_key and self.coon.type(self.hash_key).decode() != 'hash':
             raise KeyError(f'key: {self.hash_key} is not hash type')
         
-    def get_val(self, key):
+    def get_val(self, key: str) -> Optional[Any]:
         '''获取指定的键值
         args：
             key str：目标键
@@ -50,7 +51,7 @@ class RedisHash(object):
             return val.decode()
         return val
     
-    def set_val(self, key, val):
+    def set_val(self, key: str, val: Any) -> Any:
         '''设置新的键值对，如果已经存在，就返回来的键值，不会覆盖
         args：
             key str：目标键
@@ -66,7 +67,7 @@ class RedisHash(object):
         self.coon.hset(self.hash_key, key, val)
         return val
     
-    def del_val(self, *key):
+    def del_val(self, *key: List) -> int:
         '''删除指定的键值对
         args：
             *key str：目标键，可以传多个键
