@@ -37,7 +37,7 @@ from .tasks import *
 
 class UserViewSet(ModelViewSet):
     '''
-    更新指定ID的用户，局部更新
+    partial_update:  更新指定ID的用户，局部更新
     create:  创建用户
     retrieve:  检索指定ID的用户
     update:  更新指定ID的用户
@@ -52,33 +52,8 @@ class UserViewSet(ModelViewSet):
     pagination_class = Pagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
-    filterset_fields = ('status', )
+    # filterset_fields = ('status', )
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
-    
-    # 测试对Swagger的指定备注
-    @swagger_auto_schema(operation_summary="创建用户")
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-    
-    @swagger_auto_schema(operation_summary="删除指定ID的用户")
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-    
-    @swagger_auto_schema(operation_summary="更新指定ID的用户")
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-    
-    @swagger_auto_schema(operation_summary="更新指定ID的用户，局部更新")
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-    
-    @swagger_auto_schema(operation_summary="获取用户列表")
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-    
-    @swagger_auto_schema(operation_summary="检索指定ID的用户")
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
 
 class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
@@ -91,24 +66,25 @@ class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
     throttle_classes = (VisitThrottle, )
     
     def get_queryset(self):
-        '''重写get_queryset，用来返回目标用户的数据，因为在token验证那里已经确定了用户是否存在'''
+        # 重写get_queryset，用来返回目标用户的数据，因为在token验证那里已经确定了用户是否存在
         if self.request.auth:
             return User.objects.filter(id=self.request.user.id)
         return None
     
     def list(self, request, *args, **kwargs):
-        '''重写list方法，使接口返回的数据是一个对象而不是数组'''
+        # 重写list方法，使接口返回的数据是一个对象而不是数组
         instance = User.objects.filter(id=self.request.user.id).first()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 
 class AdminLoginView(GenericAPIView):
-    '''后台登录接口'''
+    """后台登录的视图类"""
     serializer_class = AdminLoginSerializer
     
     @transaction.atomic
     def post(self, request):
+        '''后台登录接口'''
         res = MyJsonResponse()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True) # 新版验证写法，使异常通过自定义的异常处理器抛出，也不需要在视图函数里捕获异常了，有统一的异常处理器
@@ -134,6 +110,8 @@ class AdminLoginView(GenericAPIView):
 
 
 class TestView(APIView):
+    # @swagger_auto_schema(operation_summary="测试接口", operation_description="新建的测试接口")
     def post(self, request):
+        """测试接口"""
         logging.info('test' * 3)
         raise ValueError('test error')

@@ -21,12 +21,12 @@ class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
         swagger = super().get_schema(request, public)
         swagger.tags = [
             {
-                'name': 'user/adminLogin/',
-                'description': '管理用户接口'
+                'name': 'user',
+                'description': '用户管理接口'
             },
             {
-                'name': 'Logout',
-                'description': '退出登录接口'
+                'name': 'public',
+                'description': '公共接口'
             },
         ]
         return swagger
