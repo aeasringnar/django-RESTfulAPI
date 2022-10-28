@@ -233,7 +233,7 @@ SWAGGER_SETTINGS = {
     # 'LOGIN_URL': 'rest_framework:login',
     # 'LOGOUT_URL': 'rest_framework:logout',
     # 自定义swagger的路由tag
-    'DEFAULT_GENERATOR_CLASS': 'configs.swagger.BaseOpenAPISchemaGenerator',
+    'DEFAULT_GENERATOR_CLASS': 'extensions.MySwaggerAutoSchema.BaseOpenAPISchemaGenerator',
     # 'DEFAULT_AUTO_SCHEMA_CLASS': 'configs.swagger.CustomSwaggerAutoSchema',
     'DEFAULT_AUTO_SCHEMA_CLASS': 'extensions.MySwaggerAutoSchema.MySwaggerAutoSchema',
     'USE_SESSION_AUTH': False,
