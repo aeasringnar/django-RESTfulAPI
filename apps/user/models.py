@@ -20,11 +20,11 @@ class Group(BaseModel):
 
 class User(BaseModel):
     # 管理员时使用账户密码登录
-    gender_choice = (
-        ('privacy', '保密'), 
-        ('male', '男'), 
-        ('female', '女')
-    )
+    class Suit(models.IntegerChoices):
+        DIAMOND = 1
+        SPADE = 2
+        HEART = 3
+        CLUB = 4
     group = models.ForeignKey(Group, on_delete=models.PROTECT, null=True, verbose_name='用户组')
     username = models.CharField(max_length=32, default='', blank=True, verbose_name='用户账号')
     password = models.CharField(max_length=255, default='',blank=True, verbose_name='用户密码')
@@ -33,7 +33,7 @@ class User(BaseModel):
     nick_name = models.CharField(max_length=32, default='', blank=True, verbose_name='昵称')
     region = models.CharField(max_length=255, default='', blank=True, verbose_name='地区')
     avatar_url = models.CharField(max_length=255, default='', blank=True, verbose_name='头像')
-    gender = models.CharField(max_length=64, choices=gender_choice, default='privacy', verbose_name='性别')
+    gender = models.CharField(max_length=64, choices=Suit.choices, default='privacy', verbose_name='性别')
     birth_date = models.CharField(max_length=10, default='', blank=True, verbose_name='生日')
     is_freeze = models.BooleanField(default=False, verbose_name='是否冻结/是否封号')
     bf_logo_time = models.BigIntegerField(default=0, verbose_name='上次登录时间戳')
