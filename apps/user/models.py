@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from extensions.BaseModel import BaseModel
+from django.utils.translation import gettext_lazy
 
 
 class Group(BaseModel):
@@ -20,11 +21,11 @@ class Group(BaseModel):
 
 class User(BaseModel):
     # 管理员时使用账户密码登录
-    class Suit(models.IntegerChoices):
-        DIAMOND = 1
-        SPADE = 2
-        HEART = 3
-        CLUB = 4
+    class Suit(models.TextChoices):
+        female = 'female', gettext_lazy('女')
+        male = 'male', gettext_lazy('男')
+        privacy = 'privacy', gettext_lazy('保密')
+        
     group = models.ForeignKey(Group, on_delete=models.PROTECT, null=True, verbose_name='用户组')
     username = models.CharField(max_length=32, default='', blank=True, verbose_name='用户账号')
     password = models.CharField(max_length=255, default='',blank=True, verbose_name='用户密码')
