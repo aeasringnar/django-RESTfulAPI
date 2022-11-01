@@ -100,3 +100,34 @@ class TestView(APIView):
     def get(self, request):
         res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
         return res.data
+
+
+class GetAllEnumDataView(GenericAPIView):
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    
+    def get_serializer_class(self):
+        return GetAllEnumDataResponse
+
+    def get(self, request):
+        '''获取所有枚举类型的数据'''
+        res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
+        import importlib
+        import inspect
+        apps = [item for item in settings.INSTALLED_APPS if item.startswith('apps')]
+        enums = []
+        for app in apps:
+            try:
+                module = importlib.import_module(f"{app}.enums")
+                sub_enums = [item for item in inspect.getmembers(
+                    module, inspect.isclass
+                ) if item[0] not in {'IntegerChoices', 'TextChoices'}]
+                enums.extend(sub_enums)
+            except ModuleNotFoundError as e:
+                continue
+        res_data = {}
+        for sub_enum in enums:
+            res_data[sub_enum[0].lower()] = dict(zip(sub_enum[1].values, sub_enum[1].labels))
+        res.update(data=res_data)
+        return res.data

@@ -19,3 +19,5 @@ from .models import ConfDict
 # from .tasks import *
 
 
+class GetAllEnumDataResponse(serializers.Serializer):
+    data = serializers.DictField()

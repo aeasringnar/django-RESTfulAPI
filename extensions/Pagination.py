@@ -28,3 +28,29 @@ class Pagination(PageNumberPagination):
             'previous': self.get_previous_link(),
             'data': data
         }).data
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            'type': 'object',
+            'properties': {
+                'total': {
+                    'type': 'integer',
+                    'example': 123,
+                },
+                'next': {
+                    'type': 'string',
+                    'nullable': True,
+                    'format': 'uri',
+                    'example': 'http://api.example.org/accounts/?{page_query_param}=4'.format(
+                        page_query_param=self.page_query_param)
+                },
+                'previous': {
+                    'type': 'string',
+                    'nullable': True,
+                    'format': 'uri',
+                    'example': 'http://api.example.org/accounts/?{page_query_param}=2'.format(
+                        page_query_param=self.page_query_param)
+                },
+                'data': schema,
+            },
+        }
