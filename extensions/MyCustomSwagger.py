@@ -2,6 +2,10 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.utils import filter_none, force_real_str
 from drf_yasg.openapi import Operation
+from drf_yasg import openapi
+from collections import OrderedDict
+from rest_framework.pagination import CursorPagination, LimitOffsetPagination, PageNumberPagination
+from drf_yasg.inspectors.base import PaginatorInspector
 
 
 class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
@@ -41,7 +45,7 @@ class MySwaggerAutoSchema(SwaggerAutoSchema):
 
         operation_id = self.get_operation_id(operation_keys)
         summary, description = self.get_summary_and_description()
-        if not summary: summary = description
+        if not summary: summary = description # set description and summary
         security = self.get_security()
         assert security is None or isinstance(security, list), "security must be a list of security requirement objects"
         deprecated = self.is_deprecated()
@@ -72,3 +76,5 @@ class MySwaggerAutoSchema(SwaggerAutoSchema):
     #         tags[0] = operation_keys[1]
 
     #     return tags
+
+

@@ -233,9 +233,13 @@ SWAGGER_SETTINGS = {
     # 'LOGIN_URL': 'rest_framework:login',
     # 'LOGOUT_URL': 'rest_framework:logout',
     # 自定义swagger的路由tag
-    'DEFAULT_GENERATOR_CLASS': 'extensions.MySwaggerAutoSchema.BaseOpenAPISchemaGenerator',
+    'DEFAULT_GENERATOR_CLASS': 'extensions.MyCustomSwagger.BaseOpenAPISchemaGenerator',
     # 'DEFAULT_AUTO_SCHEMA_CLASS': 'configs.swagger.CustomSwaggerAutoSchema',
-    'DEFAULT_AUTO_SCHEMA_CLASS': 'extensions.MySwaggerAutoSchema.MySwaggerAutoSchema',
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'extensions.MyCustomSwagger.MySwaggerAutoSchema',
+    # 'DEFAULT_PAGINATOR_INSPECTORS': [
+    #     'drf_yasg.inspectors.MyDjangoRestResponsePagination',
+    #     'drf_yasg.inspectors.CoreAPICompatInspector',
+    # ],
     'USE_SESSION_AUTH': False,
     # 'SHOW_EXTENSIONS': False,
     'DOC_EXPANSION': 'none',
