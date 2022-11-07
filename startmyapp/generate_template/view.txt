@@ -20,7 +20,7 @@ class {model_name}Viewset(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return Create{model_name}ModelSerializer
-        if self.action in {{'update', 'partial_update'}}:
+        if self.action in {'update', 'partial_update'}:
             return Update{model_name}ModelSerializer
         return Return{model_name}ModelSerializer
 

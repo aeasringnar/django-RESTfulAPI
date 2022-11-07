@@ -29,6 +29,28 @@ class UserViewsetSerializer(BaseModelSerializer, ModelSerializer):
         read_only_fields = ('id', 'deleted', 'is_freeze', 'sort_timestamp', 'create_timestamp', 'update_timestamp', 'bf_logo_time')
 
 
+class CreateUserViewsetSerializer(BaseModelSerializer, ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'mobile', 'email', 'nick_name', 'region', 'avatar_url', 
+                  'gender', 'birth_date')
+
+
+class UpdateUserViewsetSerializer(BaseModelSerializer, ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ('nick_name', 'region', 'avatar_url', 'gender', 'birth_date')
+
+
+class ReturnUserViewsetSerializer(BaseModelSerializer, ModelSerializer):
+    
+    class Meta:
+        model = User
+        exclude = ('deleted', 'is_freeze', 'bf_logo_time', 'jwt_version')
+
+
 class OwnerUserViewsetSerializer(BaseModelSerializer, ModelSerializer):
     
     class Meta:

@@ -54,6 +54,13 @@ class UserViewSet(ModelViewSet):
     search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
     # filterset_fields = ('status', )
     ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreateUserViewsetSerializer
+        if self.action in {'update', 'partial_update'}:
+            return UpdateUserViewsetSerializer
+        return ReturnUserViewsetSerializer
 
 
 class OwnerUserInfoViewset(mixins.ListModelMixin, GenericViewSet):
