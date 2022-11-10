@@ -23,7 +23,7 @@ CURRENT_ENV = os.getenv('ENV', 'dev')
 BASE_DIR = Path(__file__).resolve().parent.parent
 MY_APP_TEMPLATE = Path.joinpath(BASE_DIR, 'my_app_template')
 MY_APPS_DIR = Path.joinpath(BASE_DIR, 'apps')
-UPLOAD_DIR = Path.joinpath(BASE_DIR, 'meida', 'upload')
+UPLOAD_DIR = Path.joinpath(BASE_DIR, 'media', 'upload')
 
 
 # Quick-start development settings - unsuitable for production

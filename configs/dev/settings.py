@@ -9,6 +9,8 @@ CONFIG_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 # 是否查看运行时的 SQL语句
 SHOWSQL = False
+# 设置服务host
+SERVER_NAME = ''
 
 
 # dev atabase

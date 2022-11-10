@@ -12,6 +12,7 @@ from rest_framework import status, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import MultiPartParser
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django.conf import settings
@@ -42,7 +43,9 @@ class UploadLocalFileView(APIView):
     authentication_classes = (JwtAuthentication, )
     # permission_classes = (IsAuthPermission, )
     throttle_classes = (VisitThrottle, )
+    parser_classes = [MultiPartParser]
     
+    @swagger_auto_schema(responses={200: NormalResponseSerializer}, manual_parameters=[upload_param])
     def post(self, request):
         '''
         上传接口-写入本地
@@ -62,12 +65,12 @@ class UploadLocalFileView(APIView):
                 res.update(message="{} file more than {} mb, Can't upload! ".format(file_name, settings.IMAGE_FILE_SIZE / 1024 / 1024), errorCode=2)
                 return res.data
             # 创建当月的目录
-            base_dir = os.path.join(settings.UPLOAD_DIR, datetime.datetime.now().strftime('%Y-%m-%d'))
+            base_dir = os.path.join(settings.UPLOAD_DIR, datetime.now().strftime('%Y-%m-%d'))
             if not os.path.exists(base_dir):
                 os.makedirs(base_dir, exist_ok=True)
                 os.chmod(base_dir, mode=0o755)
             # 得到目录+文件名
-            file_name = os.path.join(datetime.datetime.now().strftime('%Y-%m-%d'), '%su' % request.user.id + str(uuid4()).replace('-', '') + check_file.lower())
+            file_name = os.path.join(datetime.now().strftime('%Y-%m-%d'), '%su' % request.user.id + str(uuid4()).replace('-', '') + check_file.lower())
             # 实际保存的路径
             file_path = os.path.join(settings.UPLOAD_DIR, file_name)
             if check_file[1:].lower() in ('jpg', 'jpeg'):
@@ -98,6 +101,7 @@ class TestView(APIView):
     throttle_classes = (VisitThrottle, )
     
     def get(self, request):
+        '''测试接口'''
         res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
         return res.data
 
