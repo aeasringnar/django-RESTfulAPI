@@ -13,3 +13,9 @@ class BaseModelSerializer(serializers.Serializer):
 
     def get_update_time_format(self, obj):
         return MyDateTime.timestamp_str(obj.update_timestamp, settings.REST_FRAMEWORK['DATETIME_FORMAT'])
+
+
+class NormalResponseSerializer(serializers.Serializer):
+    data = serializers.JSONField(required=True, label="返回数据")
+    message = serializers.CharField(required=True, label="返回描述")
+    errorCode = serializers.CharField(required=True, label="异常错误码")

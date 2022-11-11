@@ -32,6 +32,7 @@ from extensions.MyResponse import MyJsonResponse
 from extensions.JwtAuth import JwtAuthentication
 from extensions.Permission import IsAuthPermission
 from PIL import Image
+from extensions.BaseSerializer import NormalResponseSerializer
 from .models import *
 from .serializers import *
 from .tasks import *
@@ -43,9 +44,9 @@ class UploadLocalFileView(APIView):
     authentication_classes = (JwtAuthentication, )
     # permission_classes = (IsAuthPermission, )
     throttle_classes = (VisitThrottle, )
-    parser_classes = [MultiPartParser]
+    parser_classes = [MultiPartParser] # 适用于上传文件的form/data请求体，不设置的话，默认是application/json
     
-    @swagger_auto_schema(responses={200: NormalResponseSerializer}, manual_parameters=[upload_param])
+    @swagger_auto_schema(responses={200: NormalResponseSerializer}, manual_parameters=UploadParameter)
     def post(self, request):
         '''
         上传接口-写入本地

@@ -24,16 +24,6 @@ class GetAllEnumDataResponse(serializers.Serializer):
     data = serializers.DictField()
     
 
-class NormalResponseSerializer(serializers.Serializer):
-    data = serializers.JSONField(required=True, label="返回数据")
-    message = serializers.CharField(required=True, label="返回描述")
-    errorCode = serializers.CharField(required=True, label="异常错误码")
-
-upload_param = openapi.Parameter(name='file', in_=openapi.IN_FORM, description="上传文件", type=openapi.TYPE_FILE, required=True)
-upload_body = openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    required=['file'],
-    properties={
-        'file': openapi.Schema(type=openapi.TYPE_STRING, description="文件")
-    }
-)
+UploadParameter = [
+    openapi.Parameter(name='file', in_=openapi.IN_FORM, description="上传文件", type=openapi.TYPE_FILE, required=True)
+]
