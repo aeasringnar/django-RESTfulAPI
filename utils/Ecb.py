@@ -9,7 +9,7 @@ class ECBCipher(object):
     '''
     定义一个基于AES的ECB模式的加解密类
     '''
-    def __init__(self, key: str=''):
+    def __init__(self, key: str='') -> None:
         '''
         定义构造方法，初始化key和加解密对象
         :params key:长度必须为16位
@@ -20,19 +20,19 @@ class ECBCipher(object):
         self.key = key
         self.__cipher = AES.new(self.key.encode(),  AES.MODE_ECB)
     
-    def __pad(self, s): # 私有方法
+    def __pad(self, s: str) -> str: # 私有方法
         '''
         定义PKCS7填充的私有方法，用于对目标进行补位填充
         '''
         return s + (AES.block_size - len(s) % AES.block_size) * chr(AES.block_size - len(s) % AES.block_size)
     
-    def __unpad(self, s):
+    def __unpad(self, s: str) -> str:
         '''
         定义去除填充的私有方法，用于对目标进行解码得到原始值
         '''
         return s[:-ord(s[-1:])]
 
-    def encrypted(self, msg):
+    def encrypted(self, msg: str) -> str:
         '''
         定义加密方法，对目标进行加密，并返回一个byte类型的字符串
         :params msg:需要加密的明文
@@ -42,7 +42,7 @@ class ECBCipher(object):
         except:
             return None
 
-    def decrypted(self, encode_str):
+    def decrypted(self, encode_str: str) -> str:
         '''
         定义解密方法，对目标进行解密，并返回一个解密得到的字符串
         :params encode_str:需要解密的密文
