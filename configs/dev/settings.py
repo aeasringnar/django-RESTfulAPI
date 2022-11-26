@@ -28,7 +28,7 @@ LOGGING = {
     'disable_existing_loggers': False,  # 表示是否禁用所有的已经存在的日志配置
     'formatters': {  # 格式器
         'verbose': {  # 详细
-            'format': '[%(levelname)s] %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '[%(levelname)s] %(asctime)s %(module)s.%(funcName)s [%(process)d:%(thread)d] - %(filename)s[line:%(lineno)d] %(message)s'
         },
         'standard': {  # 标准
             'format': '[%(asctime)s] %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
