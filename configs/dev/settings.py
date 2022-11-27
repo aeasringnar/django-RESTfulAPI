@@ -35,6 +35,9 @@ LOGGING = {
         },
         "debug": { # 调试
             "format": "[%(asctime)s] [%(process)d:%(thread)d] %(filename)s[line:%(lineno)d] (%(name)s)[%(levelname)s] %(message)s",
+        },
+        "json": {
+            "()": "extensions.JsonFormater.JSONFormatter"
         }
     },
     'handlers': {
