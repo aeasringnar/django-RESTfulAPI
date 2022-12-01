@@ -80,4 +80,5 @@ class RedisLock:
         return True
     
     def release(self):
+        '''释放锁，考虑如何支持重入释放'''
         pass
