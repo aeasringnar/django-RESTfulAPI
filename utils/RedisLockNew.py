@@ -45,7 +45,8 @@ class RedisLock:
     @property
     def lock_val(self) -> Tuple[str, str, str]:
         return self._conn.get(self._key).decode().spilt("+")
-        
+    
+    @property
     def is_my_lock(self):
         if not self._conn.exists(self._key):
             raise ValueError("the lock is not exist")
@@ -64,8 +65,13 @@ class RedisLock:
         init_lock_val = f"{self._id}+{self._lock_type}+{0}"
         busy = not self._conn.set(self._key, init_lock_val, nx=True, ex=self._expire) # 如果加锁成功那么 busy就为False，否则为True，加锁失败
         if busy:
+            # 如果是你自己的锁，再次加锁时，会将times+1
             # 如果这里被执行，说明已经存在锁
-            _, lock_type, _ = self.lock_val
+            _id, lock_type, times = self.lock_val
+            if self.is_my_lock:
+                times = int(times) + 1
+                self._conn.set(self._key, f"{_id}+{lock_type}+{times}", ex=self._expire)
+                return True
             # 如果都是读锁，那么直接返回，不需要获得锁
             if self._lock_type == lock_type == 'r':
                 return True
@@ -80,5 +86,14 @@ class RedisLock:
         return True
     
     def release(self):
-        '''释放锁，考虑如何支持重入释放'''
-        pass
+        '''释放锁，考虑如何支持重入释放
+        如果锁存在、并且时自己的锁，那么就将锁的times减一，直达times==0时直接删除key
+        '''
+        if not self.is_my_lock:
+            raise ValueError("This lock is not your")
+        _id, lock_type, times = self.lock_val
+        times = int(times) - 1
+        if times == 0:
+            self._conn.delete(self._key)
+            return
+        self._conn.set(self._key, f"{_id}+{lock_type}+{times}", ex=self._expire)
