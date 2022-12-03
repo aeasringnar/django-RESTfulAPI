@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 from enum import Enum
 from typing import Optional, Tuple
+from uuid import uuid1
 '''
 新版的分布式可充入读写锁
 实现原理：
@@ -10,17 +11,17 @@ from typing import Optional, Tuple
 2、可以同个key的值加上锁类型，读锁或写锁 以及锁id(防止锁被别人释放) 加上加锁次数 目的是支持可重入的锁，当加锁次数为0时，释放锁
 3、在加锁时增加timeout参数，毫秒值，如果有值那么表示加锁时，如果锁被人锁着，那么就进行重试等待 值表示等待的时间，为None时表示不阻塞，有锁时直接返回加锁失败。
 4、使用上下文管理器，进入时加锁，离开时释放锁，
+5、id有创建锁实例时自动生成，不支持传入，好处时防止别人通过id生成相同的锁实例造成的危害
 '''
 
 
 class RedisLock:
     
-    def __init__(self, redis_conn: StrictRedis, key: str, lock_id: str, lock_type: str='w', expire: int=30) -> None:
+    def __init__(self, redis_conn: StrictRedis, key: str, lock_type: str='w', expire: int=30) -> None:
         '''锁的初始化
         args:
             redis_conn Redis连接对象
             key 锁的key
-            lock_id 加锁的id
             lock_type 加锁的类型，可选值为 r 读锁 w 写锁，默认为写锁
             expire 锁的过期时间，单位为秒，默认为30秒
         '''
@@ -38,13 +39,17 @@ class RedisLock:
             raise ValueError("key need str type")
         self._conn = redis_conn
         self._key = key
-        self._id = lock_id
+        self._id = int(uuid1())
         self._lock_type = lock_type
         self._expire = expire
     
     @property
     def lock_val(self) -> Tuple[str, str, str]:
         return self._conn.get(self._key).decode().spilt("+")
+    
+    @property
+    def id(self):
+        return self._id
     
     @property
     def is_my_lock(self):
