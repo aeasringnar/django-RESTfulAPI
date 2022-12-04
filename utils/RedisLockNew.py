@@ -1,9 +1,10 @@
-from redis import StrictRedis
-from datetime import datetime
 import time
+from datetime import datetime
 from enum import Enum
 from typing import Optional, Tuple
 from uuid import uuid1
+from redis import StrictRedis
+import redis
 '''
 新版的分布式可充入读写锁
 实现原理：
@@ -27,15 +28,13 @@ class RedisLock:
         '''
         if not isinstance(redis_conn, StrictRedis):
             raise ValueError("redis_conn is not StrictRedis")
-        if not isinstance(lock_id, str):
-            raise ValueError("lock_id need str type")
         if lock_type not in {'r', 'w'}:
             raise ValueError("lock_type is not allowed")
         if not isinstance(expire, int):
             raise ValueError("expire need int type")
         if expire < 0:
             raise ValueError("expire must large zero")
-        if isinstance(key, str):
+        if not isinstance(key, str):
             raise ValueError("key need str type")
         self._conn = redis_conn
         self._key = key
@@ -43,9 +42,16 @@ class RedisLock:
         self._lock_type = lock_type
         self._expire = expire
     
+    def __repr__(self) -> str:
+        return f"<RedisLock, id={self.id}>"
+    
+    __str__ = __repr__
+    
     @property
     def lock_val(self) -> Tuple[str, str, str]:
-        return self._conn.get(self._key).decode().spilt("+")
+        if not self._conn.exists(self._key):
+            raise ValueError("the lock is not exist")
+        return self._conn.get(self._key).decode().split("+")
     
     @property
     def id(self):
@@ -56,18 +62,18 @@ class RedisLock:
         if not self._conn.exists(self._key):
             raise ValueError("the lock is not exist")
         _id, _, _ = self.lock_val
-        return self._id == _id
+        return self._id == int(_id)
     
     def acquire(self, timeout: Optional[int]=None) -> bool:
         '''加锁操作
         args:
             timeout 为None表示不阻塞，存在值时表示阻塞的毫秒值
         '''
-        if not isinstance(timeout, None, int):
+        if all([not isinstance(timeout, int), not timeout is None]):
             raise ValueError("time_out need None or int type")
         if timeout and timeout < 0:
             raise ValueError("time_out is muat large zero")
-        init_lock_val = f"{self._id}+{self._lock_type}+{0}"
+        init_lock_val = f"{self._id}+{self._lock_type}+{1}"
         busy = not self._conn.set(self._key, init_lock_val, nx=True, ex=self._expire) # 如果加锁成功那么 busy就为False，否则为True，加锁失败
         if busy:
             # 如果是你自己的锁，再次加锁时，会将times+1
@@ -102,3 +108,13 @@ class RedisLock:
             self._conn.delete(self._key)
             return
         self._conn.set(self._key, f"{_id}+{lock_type}+{times}", ex=self._expire)
+
+
+if __name__ == "__main__":
+    conn = redis.StrictRedis()
+    lock1 = RedisLock(conn, 'new_lock', 'r')
+    print(lock1)
+    lock1.acquire()
+    print(lock1.is_my_lock)
+    lock1.release()
+    print(lock1.lock_val)
