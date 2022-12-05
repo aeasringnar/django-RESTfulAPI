@@ -1,9 +1,10 @@
 import time
 import redis
 import logging
+import pickle
 from django.conf import settings
 from utils.Singleton import Singleton
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Dict, Tuple
 
 
 class RedisCli(Singleton):
@@ -12,8 +13,7 @@ class RedisCli(Singleton):
         '''初始化'''
         self._connect_url = settings.CACHES['redis_cli']['LOCATION'] # settings.CACHES['redis_cli']['LOCATION']
         self.current_db = int(self._connect_url[-1])
-        self.pool = redis.ConnectionPool().from_url(self._connect_url)
-        self.coon = redis.Redis(connection_pool=self.pool)
+        self.coon = redis.Redis(connection_pool=redis.ConnectionPool().from_url(self._connect_url))
     
     def key_exists(self, key: str) -> bool:
         '''判断键是否存在'''
@@ -27,61 +27,65 @@ class RedisCli(Singleton):
 
 
 class RedisHash(object):
+    '''构建操作哈希表的类，使哈希表可以想字典一样使用'''
     
-    def __init__(self, hash_key: str) -> None:
-        '''初始化，需要传入哈希表的key'''
-        self.redis = RedisCli()
-        self.coon = self.redis.coon
-        self.hash_key = hash_key
-        self.has_key = self.redis.key_exists(self.hash_key)
-        if not self.has_key:
-            logging.warning(f'key: {self.hash_key} not found')
-        if self.has_key and self.coon.type(self.hash_key).decode() != 'hash':
-            raise KeyError(f'key: {self.hash_key} is not hash type')
-        
-    def get_val(self, key: str) -> Optional[Any]:
-        '''获取指定的键值
-        args：
-            key str：目标键
-        returns：
-            any/None：返回存储的值或None
-        '''
-        val = self.coon.hget(self.hash_key, key)
-        if val:
-            return val.decode()
-        return val
+    def __init__(self, key: str) -> None:
+        '''初始化操作类，接收一个key作为哈希表的键'''
+        self._conn = RedisCli().coon
+        self._data_key = key
     
-    def set_val(self, key: str, val: Any) -> Any:
-        '''设置新的键值对，如果已经存在，就返回来的键值，不会覆盖
-        args：
-            key str：目标键
-            val any：存储的值
-        returns：
-            any：返回存储的值
-        '''
-        if not self.has_key:
-            self.coon.hset(self.hash_key, key, val)
-            return val
-        if self.get_val(key):
-            return self.get_val(key)
-        self.coon.hset(self.hash_key, key, val)
-        return val
-    
-    def del_val(self, *key: List) -> int:
-        '''删除指定的键值对
-        args：
-            *key str：目标键，可以传多个键
-        returns：
-            int：返回删除成功的键值对数量
-        '''
-        return self.coon.hdel(self.hash_key, *key)
+    def __repr__(self) -> str:
+        to_dict = {key: self.get(key) for key in map(lambda x: x.decode(), self._conn.hkeys(self._data_key))} if not self.is_empty else {}
+        return str(to_dict)
+
+    __str__ = __repr__
     
     @property
-    def length(self):
-        '''得到当前哈希表的长度'''
-        if not self.has_key:
+    def is_empty(self) -> bool:
+        '''检查哈希表是否为空'''
+        return not self._conn.exists(self._data_key)
+    
+    def get(self, key: str, not_exist_val: Any=None):
+        '''获取键值，支持设置不存在的默认值，默认为None'''
+        val = self._conn.hget(self._data_key, key)
+        if val is not None:
+            return pickle.loads(val)
+        return not_exist_val
+    
+    def setdefault(self, key: str, data: Any) -> Any:
+        '''设置键值'''
+        data = pickle.dumps(data)
+        self._conn.hset(self._data_key, key, data)
+        return data
+    
+    def __len__(self) -> int:
+        '''获取哈希表的长度'''
+        if self.is_empty:
             return 0
-        return self.coon.hlen(self.hash_key)
+        return self._conn.hlen(self._data_key)
+    
+    def __getitem__(self, key: str) -> Any:
+        if self.get(key) is None:
+            raise KeyError(f"this key {key} is notfound")
+        return self.get(key)
+    
+    def __setitem__(self, key: str, data: Any) -> Any:
+        return self.setdefault(key, data)
+    
+    def __delitem__(self, key: str) -> bool:
+        return bool(self._conn.hdel(self._data_key, key))
+    
+    def values(self) -> List[Any]:
+        res_ls = []
+        for key in self.keys():
+            res_ls.append(self.get(key))
+        return res_ls
+    
+    def __iter__(self):
+        return iter(list(map(lambda x: x.decode(), self._conn.hkeys(self._data_key))))
+    
+    def keys(self) -> List[str]:
+        return list(map(lambda x: x.decode(), self._conn.hkeys(self._data_key)))
         
 
 if __name__ == '__main__':
