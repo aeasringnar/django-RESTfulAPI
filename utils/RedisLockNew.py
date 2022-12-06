@@ -43,7 +43,7 @@ class RedisLock:
         self._expire = expire
     
     def __repr__(self) -> str:
-        return f"<RedisLock, id={self.id}>"
+        return f"<RedisLock, id={self.id}, lock_type={self._lock_type}>"
     
     __str__ = __repr__
     
@@ -108,6 +108,9 @@ class RedisLock:
             self._conn.delete(self._key)
             return
         self._conn.set(self._key, f"{_id}+{lock_type}+{times}", ex=self._expire)
+    
+    def __del__(self):
+        self._conn.delete(self._key)
 
 
 if __name__ == "__main__":
@@ -116,5 +119,7 @@ if __name__ == "__main__":
     print(lock1)
     lock1.acquire()
     print(lock1.is_my_lock)
-    lock1.release()
+    # lock1.release()
+    print(lock1.lock_val)
+    lock1.acquire()
     print(lock1.lock_val)
