@@ -6,7 +6,7 @@ from uuid import uuid1
 from redis import StrictRedis
 import redis
 '''
-新版的分布式可充入读写锁
+新版的分布式可重入读写锁
 实现原理：
 1、基本的分布式锁原理，通过设置redis的key nx 即如果key存在则创建，否则返回none，创建锁时增加过期时间参数，默认30秒
 2、可以同个key的值加上锁类型，读锁或写锁 以及锁id(防止锁被别人释放) 加上加锁次数 目的是支持可重入的锁，当加锁次数为0时，释放锁
@@ -14,6 +14,37 @@ import redis
 4、使用上下文管理器，进入时加锁，离开时释放锁，
 5、id有创建锁实例时自动生成，不支持传入，好处时防止别人通过id生成相同的锁实例造成的危害
 '''
+
+
+class AlreadyAcquired(RuntimeError):
+    pass
+
+
+class NotAcquired(RuntimeError):
+    pass
+
+
+class AlreadyStarted(RuntimeError):
+    pass
+
+
+class TimeoutNotUsable(RuntimeError):
+    __module__ = 'builtins'
+
+
+class InvalidTimeout(RuntimeError):
+    __module__ = 'builtins'
+
+
+class TimeoutTooLarge(RuntimeError):
+    __module__ = 'builtins'
+
+
+class NotExpirable(RuntimeError):
+    pass
+
+class LockNotExists(RuntimeError):
+    __module__ = 'builtins'
 
 
 class RedisLock:
@@ -50,7 +81,7 @@ class RedisLock:
     @property
     def lock_val(self) -> Tuple[str, str, str]:
         if not self._conn.exists(self._key):
-            raise ValueError("the lock is not exist")
+            raise LockNotExists("The lock is not exists")
         return self._conn.get(self._key).decode().split("+")
     
     @property
@@ -74,9 +105,11 @@ class RedisLock:
             timeout 为None表示不阻塞，存在值时表示阻塞的毫秒值
         '''
         if all([not isinstance(timeout, int), not timeout is None]):
-            raise ValueError("time_out need None or int type")
+            raise TimeoutNotUsable("The time_out need None or int type")
         if timeout and timeout < 0:
-            raise ValueError("time_out is muat large zero")
+            raise InvalidTimeout("The time_out must be greater than zero")
+        if timeout > 60:
+            raise TimeoutTooLarge("The time_out must be less than 60")
         init_lock_val = f"{self._id}+{self._lock_type}+{1}"
         busy = not self._conn.set(self._key, init_lock_val, nx=True, ex=self._expire) # 如果加锁成功那么 busy就为False，否则为True，加锁失败
         if busy:
@@ -133,7 +166,7 @@ if __name__ == "__main__":
     lock2 = RedisLock(conn, 'new_lock', 'w')
     print(lock1.locked)
     print(lock2.locked)
-    print(lock2.acquire(timeout=1))
+    print(lock2.acquire(timeout=-1))
     print(lock2)
     print('lock2')
     print(lock2.lock_val)
