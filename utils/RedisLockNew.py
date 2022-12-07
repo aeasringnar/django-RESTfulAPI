@@ -54,13 +54,17 @@ class RedisLock:
         return self._conn.get(self._key).decode().split("+")
     
     @property
-    def id(self):
+    def locked(self) -> bool:
+        return bool(self._conn.exists(self._key))
+    
+    @property
+    def id(self) -> int:
         return self._id
     
     @property
-    def is_my_lock(self):
+    def is_my_lock(self) -> bool:
         if not self._conn.exists(self._key):
-            raise ValueError("the lock is not exist")
+            return False
         _id, _, _ = self.lock_val
         return self._id == int(_id)
     
@@ -96,7 +100,7 @@ class RedisLock:
                     return False
         return True
     
-    def release(self):
+    def release(self) -> None:
         '''释放锁，考虑如何支持重入释放
         如果锁存在、并且时自己的锁，那么就将锁的times减一，直达times==0时直接删除key
         '''
@@ -109,17 +113,27 @@ class RedisLock:
             return
         self._conn.set(self._key, f"{_id}+{lock_type}+{times}", ex=self._expire)
     
-    def __del__(self):
+    def __del__(self) -> None:
+        '''销毁对象的时候释放锁'''
         self._conn.delete(self._key)
 
 
 if __name__ == "__main__":
     conn = redis.StrictRedis()
-    lock1 = RedisLock(conn, 'new_lock', 'r')
+    lock1 = RedisLock(conn, 'new_lock', 'w')
     print(lock1)
+    print(lock1.locked)
+    print(lock1.is_my_lock)
     lock1.acquire()
     print(lock1.is_my_lock)
     # lock1.release()
     print(lock1.lock_val)
     lock1.acquire()
     print(lock1.lock_val)
+    lock2 = RedisLock(conn, 'new_lock', 'w')
+    print(lock1.locked)
+    print(lock2.locked)
+    print(lock2.acquire(timeout=1))
+    print(lock2)
+    print('lock2')
+    print(lock2.lock_val)
