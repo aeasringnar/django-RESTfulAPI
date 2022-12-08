@@ -16,18 +16,6 @@ import redis
 '''
 
 
-class AlreadyAcquired(RuntimeError):
-    pass
-
-
-class NotAcquired(RuntimeError):
-    pass
-
-
-class AlreadyStarted(RuntimeError):
-    pass
-
-
 class TimeoutNotUsable(RuntimeError):
     __module__ = 'builtins'
 
@@ -40,8 +28,9 @@ class TimeoutTooLarge(RuntimeError):
     __module__ = 'builtins'
 
 
-class NotExpirable(RuntimeError):
-    pass
+class LockedTimeout(RuntimeError):
+    __module__ = 'builtins'
+
 
 class LockNotExists(RuntimeError):
     __module__ = 'builtins'
@@ -108,7 +97,7 @@ class RedisLock:
             raise TimeoutNotUsable("The time_out need None or int type")
         if timeout and timeout < 0:
             raise InvalidTimeout("The time_out must be greater than zero")
-        if timeout > 60:
+        if timeout and timeout > 60:
             raise TimeoutTooLarge("The time_out must be less than 60")
         init_lock_val = f"{self._id}+{self._lock_type}+{1}"
         busy = not self._conn.set(self._key, init_lock_val, nx=True, ex=self._expire) # 如果加锁成功那么 busy就为False，否则为True，加锁失败
@@ -166,7 +155,7 @@ if __name__ == "__main__":
     lock2 = RedisLock(conn, 'new_lock', 'w')
     print(lock1.locked)
     print(lock2.locked)
-    print(lock2.acquire(timeout=-1))
+    print(lock2.acquire(timeout=5))
     print(lock2)
     print('lock2')
     print(lock2.lock_val)
