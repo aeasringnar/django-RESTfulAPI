@@ -4,6 +4,7 @@ from utils.RedisLockNew import RedisLock
 from utils.RedisCli import RedisCli
 import logging
 import hashlib
+from .MyResponse import MyJsonResponse
 '''
 装饰器类的第一种写法：__call__ 这个魔术方法，这个方法可以使类实例化后的对象可以像函数一样被调用，然后在这里直接接受被装饰的函数，
     这种方式在使用装饰器类时，是必须带括号的，也就是装饰器类是要被实例化的。具体实现如下
@@ -37,9 +38,13 @@ class RedisCacheForDecoratorV1:
         
     def __call__(self, func: Callable) -> Callable:
         '''使类实例化后的对象可以直接被当做函数调用，入参就是调用使传入的参数，利用这个可以实现装饰器类，入参就是要装饰的函数'''
-        def warpper(self, *args: Any, **kwds: Any) -> Any:
+        def warpper(re_self, request, *args: Any, **kwds: Any) -> Any:
             '''进行缓存计算或进行变更操作'''
-            key = ''
+            path_key = request.path
+            operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
+            locked = operate_lock.acquire(timeout=30)
+            if not locked:
+                return MyJsonResponse({"message": "其他用户正在操作，请稍候重试", "errorCode": 2}, 400)
             res = func(*args, **kwds)
             return res
         return warpper
