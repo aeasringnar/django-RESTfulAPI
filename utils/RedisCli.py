@@ -106,7 +106,7 @@ class RedisHash(object):
     
     def __iter__(self):
         '''使这个类的实例支持迭代，可以在for循环中像字典一样被使用'''
-        return iter(set(map(lambda x: x.decode(), self._conn.hkeys(self._data_key))))
+        return iter(self.keys())
     
     def keys(self) -> List[str]:
         '''返回哈希表的所有key组成的列表'''
@@ -119,6 +119,10 @@ class RedisHash(object):
         val = self.get(key)
         del self[key]
         return val
+    
+    def clear(self) -> None:
+        '''清空这个字典'''
+        self._conn.delete(self._data_key)
         
 
 if __name__ == '__main__':

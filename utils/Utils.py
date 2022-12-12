@@ -18,22 +18,21 @@ class NormalObj:
     '''一个统一的类，目的是将分散的一些通用方法进行归集'''
 
     @staticmethod
-    def create_password(password: str) -> str:
-        '''生成基于哈希256的密码散列值'''
+    def to_sha256(payload: str) -> str:
+        '''生成哈希256的散列值，返回长度为64位的字符串，其值为64位的16进制数组成'''
         h = hashlib.sha256()
-        h.update(bytes(password, encoding='utf-8'))
-        h_result = h.hexdigest()
-        return h_result
+        h.update(payload.encode(encoding='utf8'))
+        return h.hexdigest()
 
     @staticmethod
-    def create_code(length: int=6, abc: bool=True) -> str:
+    def create_random_code(length: int=6, abc: bool=True) -> str:
         '''生成随机验证码'''
         base_str = '0123456789qwerrtyuioplkjhgfdsazxcvbnm' if abc else '01234567890123456789'
         # return ''.join([random.choice(base_str) for _ in range(length)])
         return ''.join(random.choices(list(base_str), k=length))
 
     @staticmethod
-    def create_order() -> str:
+    def create_unique_order_no() -> str:
         now_date_time_str = str(
             datetime.now().strftime('%Y%m%d%H%M%S%f'))
         base_str = '01234567890123456789'
@@ -42,7 +41,7 @@ class NormalObj:
         return ''.join(now_date_time_str, random_num, random_num_two)
     
     @staticmethod
-    def uuid_int() -> int:
+    def uuid1_int() -> int:
         return int(uuid1())
 
     @staticmethod

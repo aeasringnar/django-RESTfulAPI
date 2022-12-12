@@ -1,10 +1,12 @@
 from typing import *
 import pickle
 from utils.RedisLockNew import RedisLock
-from utils.RedisCli import RedisCli
+from utils.RedisCli import RedisCli, RedisHash
+from utils.Utils import NormalObj
 import logging
 import hashlib
 from .MyResponse import MyJsonResponse
+from django.conf import settings
 '''
 装饰器类的第一种写法：__call__ 这个魔术方法，这个方法可以使类实例化后的对象可以像函数一样被调用，然后在这里直接接受被装饰的函数，
     这种方式在使用装饰器类时，是必须带括号的，也就是装饰器类是要被实例化的。具体实现如下
@@ -27,6 +29,32 @@ from .MyResponse import MyJsonResponse
 '''
 
 
+class CacheVersionControl:
+    '''缓存版本号操作类'''
+    
+    def __init__(self, paths: List[str]) -> None:
+        self._key = f"cache_version+{NormalObj.to_sha256(settings.SECRET_KEY)}"
+        self._cache_dict = RedisHash(self._key)
+        self._paths = paths
+    
+    def update(self, key: str) -> bool:
+        '''更新某个path的缓存版本号'''
+        data = self._cache_dict.get(key, 0)
+        data += 1
+        return bool(self._cache_dict.setdefault(key, data))
+    
+    def init_data(self):
+        '''初始化缓存版本数据'''
+        if not self._cache_dict.is_empty:
+            self._cache_dict.clear()
+        for path in self._paths:
+            self._cache_dict[path] = 0
+    
+    def flush_date(self):
+        '''销毁缓存版本数据'''
+        self._cache_dict.clear()
+
+
 class RedisCacheForDecoratorV1:
     
     def __init__(self, cache_type: str, cache_timeout: int, is_public: bool) -> None:
@@ -35,6 +63,7 @@ class RedisCacheForDecoratorV1:
         self._cache_type = cache_type
         self._cache_timeout = cache_timeout
         self._is_public = is_public
+        self._response = MyJsonResponse()
         
     def __call__(self, func: Callable) -> Callable:
         '''使类实例化后的对象可以直接被当做函数调用，入参就是调用使传入的参数，利用这个可以实现装饰器类，入参就是要装饰的函数'''
@@ -44,12 +73,23 @@ class RedisCacheForDecoratorV1:
             operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
             locked = operate_lock.acquire(timeout=30)
             if not locked:
-                return MyJsonResponse({"message": "其他用户正在操作，请稍候重试", "errorCode": 2}, 400)
-            res = func(*args, **kwds)
-            return res
+                self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
+                return self._response.data
+            # 加锁成功就执行业务逻辑
+            # 判断是写操作的话，直接执行方法，方法执行完毕后进行更新缓存版本号
+            if self._cache_type == 'w':
+                res = func(*args, **kwds)
+                # 更新缓存版本号的逻辑
+                CacheVersionControl().update(request.path)
+                return res
+            # 否则进行缓存相关的逻辑操作
+            '''
+            todo list
+            1、计算缓存的key key = 接口path的hash + 请求的参数hash(如果is_public为假，需要加入token来计算哈希) + 接口的缓存版本号
+            2、根据缓存key 来加锁，设置超时时间，超时后先在判断一次缓存是否被生成：如果生成，那就返回缓存结果，否则返回超时。
+            3、如果加锁成功，先判断缓存是否存在，如果不存在就进行 查库 设置缓存，返回。
+            这样能解决：
+                1、高并发下的热点缓存失效，导致的数据库压力激增。
+                2、高并发下的大并发创建缓存问题。
+            '''
         return warpper
-    
-    def sign_hash(self, payload: str) -> str:
-        h = hashlib.sha256()
-        h.update(payload.encode(encoding='utf8'))
-        return h.hexdigest()
