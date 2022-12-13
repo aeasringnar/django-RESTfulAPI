@@ -43,6 +43,9 @@ class CacheVersionControl:
         data += 1
         return bool(self._cache_dict.setdefault(key, data))
     
+    def get(self, key: str) -> int:
+        return self._cache_dict.get(key)
+    
     def init_data(self):
         '''初始化缓存版本数据'''
         if not self._cache_dict.is_empty:
@@ -78,7 +81,7 @@ class RedisCacheForDecoratorV1:
             # 加锁成功就执行业务逻辑
             # 判断是写操作的话，直接执行方法，方法执行完毕后进行更新缓存版本号
             if self._cache_type == 'w':
-                res = func(*args, **kwds)
+                res = func(re_self, request, *args, **kwds)
                 # 更新缓存版本号的逻辑
                 CacheVersionControl().update(request.path)
                 return res
@@ -92,4 +95,18 @@ class RedisCacheForDecoratorV1:
                 1、高并发下的热点缓存失效，导致的数据库压力激增。
                 2、高并发下的大并发创建缓存问题。
             '''
+            cache_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
+            cache_lock = RedisLock(self._redis.coon, cache_key+':lock', 'w')
+            locked = cache_lock.acquire(timeout=20)
+            if not locked:
+                # 假设没有获得锁，那么就会因为超时而退出，此时再查一次缓存，如果存在就返回，否则就返回有人在操作。
+                pass
+            # 如果加锁成功，就先查缓存，没有就落库并设置缓存
+            cache_val = self._redis.coon.get(cache_key+':cache')
+            if not cache_val:
+                res = func(re_self, request, *args, **kwds)
+                self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
+                return res
+            cache_lock.release()
+            return pickle.loads(cache_key)
         return warpper
