@@ -59,6 +59,7 @@ class CacheVersionControl:
 
 
 class RedisCacheForDecoratorV1:
+    '''第一版本的缓存装饰器类'''
     
     def __init__(self, cache_type: str, cache_timeout: int, is_public: bool) -> None:
         '''装饰器类同样是一个类，它拥有类的特性，因此我们可以在装饰时设定一些参数，方便在装饰器中做一些特殊操作'''
@@ -84,6 +85,8 @@ class RedisCacheForDecoratorV1:
                 res = func(re_self, request, *args, **kwds)
                 # 更新缓存版本号的逻辑
                 CacheVersionControl().update(request.path)
+                # 释放操作锁
+                operate_lock.release()
                 return res
             # 否则进行缓存相关的逻辑操作
             '''
