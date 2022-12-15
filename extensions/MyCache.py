@@ -7,6 +7,7 @@ import logging
 import hashlib
 from .MyResponse import MyJsonResponse
 from django.conf import settings
+from functools import wraps
 '''
 装饰器类的第一种写法：__call__ 这个魔术方法，这个方法可以使类实例化后的对象可以像函数一样被调用，然后在这里直接接受被装饰的函数，
     这种方式在使用装饰器类时，是必须带括号的，也就是装饰器类是要被实例化的。具体实现如下
@@ -32,7 +33,7 @@ from django.conf import settings
 class CacheVersionControl:
     '''缓存版本号操作类'''
     
-    def __init__(self, paths: List[str]) -> None:
+    def __init__(self, paths: List[str]=None) -> None:
         self._key = f"cache_version+{NormalObj.to_sha256(settings.SECRET_KEY)}"
         self._cache_dict = RedisHash(self._key)
         self._paths = paths
@@ -71,6 +72,7 @@ class RedisCacheForDecoratorV1:
         
     def __call__(self, func: Callable) -> Callable:
         '''使类实例化后的对象可以直接被当做函数调用，入参就是调用使传入的参数，利用这个可以实现装饰器类，入参就是要装饰的函数'''
+        @wraps(func)
         def warpper(re_self, request, *args: Any, **kwds: Any) -> Any:
             '''进行缓存计算或进行变更操作'''
             path_key = request.path
