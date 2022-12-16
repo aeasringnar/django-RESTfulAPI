@@ -118,4 +118,8 @@ class RedisCacheForDecoratorV1:
                 return pickle.loads(cache_key)
             finally:
                 self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
+                '''
+                django.template.response.ContentNotRenderedError: The response content must be rendered before it can be pickled.s
+                https://www.likecs.com/ask-727438.html#sc=1802
+                '''
         return warpper
