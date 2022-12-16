@@ -75,43 +75,47 @@ class RedisCacheForDecoratorV1:
         @wraps(func)
         def warpper(re_self, request, *args: Any, **kwds: Any) -> Any:
             '''进行缓存计算或进行变更操作'''
-            path_key = request.path
-            operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
-            locked = operate_lock.acquire(timeout=30)
-            if not locked:
-                self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
-                return self._response.data
-            # 加锁成功就执行业务逻辑
-            # 判断是写操作的话，直接执行方法，方法执行完毕后进行更新缓存版本号
-            if self._cache_type == 'w':
-                res = func(re_self, request, *args, **kwds)
-                # 更新缓存版本号的逻辑
-                CacheVersionControl().update(request.path)
-                # 释放操作锁
-                operate_lock.release()
-                return res
-            # 否则进行缓存相关的逻辑操作
-            '''
-            todo list
-            1、计算缓存的key key = 接口path的hash + 请求的参数hash(如果is_public为假，需要加入token来计算哈希) + 接口的缓存版本号
-            2、根据缓存key 来加锁，设置超时时间，超时后先在判断一次缓存是否被生成：如果生成，那就返回缓存结果，否则返回超时。
-            3、如果加锁成功，先判断缓存是否存在，如果不存在就进行 查库 设置缓存，返回。
-            这样能解决：
-                1、高并发下的热点缓存失效，导致的数据库压力激增。
-                2、高并发下的大并发创建缓存问题。
-            '''
-            cache_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
-            cache_lock = RedisLock(self._redis.coon, cache_key+':lock', 'w')
-            locked = cache_lock.acquire(timeout=20)
-            if not locked:
-                # 假设没有获得锁，那么就会因为超时而退出，此时再查一次缓存，如果存在就返回，否则就返回有人在操作。
-                pass
-            # 如果加锁成功，就先查缓存，没有就落库并设置缓存
-            cache_val = self._redis.coon.get(cache_key+':cache')
-            if not cache_val:
-                res = func(re_self, request, *args, **kwds)
+            try:
+                
+                path_key = request.path
+                operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
+                locked = operate_lock.acquire(timeout=30)
+                if not locked:
+                    self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
+                    return self._response.data
+                # 加锁成功就执行业务逻辑
+                # 判断是写操作的话，直接执行方法，方法执行完毕后进行更新缓存版本号
+                if self._cache_type == 'w':
+                    res = func(re_self, request, *args, **kwds)
+                    # 更新缓存版本号的逻辑
+                    CacheVersionControl().update(request.path)
+                    # 释放操作锁
+                    operate_lock.release()
+                    return res
+                # 否则进行缓存相关的逻辑操作
+                '''
+                todo list
+                1、计算缓存的key key = 接口path的hash + 请求的参数hash(如果is_public为假，需要加入token来计算哈希) + 接口的缓存版本号
+                2、根据缓存key 来加锁，设置超时时间，超时后先在判断一次缓存是否被生成：如果生成，那就返回缓存结果，否则返回超时。
+                3、如果加锁成功，先判断缓存是否存在，如果不存在就进行 查库 设置缓存，返回。
+                这样能解决：
+                    1、高并发下的热点缓存失效，导致的数据库压力激增。
+                    2、高并发下的大并发创建缓存问题。
+                '''
+                cache_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
+                cache_lock = RedisLock(self._redis.coon, cache_key+':lock', 'w')
+                locked = cache_lock.acquire(timeout=20)
+                if not locked:
+                    # 假设没有获得锁，那么就会因为超时而退出，此时再查一次缓存，如果存在就返回，否则就返回有人在操作。
+                    pass
+                # 如果加锁成功，就先查缓存，没有就落库并设置缓存
+                cache_val = self._redis.coon.get(cache_key+':cache')
+                if not cache_val:
+                    res = func(re_self, request, *args, **kwds)
+                    
+                    return res
+                cache_lock.release()
+                return pickle.loads(cache_key)
+            finally:
                 self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
-                return res
-            cache_lock.release()
-            return pickle.loads(cache_key)
         return warpper
