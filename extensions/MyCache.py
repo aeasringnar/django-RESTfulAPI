@@ -6,6 +6,7 @@ from utils.Utils import NormalObj
 import logging
 import hashlib
 from .MyResponse import MyJsonResponse
+from rest_framework.response import Response
 from django.conf import settings
 from functools import wraps
 '''
@@ -112,12 +113,33 @@ class RedisCacheForDecoratorV1:
                 cache_val = self._redis.coon.get(cache_key+':cache')
                 if not cache_val:
                     res = func(re_self, request, *args, **kwds)
-                    
+                    response = res
+
+                    response.render()
+
+                    if response.status_code == 200:
+                        # django 3.0 has no .items() method, django 3.2 has no ._headers
+                        if hasattr(response, '_headers'):
+                            headers = response._headers.copy()
+                        else:
+                            headers = {k: (k, v) for k, v in response.items()}
+                        response_triple = (
+                            response.rendered_content,
+                            response.status_code,
+                            headers
+                        )
+                        self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
                     return res
+                content, status, headers = pickle.loads(cache_val)
                 cache_lock.release()
-                return pickle.loads(cache_key)
+                return Response(data=content, status=status, headers=headers)
+            except Exception as e:
+                logging.exception(e)
+                self._response.update(status=500, message=f"MyCache Error: {e}", erroCode=2)
+                return self._response.data
             finally:
-                self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
+                pass
+                # self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
                 '''
                 django.template.response.ContentNotRenderedError: The response content must be rendered before it can be pickled.s
                 https://www.likecs.com/ask-727438.html#sc=1802
