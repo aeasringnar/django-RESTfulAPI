@@ -113,22 +113,32 @@ class RedisCacheForDecoratorV1:
                 cache_val = self._redis.coon.get(cache_key+':cache')
                 if not cache_val:
                     res = func(re_self, request, *args, **kwds)
-                    response = res
+                    
+                    queryset = re_self.filter_queryset(re_self.get_queryset())
 
-                    response.render()
+                    page = re_self.paginate_queryset(queryset)
+                    if page is not None:
+                        serializer = re_self.get_serializer(page, many=True)
+                        res = re_self.get_paginated_response(serializer.data)
 
-                    if response.status_code == 200:
-                        # django 3.0 has no .items() method, django 3.2 has no ._headers
-                        if hasattr(response, '_headers'):
-                            headers = response._headers.copy()
-                        else:
-                            headers = {k: (k, v) for k, v in response.items()}
-                        response_triple = (
-                            response.rendered_content,
-                            response.status_code,
-                            headers
-                        )
-                        self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
+                    # serializer = re_self.get_serializer(queryset, many=True)
+                    # new_res = Response(serializer.data)
+                    # response = res
+
+                    # response.render()
+
+                    # if response.status_code == 200:
+                    #     # django 3.0 has no .items() method, django 3.2 has no ._headers
+                    #     if hasattr(response, '_headers'):
+                    #         headers = response._headers.copy()
+                    #     else:
+                    #         headers = {k: (k, v) for k, v in response.items()}
+                    #     response_triple = (
+                    #         response.rendered_content,
+                    #         response.status_code,
+                    #         headers
+                    #     )
+                    #     self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
                     return res
                 content, status, headers = pickle.loads(cache_val)
                 cache_lock.release()
