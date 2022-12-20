@@ -123,22 +123,22 @@ class RedisCacheForDecoratorV1:
 
                     # serializer = re_self.get_serializer(queryset, many=True)
                     # new_res = Response(serializer.data)
-                    # response = res
+                    response = res
 
                     # response.render()
 
-                    # if response.status_code == 200:
-                    #     # django 3.0 has no .items() method, django 3.2 has no ._headers
-                    #     if hasattr(response, '_headers'):
-                    #         headers = response._headers.copy()
-                    #     else:
-                    #         headers = {k: (k, v) for k, v in response.items()}
-                    #     response_triple = (
-                    #         response.rendered_content,
-                    #         response.status_code,
-                    #         headers
-                    #     )
-                    #     self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
+                    if response.status_code == 200:
+                        # django 3.0 has no .items() method, django 3.2 has no ._headers
+                        if hasattr(response, '_headers'):
+                            headers = response._headers.copy()
+                        else:
+                            headers = {k: (k, v) for k, v in response.items()}
+                        response_triple = (
+                            response.data,
+                            response.status_code,
+                            headers
+                        )
+                        self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
                     return res
                 content, status, headers = pickle.loads(cache_val)
                 cache_lock.release()
@@ -149,9 +149,4 @@ class RedisCacheForDecoratorV1:
                 return self._response.data
             finally:
                 pass
-                # self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(res))
-                '''
-                django.template.response.ContentNotRenderedError: The response content must be rendered before it can be pickled.s
-                https://www.likecs.com/ask-727438.html#sc=1802
-                '''
         return warpper
