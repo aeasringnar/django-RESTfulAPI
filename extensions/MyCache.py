@@ -103,32 +103,24 @@ class RedisCacheForDecoratorV1:
                     1、高并发下的热点缓存失效，导致的数据库压力激增。
                     2、高并发下的大并发创建缓存问题。
                 '''
-                cache_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
-                cache_lock = RedisLock(self._redis.coon, cache_key+':lock', 'w')
+                cache_base_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
+                target_cache_key = cache_base_key+':cache'
+                cache_lock = RedisLock(self._redis.coon, cache_base_key+':lock', 'w')
                 locked = cache_lock.acquire(timeout=20)
                 if not locked:
                     # 假设没有获得锁，那么就会因为超时而退出，此时再查一次缓存，如果存在就返回，否则就返回有人在操作。
-                    pass
+                    cache_val = self._redis.coon.get(target_cache_key)
+                    if cache_val:
+                        content, status, headers = pickle.loads(cache_val)
+                        return Response(data=content, status=status, headers=headers)
+                    self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
+                    return self._response.data
                 # 如果加锁成功，就先查缓存，没有就落库并设置缓存
-                cache_val = self._redis.coon.get(cache_key+':cache')
+                cache_val = self._redis.coon.get(target_cache_key)
                 if not cache_val:
-                    res = func(re_self, request, *args, **kwds)
+                    response = func(re_self, request, *args, **kwds)
                     
-                    queryset = re_self.filter_queryset(re_self.get_queryset())
-
-                    page = re_self.paginate_queryset(queryset)
-                    if page is not None:
-                        serializer = re_self.get_serializer(page, many=True)
-                        res = re_self.get_paginated_response(serializer.data)
-
-                    # serializer = re_self.get_serializer(queryset, many=True)
-                    # new_res = Response(serializer.data)
-                    response = res
-
-                    # response.render()
-
                     if response.status_code == 200:
-                        # django 3.0 has no .items() method, django 3.2 has no ._headers
                         if hasattr(response, '_headers'):
                             headers = response._headers.copy()
                         else:
@@ -138,8 +130,9 @@ class RedisCacheForDecoratorV1:
                             response.status_code,
                             headers
                         )
-                        self._redis.coon.setex(cache_key+':cache', 5*60, pickle.dumps(response_triple))
-                    return res
+                        self._redis.coon.setex(target_cache_key, self._cache_timeout, pickle.dumps(response_triple))
+                    cache_lock.release()
+                    return response
                 content, status, headers = pickle.loads(cache_val)
                 cache_lock.release()
                 return Response(data=content, status=status, headers=headers)
@@ -147,6 +140,4 @@ class RedisCacheForDecoratorV1:
                 logging.exception(e)
                 self._response.update(status=500, message=f"MyCache Error: {e}", erroCode=2)
                 return self._response.data
-            finally:
-                pass
         return warpper
