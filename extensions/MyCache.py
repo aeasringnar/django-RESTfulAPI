@@ -63,12 +63,12 @@ class CacheVersionControl:
 class RedisCacheForDecoratorV1:
     '''第一版本的缓存装饰器类'''
     
-    def __init__(self, cache_type: str, cache_timeout: int, is_public: bool) -> None:
+    def __init__(self, cache_type: str, cache_timeout: int) -> None:
         '''装饰器类同样是一个类，它拥有类的特性，因此我们可以在装饰时设定一些参数，方便在装饰器中做一些特殊操作'''
         self._redis = RedisCli()
         self._cache_type = cache_type
         self._cache_timeout = cache_timeout
-        self._is_public = is_public
+        self._is_public = True
         self._response = MyJsonResponse()
         
     def __call__(self, func: Callable) -> Callable:
@@ -77,7 +77,8 @@ class RedisCacheForDecoratorV1:
         def warpper(re_self, request, *args: Any, **kwds: Any) -> Any:
             '''进行缓存计算或进行变更操作'''
             try:
-                
+                if hasattr(re_self, 'is_public'):
+                    self._is_public = getattr(re_self, 'is_public')
                 path_key = request.path
                 operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
                 locked = operate_lock.acquire(timeout=30)
@@ -103,7 +104,8 @@ class RedisCacheForDecoratorV1:
                     1、高并发下的热点缓存失效，导致的数据库压力激增。
                     2、高并发下的大并发创建缓存问题。
                 '''
-                cache_base_key = NormalObj.to_sha256(f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}")
+                payload = f"{request.path}+{request.GET}+{CacheVersionControl().get(request.path)}"
+                cache_base_key = NormalObj.to_sha256(payload) if self._is_public else NormalObj.to_sha256(f"{payload}+{request.user}")
                 target_cache_key = cache_base_key+':cache'
                 cache_lock = RedisLock(self._redis.coon, cache_base_key+':lock', 'w')
                 locked = cache_lock.acquire(timeout=20)
