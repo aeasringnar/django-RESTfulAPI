@@ -31,6 +31,7 @@ from extensions.Throttle import VisitThrottle
 from extensions.MyResponse import MyJsonResponse
 from extensions.JwtAuth import JwtAuthentication
 from extensions.Permission import IsAuthPermission
+from extensions.MyCache import RedisCacheForDecoratorV1
 from PIL import Image
 from extensions.BaseSerializer import NormalResponseSerializer
 from .models import *
@@ -114,7 +115,8 @@ class GetAllEnumDataView(GenericAPIView):
     
     def get_serializer_class(self):
         return GetAllEnumDataResponse
-
+    
+    @RedisCacheForDecoratorV1('r')
     def get(self, request):
         '''获取所有枚举类型的数据'''
         res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
