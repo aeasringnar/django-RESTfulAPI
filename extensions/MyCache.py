@@ -63,7 +63,7 @@ class CacheVersionControl:
 class RedisCacheForDecoratorV1:
     '''第一版本的缓存装饰器类'''
     
-    def __init__(self, cache_type: str, cache_timeout: int) -> None:
+    def __init__(self, cache_type: str, cache_timeout: int=300) -> None:
         '''装饰器类同样是一个类，它拥有类的特性，因此我们可以在装饰时设定一些参数，方便在装饰器中做一些特殊操作'''
         self._redis = RedisCli()
         self._cache_type = cache_type
