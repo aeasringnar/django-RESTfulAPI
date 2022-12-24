@@ -99,10 +99,10 @@ class AdminLoginView(GenericAPIView):
         password = serializer.data.get("password")
         user = User.objects.filter(username=username).first()
         if not user:
-            res.update(message="User not found.", errorCode=2)
+            res.update(msg="User not found.", code=2)
             return res.data
         if user.password != password:
-            res.update(message="Wrong password.", errorCode=2)
+            res.update(msg="Wrong password.", code=2)
             return res.data
         user.jwt_version += 1 
         payload = {

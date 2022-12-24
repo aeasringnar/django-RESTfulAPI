@@ -126,7 +126,7 @@ class TestView(APIView):
     
     def get(self, request):
         # 使用 gettext_lazy 标记需要翻译的文本
-        res = MyJsonResponse(res_data={'message': gettext_lazy('test success')})
+        res = MyJsonResponse(res_data={'msg': gettext_lazy('test success')})
         return res.data
 ```
 

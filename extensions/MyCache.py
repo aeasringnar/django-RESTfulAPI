@@ -83,7 +83,7 @@ class RedisCacheForDecoratorV1:
                 operate_lock = RedisLock(self._redis.coon, path_key, self._cache_type)
                 locked = operate_lock.acquire(timeout=30)
                 if not locked:
-                    self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
+                    self._response.update(status=400, msg="Another user is operating, please try again later.", code=2)
                     return self._response.data
                 # 加锁成功就执行业务逻辑
                 # 判断是写操作的话，直接执行方法，方法执行完毕后进行更新缓存版本号
@@ -115,7 +115,7 @@ class RedisCacheForDecoratorV1:
                     if cache_val:
                         content, status, headers = pickle.loads(cache_val)
                         return Response(data=content, status=status, headers=headers)
-                    self._response.update(status=400, message="Another user is operating, please try again later.", erroCode=2)
+                    self._response.update(status=400, msg="Another user is operating, please try again later.", code=2)
                     return self._response.data
                 # 如果加锁成功，就先查缓存，没有就落库并设置缓存
                 cache_val = self._redis.coon.get(target_cache_key)
@@ -140,6 +140,6 @@ class RedisCacheForDecoratorV1:
                 return Response(data=content, status=status, headers=headers)
             except Exception as e:
                 logging.exception(e)
-                self._response.update(status=500, message=f"MyCache Error: {e}", erroCode=2)
+                self._response.update(status=500, msg=f"MyCache Error: {e}", code=2)
                 return self._response.data
         return warpper

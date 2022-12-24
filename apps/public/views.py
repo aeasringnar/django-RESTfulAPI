@@ -61,10 +61,10 @@ class UploadLocalFileView(APIView):
             file_size = up_file.size
             check_file = os.path.splitext(file_name)[1]
             if check_file[1:].lower() not in settings.IMAGE_FILE_CHECK:
-                res.update(message='{} Not the specified type, allow type({})! '.format(file_name, '/'.join(settings.IMAGE_FILE_CHECK)), errorCode=2)
+                res.update(msg='{} Not the specified type, allow type({})! '.format(file_name, '/'.join(settings.IMAGE_FILE_CHECK)), code=2)
                 return res.data
             if file_size > settings.IMAGE_FILE_SIZE:
-                res.update(message="{} file more than {} mb, Can't upload! ".format(file_name, settings.IMAGE_FILE_SIZE / 1024 / 1024), errorCode=2)
+                res.update(msg="{} file more than {} mb, Can't upload! ".format(file_name, settings.IMAGE_FILE_SIZE / 1024 / 1024), code=2)
                 return res.data
             # 创建当月的目录
             base_dir = os.path.join(settings.UPLOAD_DIR, datetime.now().strftime('%Y-%m-%d'))
@@ -88,12 +88,12 @@ class UploadLocalFileView(APIView):
             return res.data
         except StopIteration as e:
             logging.exception(e)
-            res.update(message="File not uploaded", errorCode=2)
+            res.update(msg="File not uploaded", code=2)
             return res.data
         except Exception as e:
             logging.error('happen error: %s' % e)
             logging.exception(e)
-            res.update(message="An unexpected view error occurred: {}".format(e), errorCode=1)
+            res.update(msg="An unexpected view error occurred: {}".format(e), code=1)
             return res.data
 
 
@@ -104,7 +104,7 @@ class TestView(APIView):
     
     def get(self, request):
         '''测试接口'''
-        res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
+        res = MyJsonResponse(res_data={'msg': gettext_lazy('测试成功')})
         return res.data
 
 
@@ -119,7 +119,7 @@ class GetAllEnumDataView(GenericAPIView):
     @RedisCacheForDecoratorV1('r')
     def get(self, request):
         '''获取所有枚举类型的数据'''
-        res = MyJsonResponse(res_data={'message': gettext_lazy('测试成功')})
+        res = MyJsonResponse(res_data={'msg': gettext_lazy('测试成功')})
         import importlib
         import inspect
         apps = [item for item in settings.INSTALLED_APPS if item.startswith('apps')]

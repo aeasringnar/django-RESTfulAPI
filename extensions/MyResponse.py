@@ -5,8 +5,8 @@ class MyJsonResponse:
     
     def __init__(self, res_data: dict={}, status: int=200, headers=None) -> None:
         self.__res_format = {
-            "message": 'ok',
-            "errorCode": 0,
+            "msg": 'ok',
+            "code": 0,
             "data": {}
         }
         self.__status = status

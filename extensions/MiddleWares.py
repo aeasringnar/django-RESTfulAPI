@@ -55,12 +55,12 @@ class LogMiddleware(MiddlewareMixin):
                 logging.info(f"删除请求的地址：{request.path}，执行用户：{request.user}")
         except Exception as e:
             logging.error('未知错误：%s' % str(e))
-            return JsonResponse({"message": "请求日志输出异常：%s" % e, "errorCode": 1, "data": {}})
+            return JsonResponse({"msg": "请求日志输出异常：%s" % e, "code": 1, "data": {}})
 
     def process_exception(self, request, exception):
         logging.error('发生错误的请求地址：{}；错误原因：{}；错误详情：'.format(request.path, str(exception)))
         logging.exception(exception)
-        return JsonResponse({"message": "An unexpected view error occurred: %s" % exception.__str__(), "errorCode": 1, "data": {}})
+        return JsonResponse({"msg": "An unexpected view error occurred: %s" % exception.__str__(), "code": 1, "data": {}})
     
     def process_response(self, request, response):
         if settings.SHOWSQL:
@@ -81,24 +81,24 @@ class PermissionMiddleware(MiddlewareMixin):
                 # print('查看秘钥：', cache.get(auth_key))
                 if cache.get(auth_key):
                     logging.info('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
-                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                    return JsonResponse({"msg": "非法访问！已禁止操作！" , "code": 10, "data": {}})
                 # 先解密
                 target_obj = ECBCipher(settings.AES_KEY)
                 target_key = target_obj.decrypted(auth_key)
                 # 无法解密时直接禁止访问
-                if not target_key: return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                if not target_key: return JsonResponse({"msg": "非法访问！已禁止操作！" , "code": 10, "data": {}})
                 # 解密成功后
                 # 设置一个redis 记录当前时间戳
                 time_int = int(time.time()) # 记录秒
                 target_time, backend_key, random_str = target_key.split('+')
-                if backend_key not in settings.DISPATCH_KEYS: return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                if backend_key not in settings.DISPATCH_KEYS: return JsonResponse({"msg": "非法访问！已禁止操作！" , "code": 10, "data": {}})
                 if (time_int - int(int(target_time) / 1000)) > settings.INTERFACE_TIMEOUT:
                     logging.info('发现秘钥被多次使用，应当记录ip加入预备黑名单。')
-                    return JsonResponse({"message": "非法访问！已禁止操作！" , "errorCode": 10, "data": {}})
+                    return JsonResponse({"msg": "非法访问！已禁止操作！" , "code": 10, "data": {}})
                 cache.set(auth_key, "true", timeout=settings.INTERFACE_TIMEOUT)
                 pass
             else:
-                return JsonResponse({"message": "接口秘钥未找到！禁止访问！" , "errorCode": 10, "data": {}})
+                return JsonResponse({"msg": "接口秘钥未找到！禁止访问！" , "code": 10, "data": {}})
 
 
 class DevelopSecurityInterFaceMiddleware(MiddlewareMixin):
@@ -111,7 +111,7 @@ class DevelopSecurityInterFaceMiddleware(MiddlewareMixin):
         rip = request.META.get('REMOTE_ADDR')
         ip = request.META.get('HTTP_X_FORWARDED_FOR')
         if (rip not in white_ips and ip not in white_ips):
-            return JsonResponse({"message": "bad request." , "errorCode": 11, "data": {}}, status=400)
+            return JsonResponse({"msg": "bad request." , "code": 11, "data": {}}, status=400)
 
 
 class FormatReturnJsonMiddleware(MiddlewareMixin):
@@ -119,16 +119,12 @@ class FormatReturnJsonMiddleware(MiddlewareMixin):
     
     def process_response(self, request, response):
         try:
-            # print('-'*128)
-            # print(response.reason_phrase)
-            # print(type(response))
-            # print(dir(response))
             if isinstance(response, HttpResponseNotFound): 
-                return JsonResponse({"message": response.reason_phrase, "errorCode": 2,"data": {}}, status=response.status_code)
+                return JsonResponse({"msg": response.reason_phrase, "code": 2,"data": {}}, status=response.status_code)
             if isinstance(response, HttpResponseServerError): 
-                return JsonResponse({"message": response.reason_phrase, "errorCode": 1,"data": {}}, status=response.status_code)
+                return JsonResponse({"msg": response.reason_phrase, "code": 1,"data": {}}, status=response.status_code)
             if response.status_code == 204 : 
-                return JsonResponse({"message": 'delete success', "errorCode": 0,"data": {}}, status=status.HTTP_200_OK)
+                return JsonResponse({"msg": 'delete success', "code": 0,"data": {}}, status=status.HTTP_200_OK)
             # print('-'*128)
         except Exception as e:
             logging.exception(e)

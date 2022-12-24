@@ -41,8 +41,8 @@ def base_exception_handler(exc, context):
         new_data = json.loads(json.dumps(response.data))
         msg = handle_re_str(new_data)[:-2]
         code = 0 if response.status_code == 200 else 2
-        return MyJsonResponse({"message": msg, "errorCode": code}, status=status.HTTP_200_OK).data
+        return MyJsonResponse({"msg": msg, "code": code}, status=status.HTTP_200_OK).data
     logging.error('未处理的异常')
     logging.exception(exc)
     error_msg.append("未处理的异常")
-    return MyJsonResponse({"message": str(exc), "errorCode": 1}, status=status.HTTP_200_OK).data
+    return MyJsonResponse({"msg": str(exc), "code": 1}, status=status.HTTP_200_OK).data
