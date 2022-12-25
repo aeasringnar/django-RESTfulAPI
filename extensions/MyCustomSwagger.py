@@ -6,6 +6,7 @@ from drf_yasg import openapi
 from collections import OrderedDict
 from rest_framework.pagination import CursorPagination, LimitOffsetPagination, PageNumberPagination
 from drf_yasg.inspectors.base import PaginatorInspector
+from extensions.MyCache import CacheVersionControl
 
 
 class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
@@ -24,6 +25,9 @@ class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
                 'description': '公共接口'
             },
         ]
+        # 在这里初始化缓存版本号
+        paths = list(swagger.paths.keys())
+        CacheVersionControl(paths=paths).init_data()
         return swagger
 
 
