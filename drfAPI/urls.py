@@ -18,6 +18,8 @@ from django.urls import path, include, re_path
 from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from extensions.MyCache import CacheVersionControl
+from configs.swagger import get_all_url
 
 
 schema_view = get_schema_view(
@@ -41,3 +43,6 @@ urlpatterns = [
     path('user/', include("apps.user.urls"), name="用户管理"),
     path('public/', include("apps.public.urls"), name="public")
 ]
+CacheVersionControl(['/test/']).init_data()
+for item in list(get_all_url()):
+    print(item)

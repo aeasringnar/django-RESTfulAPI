@@ -26,8 +26,8 @@ class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
             },
         ]
         # 在这里初始化缓存版本号
-        paths = list(swagger.paths.keys())
-        CacheVersionControl(paths=paths).init_data()
+        # paths = list(swagger.paths.keys())
+        # CacheVersionControl(paths=paths).init_data()
         return swagger
 
 

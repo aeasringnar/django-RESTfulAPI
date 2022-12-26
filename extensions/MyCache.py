@@ -50,6 +50,7 @@ class CacheVersionControl:
     
     def init_data(self):
         '''初始化缓存版本数据'''
+        print(f"初始化缓存版本号：{'>'*128}")
         if not self._cache_dict.is_empty:
             self._cache_dict.clear()
         for path in self._paths:
