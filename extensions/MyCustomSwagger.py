@@ -7,7 +7,13 @@ from collections import OrderedDict
 from rest_framework.pagination import CursorPagination, LimitOffsetPagination, PageNumberPagination
 from drf_yasg.inspectors.base import PaginatorInspector
 from extensions.MyCache import CacheVersionControl
-from django.urls import get_resolver
+from django.urls import get_resolver, URLPattern, URLResolver
+
+
+def get_urlresoler():
+    for r in get_resolver().url_patterns:
+        if isinstance(r, URLResolver):
+            yield str(r.pattern).replace('^', '').replace('$', '').replace('/', ''), r.namespace
 
 
 class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
@@ -18,16 +24,10 @@ class BaseOpenAPISchemaGenerator(OpenAPISchemaGenerator):
         swagger = super().get_schema(request, public)
         swagger.tags = [
             {
-                'name': 'user',
-                'description': '用户管理接口'
-            },
-            {
-                'name': 'public',
-                'description': '公共接口'
-            },
+                'name': item[0],
+                'description': item[1]
+            } for item in get_urlresoler()
         ]
-        for item in get_resolver():
-            print(item)
         # 在这里初始化缓存版本号
         # paths = list(swagger.paths.keys())
         # CacheVersionControl(paths=paths).init_data()

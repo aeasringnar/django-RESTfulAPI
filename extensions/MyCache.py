@@ -1,4 +1,5 @@
 from typing import *
+import time
 import pickle
 from utils.RedisLockNew import RedisLock
 from utils.RedisCli import RedisCli, RedisHash
@@ -41,7 +42,8 @@ class CacheVersionControl:
     
     def update(self, key: str) -> bool:
         '''更新某个path的缓存版本号'''
-        data = self._cache_dict.get(key, 0)
+        # 每次项目运行时都将初始化一个缓存版本号，默认使用当前时间戳作为起始版本号，以保证每次初始化的版本号不同
+        data = self._cache_dict.get(key, int(time.time()))
         data += 1
         return bool(self._cache_dict.setdefault(key, data))
     

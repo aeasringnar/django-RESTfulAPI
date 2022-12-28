@@ -41,11 +41,9 @@ urlpatterns = [
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('user/', include(("apps.user.urls", '用户管理')), name="用户管理"),
-    path('public/', include(("apps.public.urls", '公共接口')), name="public")
+    path('public/', include(("apps.public.urls", '公共接口')), name="公共接口")
 ]
-CacheVersionControl(['/test/']).init_data()
-for item in list(get_all_url()):
-    print(item)
 
-for item in urlpatterns:
-    print(item)
+# 初始化缓存版本号
+all_paths = [item[0] for item in get_all_url()]
+CacheVersionControl(all_paths).init_data()
