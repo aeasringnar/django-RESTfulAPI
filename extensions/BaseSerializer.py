@@ -16,6 +16,6 @@ class BaseModelSerializer(serializers.Serializer):
 
 
 class NormalResponseSerializer(serializers.Serializer):
-    data = serializers.JSONField(required=True, label="返回数据")
-    msg = serializers.CharField(required=True, label="返回描述")
-    code = serializers.CharField(required=True, label="异常错误码")
+    data = serializers.JSONField(required=True, label="响应数据")
+    msg = serializers.CharField(required=True, label="响应描述")
+    code = serializers.IntegerField(required=True, label="响应状态码")

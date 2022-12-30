@@ -28,6 +28,7 @@ from extensions.Throttle import VisitThrottle
 from extensions.MyResponse import MyJsonResponse
 from extensions.JwtAuth import JwtAuthentication
 from extensions.Permission import IsAuthPermission
+from extensions.MyCacheViewset import MyModelViewSet
 from .models import *
 from .serializers import *
 from .tasks import *
@@ -35,7 +36,7 @@ from .tasks import *
 # 不建议导入所有，建议按需导入
 
 
-class UserViewSet(ModelViewSet):
+class UserViewSet(MyModelViewSet):
     '''
     partial_update:  更新指定ID的用户，局部更新
     create:  创建用户

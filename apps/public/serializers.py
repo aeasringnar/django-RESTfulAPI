@@ -14,14 +14,14 @@ from django.contrib.auth.hashers import check_password, make_password
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField, ModelSerializer
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-from extensions.BaseSerializer import BaseModelSerializer
+from extensions.BaseSerializer import BaseModelSerializer, NormalResponseSerializer
 from .models import ConfDict
 # from .tasks import *
 from drf_yasg import openapi
 
 
-class GetAllEnumDataResponse(serializers.Serializer):
-    data = serializers.DictField()
+class GetAllEnumDataResponse(NormalResponseSerializer):
+    pass
     
 
 UploadParameter = [

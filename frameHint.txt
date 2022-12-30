@@ -320,6 +320,14 @@
     内置信号文档：https://docs.djangoproject.com/zh-hans/3.2/ref/signals/
     定义和发送信号：https://docs.djangoproject.com/zh-hans/3.2/topics/signals/#defining-and-sending-signals
 
+5、如何使用自定义缓存
+    什么是自定义缓存：
+    本项目实现了一个动态缓存装饰器，可以用来装饰视图函数，并写了一个基于缓存的viewset类，可以实现接口完全基于缓存，获取数据时只有首次是查库，剩余的都是存在缓存中，只有发生变更时才会更新缓存。
+    实现方案：
+        1、对所有请求加锁，并且进行读写分离加锁，互斥锁，当有读请求时，会阻塞写操作，同读不阻塞。
+        2、第一次请求后，会根据请求的参数生成一个指纹，会将这个请求缓存起来，直到发生写操作才将缓存失效，失效后，当新的查询请求结束后会设置上新的缓存。如此往复。
+        3、对于CRUD操作，可以直接继承内置的MyViewSet来实现。对于自定义的接口，可以通过缓存装饰器来实现。
+
 
 # 针对序列化器的详细示例：
 from rest_framework import serializers

@@ -113,9 +113,7 @@ class GetAllEnumDataView(GenericAPIView):
     permission_classes = (AllowAny, )
     throttle_classes = (VisitThrottle, )
     
-    def get_serializer_class(self):
-        return GetAllEnumDataResponse
-    
+    @swagger_auto_schema(responses={200: GetAllEnumDataResponse})
     @RedisCacheForDecoratorV1('r')
     def get(self, request):
         '''获取所有枚举类型的数据'''
