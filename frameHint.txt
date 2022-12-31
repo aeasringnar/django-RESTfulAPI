@@ -329,6 +329,50 @@
         3、对于CRUD操作，可以直接继承内置的MyViewSet来实现。对于自定义的接口，可以通过缓存装饰器来实现。
 
 
+# 针对自定义缓存的示例：
+from extensions.MyCacheViewset import MyModelViewSet
+class UserViewSet(MyModelViewSet): # 基于自定义缓存的ViewSet类
+    '''
+    partial_update:  更新指定ID的用户，局部更新
+    create:  创建用户
+    retrieve:  检索指定ID的用户
+    update:  更新指定ID的用户
+    destroy:  删除指定ID的用户
+    list:  获取用户列表
+    '''
+    queryset = User.objects.filter()
+    serializer_class = UserViewsetSerializer
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    pagination_class = Pagination
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    search_fields = ('name', 'desc') # 注意 要针对有索引的字段进行搜索
+    # filterset_fields = ('status', )
+    ordering_fields = ('id', 'create_timestamp', 'update_timestamp', 'sort_timestamp')
+    is_public = True # 针对自定义缓存的一个配置项，如果为真表示这个是公共接口不会根据用户id来设置缓存，否则会根据用户id来设置缓存key
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreateUserViewsetSerializer
+        if self.action in {'update', 'partial_update'}:
+            return UpdateUserViewsetSerializer
+        return ReturnUserViewsetSerializer
+
+class GetAllEnumDataView(GenericAPIView):
+    authentication_classes = (JwtAuthentication, )
+    permission_classes = (AllowAny, )
+    throttle_classes = (VisitThrottle, )
+    
+    @swagger_auto_schema(responses={200: GetAllEnumDataResponse})
+    @RedisCacheForDecoratorV1('r')
+    def get(self, request):
+        '''针对自定义的视图方法使用自定义的缓存装饰器类'''
+        res = MyJsonResponse(res_data={'msg': gettext_lazy('测试成功')})
+        pass
+        return res.data
+
+
 # 针对序列化器的详细示例：
 from rest_framework import serializers
 def get_ObjectFlow(type):

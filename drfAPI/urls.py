@@ -20,6 +20,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from extensions.MyCache import CacheVersionControl
 from configs.swagger import get_all_url
+from django.conf import settings
 
 
 schema_view = get_schema_view(
@@ -36,10 +37,6 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('user/', include(("apps.user.urls", '用户管理')), name="用户管理"),
     path('public/', include(("apps.public.urls", '公共接口')), name="公共接口")
 ]
@@ -47,3 +44,10 @@ urlpatterns = [
 # 初始化缓存版本号
 all_paths = [item[0] for item in get_all_url()]
 CacheVersionControl(all_paths).init_data()
+
+if settings.CURRENT_ENV == "dev":
+    urlpatterns += [
+        re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+        re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+        re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    ]
