@@ -2,11 +2,6 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.utils import filter_none, force_real_str
 from drf_yasg.openapi import Operation
-from drf_yasg import openapi
-from collections import OrderedDict
-from rest_framework.pagination import CursorPagination, LimitOffsetPagination, PageNumberPagination
-from drf_yasg.inspectors.base import PaginatorInspector
-from extensions.MyCache import CacheVersionControl
 from django.urls import get_resolver, URLPattern, URLResolver
 
 

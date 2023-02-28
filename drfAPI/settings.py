@@ -236,10 +236,9 @@ SWAGGER_SETTINGS = {
     'DEFAULT_GENERATOR_CLASS': 'extensions.MyCustomSwagger.BaseOpenAPISchemaGenerator',
     # 'DEFAULT_AUTO_SCHEMA_CLASS': 'configs.swagger.CustomSwaggerAutoSchema',
     'DEFAULT_AUTO_SCHEMA_CLASS': 'extensions.MyCustomSwagger.MySwaggerAutoSchema',
-    # 'DEFAULT_PAGINATOR_INSPECTORS': [
-    #     'drf_yasg.inspectors.MyDjangoRestResponsePagination',
-    #     'drf_yasg.inspectors.CoreAPICompatInspector',
-    # ],
+    'DEFAULT_PAGINATOR_INSPECTORS': [
+        'extensions.MyCustomPagResponse.MyDjangoRestResponsePagination',
+    ],
     'USE_SESSION_AUTH': False,
     # 'SHOW_EXTENSIONS': False,
     'DOC_EXPANSION': 'none',
