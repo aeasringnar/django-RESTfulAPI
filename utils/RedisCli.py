@@ -85,7 +85,7 @@ class RedisHash(object):
     
     def __getitem__(self, key: str) -> Any:
         '''通过 d['key'] 来获取值'''
-        self._check_key()
+        self._check_key(key)
         return self.get(key)
     
     def __setitem__(self, key: str, data: Any) -> Any:
@@ -94,7 +94,7 @@ class RedisHash(object):
     
     def __delitem__(self, key: str) -> bool:
         '''通过 del d['key'] 来删除值'''
-        self._check_key()
+        self._check_key(key)
         return bool(self._conn.hdel(self._data_key, key))
     
     def values(self) -> List[Any]:
