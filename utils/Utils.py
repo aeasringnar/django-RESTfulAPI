@@ -4,6 +4,7 @@ import random
 import hashlib
 from uuid import uuid1
 from datetime import datetime
+from typing import Union
 '''
 Python中UUID的区别
 uuid1(node=None, clock_seq=None) 根据主机 ID、序列号和当前时间生成一个 UUID。 如果没有给出 node，则使用 getnode() 来获取硬件地址。
@@ -54,3 +55,25 @@ class NormalObj:
         s = 2 * math.asin(math.sqrt(math.pow(math.sin(a/2), 2) + math.cos(radLat1) * math.cos(radLat2) * math.pow(math.sin(b/2), 2)))
         s = s * 6378.137
         return s
+    
+    @staticmethod
+    def check_number_divisible(dividend: Union[float, int], divisor: Union[float, int]):
+        '''检查被除数是否能被除数除尽'''
+        mod = dividend % divisor
+        mod_set = set()
+        while mod != 0 or mod in mod_set:
+            tmp_mod = mod
+            print(tmp_mod)
+            if mod * 10 > divisor:
+                mod = (mod * 10) % divisor
+            else:
+                mod = (mod * 10 ** (len(str(divisor)) + 1)) % divisor
+            print(mod)
+            mod_set.add(tmp_mod)
+        if mod == 0:
+            return True
+        return False
+
+
+if __name__ == "__main__":
+    print(NormalObj.check_number_divisible(10, 2))
