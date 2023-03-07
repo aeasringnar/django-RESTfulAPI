@@ -1,5 +1,6 @@
 import math
 import hmac
+import time
 import random
 import hashlib
 from uuid import uuid1
@@ -61,19 +62,16 @@ class NormalObj:
         '''检查被除数是否能被除数除尽'''
         mod = dividend % divisor
         mod_set = set()
-        while mod != 0 or mod in mod_set:
-            tmp_mod = mod
-            print(tmp_mod)
+        while mod != 0 and mod not in mod_set:
+            mod_set.add(mod)
             if mod * 10 > divisor:
                 mod = (mod * 10) % divisor
             else:
-                mod = (mod * 10 ** (len(str(divisor)) + 1)) % divisor
-            print(mod)
-            mod_set.add(tmp_mod)
+                mod = (mod * 10 ** len(str(divisor))) % divisor
         if mod == 0:
             return True
         return False
 
 
 if __name__ == "__main__":
-    print(NormalObj.check_number_divisible(10, 2))
+    print(NormalObj.check_number_divisible(4950, 156))

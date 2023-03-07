@@ -21,8 +21,8 @@ class BigDataFilterManager(Manager):
     def all(self, filter_time=None):
         if filter_time:
             if ',' in filter_time:
-                start_time = MyDateTime.datetime_timestamp(datetime.strptime(filter_time.split(',')[0] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
-                end_time = MyDateTime.datetime_timestamp(datetime.strptime(filter_time.split(',')[1] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
+                start_time = MyDateTime.datetime_to_timestamp(datetime.strptime(filter_time.split(',')[0] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
+                end_time = MyDateTime.datetime_to_timestamp(datetime.strptime(filter_time.split(',')[1] + '-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
                 return super().all().filter(create_timestamp__gte=start_time, update_timestamp__lte=end_time)
             return super().all()
         return super().all()
@@ -72,7 +72,7 @@ class SoftDeleteHelper():
         query = sql.UpdateQuery(model)
         pks = [obj.pk for obj in instances]
         query.update_batch(pks,
-                           {'deleted': deleted, 'update_timestamp': MyDateTime.datetime_timestamp(datetime.now())}, self.using)
+                           {'deleted': deleted, 'update_timestamp': MyDateTime.datetime_to_timestamp(datetime.now())}, self.using)
 
     def sql_hard_delete(self, model, instances):
         query = sql.DeleteQuery(model)

@@ -17,7 +17,7 @@ class TimestampField(BigIntegerField):
     
     def pre_save(self, model_instance, add):
         if self.auto_now or (self.auto_now_add and add):
-            value = MyDateTime.datetime_timestamp(datetime.now())
+            value = MyDateTime.datetime_to_timestamp(datetime.now())
             setattr(model_instance, self.attname, value)
             return value
         else:
